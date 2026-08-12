@@ -1,0 +1,11 @@
+﻿기능,API Endpoint,HTTP method,메모,파트
+브랜드 관리자 대시보드 (B2B),/api/v1/admin/*,GET,집계·코호트 중심. 개별 사용자 추적 X. 기업에 파는 화면,Admin
+관리자 로그인,/api/v1/admin/auth,POST,/admin/* 호출에 필요한 Bearer 토큰 발급,Admin
+컨텍스트 챗봇 (AI ①),/api/v1/chat,POST,OpenAI. 상품 정보로 프롬프트 구성 → 스트리밍. 대화에서 취향·구매의도 추출,Chat
+관람 종료 & 리포트 생성 (AI ②),/api/v1/visits/{visit_id}/finish,POST,분석은 대기열로 넘기고 slug만 즉시 반환. 사용자는 기다리지 않음,Report
+상품 상세 조회,/api/v1/products/{product_id},GET,상품 상세 페이지용. 이미지·가격·소재·스토리 등 전체 정보,Product
+개인 리포트 조회,/api/v1/reports/{slug},GET,박제된 결과 조회(재계산 없음). 분석 중이면 pending,Report
+공통 규약 · 인증 · 에러코드 · 테이블 상세,,,"모든 API에 공통 적용. Base URL, 헤더, 에러 포맷, DB 컬럼 상세",공통
+입장 (Visit 생성),/api/v1/enter,POST,메인 입장 버튼 클릭. UUID 확인/발급 + Visit 생성 + 전시존·상품 목록 반환,Visit
+행동 이벤트 수집 (배치),/api/v1/events,POST,"모았다가 한번에 전송. event_id로 중복 제거, 원본 그대로 쌓기만 함",Event
+채팅 액션 메시지 기록,/api/v1/chat/messages,POST,진열대·상품 클릭을 대화창에 메시지로 쌓음. 나중에 AI가 문맥으로 사용,Chat
