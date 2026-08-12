@@ -14,6 +14,7 @@ env = environ.Env(
     CORS_ALLOWED_ORIGINS=(list, ["http://localhost:3000", "http://localhost:5173"]),
     CORS_ALLOW_ALL_ORIGINS=(bool, False),
     OPENAI_API_KEY=(str, ""),
+    OPENAI_MODEL=(str, "gpt-4o-mini"),
 )
 environ.Env.read_env(BASE_DIR / ".env")
 
@@ -111,6 +112,7 @@ REST_FRAMEWORK = {
     "PAGE_SIZE": 10,
     "EXCEPTION_HANDLER": "api.exceptions.oando_exception_handler",
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "DEFAULT_THROTTLE_RATES": {"chat": "20/min"},  # LLM 남용 방지
     "UNAUTHENTICATED_USER": None,
 }
 
@@ -133,6 +135,7 @@ CORS_ALLOW_HEADERS = (*default_headers, "x-anonymous-uuid", "x-visit-token")
 DEFAULT_STORE_ID = env("DEFAULT_STORE_ID", default="s_mcm")
 
 OPENAI_API_KEY = env("OPENAI_API_KEY")
+OPENAI_MODEL = env("OPENAI_MODEL")  # 모델 교체는 .env에서만 한다
 
 # 도메인 규칙 (매직 넘버 방지)
 RESUME_WINDOW = timedelta(minutes=30)  # 미종료 Visit을 이어받아 주는 시간

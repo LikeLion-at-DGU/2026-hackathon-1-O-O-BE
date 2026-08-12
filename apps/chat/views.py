@@ -1,3 +1,5 @@
+from django.http import StreamingHttpResponse
+from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import status
 from rest_framework.exceptions import PermissionDenied
@@ -9,8 +11,11 @@ from apps.chat import messages as timeline_service
 from apps.chat.serializers import (
     ActionMessageSerializer,
     ChatMessageSerializer,
+    ChatRequestSerializer,
     TimelineSerializer,
 )
+from apps.chat.services import respond
+from apps.chat.throttles import ChatThrottle
 from apps.visits.models import Visit
 
 
@@ -71,3 +76,38 @@ class ChatMessagesView(APIView):
                 "current_context": timeline_service.current_context(visit),
             }
         )
+
+
+class ChatView(APIView):
+    """POST /api/v1/chat — 컨텍스트 챗봇 (AI ①). text/event-stream으로 답한다.
+
+    클라이언트는 문맥을 다시 보내지 않는다. 서버가 chat_logs에서 최근 메시지와
+    가장 최근 클릭된 상품을 읽어 프롬프트를 조립한다. context를 명시로 보내면 그게 우선한다.
+    """
+
+    permission_classes = [IsOpenVisit]
+    throttle_classes = [ChatThrottle]
+
+    @extend_schema(
+        request=ChatRequestSerializer,
+        responses={(200, "text/event-stream"): OpenApiTypes.STR},
+        tags=["Chat"],
+        description=(
+            'SSE 스트림. data: {"delta": "..."} 조각이 이어지고 '
+            'data: {"done": true, "message_id": "...", "recommendations": []} 로 끝난다.'
+        ),
+    )
+    def post(self, request):
+        serializer = ChatRequestSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        payload = serializer.validated_data
+        visit = assert_own_visit(request, payload["visit_id"])
+
+        response = StreamingHttpResponse(
+            respond(visit, payload["message"], payload.get("context")),
+            content_type="text/event-stream",
+        )
+        # 프록시가 버퍼링하면 스트리밍이 통째로 지연된다.
+        response["X-Accel-Buffering"] = "no"
+        response["Cache-Control"] = "no-cache"
+        return response

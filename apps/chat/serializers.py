@@ -50,3 +50,16 @@ class ContextSerializer(serializers.Serializer):
 class TimelineSerializer(serializers.Serializer):
     messages = ChatMessageSerializer(many=True)
     current_context = ContextSerializer()
+
+
+class ChatContextSerializer(serializers.Serializer):
+    scene_id = serializers.CharField(required=False, allow_null=True, default=None)
+    product_id = serializers.CharField(required=False, allow_null=True, default=None)
+
+
+class ChatRequestSerializer(serializers.Serializer):
+    """context는 선택이다. 생략하면 서버가 최근 클릭 기준으로 문맥을 잡는다."""
+
+    visit_id = serializers.CharField()
+    message = serializers.CharField(max_length=500)
+    context = ChatContextSerializer(required=False)
