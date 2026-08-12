@@ -14,8 +14,8 @@ class ReportStatus(models.TextChoices):
 class TasteProfile(models.Model):
     """Visit 단위 분석 결과. UUID에 장기 누적하지 않는다(재방문 마이페이지 없음)."""
 
+    # visitor는 visit.visitor로 도달한다. 같은 사실을 두 곳에 두면 어긋날 때 무엇이 진실인지 모른다.
     visit = models.OneToOneField("visits.Visit", related_name="taste_profile", on_delete=models.CASCADE)
-    visitor = models.ForeignKey("visits.Visitor", related_name="taste_profiles", on_delete=models.CASCADE)
     vector = models.JSONField(default=dict)  # 속성별 관심도
     axis_scores = models.JSONField(default=dict)  # 16유형 4축 점수
     character_type = models.CharField(max_length=4, blank=True)  # 예: CNPD
@@ -32,7 +32,6 @@ class Report(models.Model):
 
     slug = models.CharField(primary_key=True, max_length=40, default=gen_report_slug, editable=False)
     visit = models.OneToOneField("visits.Visit", related_name="report", on_delete=models.CASCADE)
-    visitor = models.ForeignKey("visits.Visitor", related_name="reports", on_delete=models.CASCADE)
     status = models.CharField(max_length=10, choices=ReportStatus.choices, default=ReportStatus.PENDING)
     # 상품 스냅샷(이름·이미지·가격·구매링크)을 함께 박제한다. 집에서 열 때는
     # visit_token이 없어 GET /products/{id}를 부를 수 없기 때문이다.

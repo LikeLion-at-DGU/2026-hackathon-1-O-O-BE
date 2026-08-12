@@ -54,7 +54,7 @@ class Visit(models.Model):
     # /events · /chat 처럼 주기적으로 오는 요청에서만 갱신한다.
     last_seen_at = models.DateTimeField(auto_now_add=True)
     ended_at = models.DateTimeField(null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    # created_at을 따로 두지 않는다. started_at과 값이 항상 같고, 명세가 쓰는 이름이 started_at이다.
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:

@@ -5,10 +5,22 @@ from pathlib import Path
 
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
+from django.db.models import Q
 
-from apps.catalog.models import Product, Scene, Store
+from apps.catalog.models import PresetKey, Product, Scene, Store
 
 DEFAULT_FIXTURE = Path(__file__).resolve().parents[2] / "fixtures" / "demo.json"
+# 이 8개가 취향 분석의 축이다. 하나라도 비면 그 상품은 분석에서 빠진다.
+ANALYSIS_AXES = (
+    "category",
+    "color",
+    "material",
+    "pattern",
+    "silhouette",
+    "mood",
+    "price_band",
+    "use_case",
+)
 PRODUCT_FIELDS = (
     "no",
     "name",
@@ -50,9 +62,12 @@ class Command(BaseCommand):
         self.stdout.write(
             self.style.SUCCESS(f"{store.name}: 전시존 {scene_count}개 · 상품 {product_count}개 적재 완료")
         )
-        missing = self._products_missing_axes()
-        if missing:
-            self.stdout.write(self.style.WARNING(f"분류 축이 빈 상품 {len(missing)}개: {missing}"))
+        for label, ids in (
+            ("분류 축이 빈 상품", self._products_missing_axes()),
+            ("프리셋 답변이 빠진 상품", self._products_missing_presets()),
+        ):
+            if ids:
+                self.stdout.write(self.style.WARNING(f"{label} {len(ids)}개: {ids}"))
 
     def _upsert_store(self, payload: dict) -> Store:
         store, _ = Store.objects.update_or_create(id=payload["id"], defaults={"name": payload["name"]})
@@ -72,8 +87,17 @@ class Command(BaseCommand):
                 product_count += 1
         return len(scenes), product_count
 
+    def _products_missing_presets(self) -> list[str]:
+        """프리셋 3종이 없으면 상품 클릭 시 버튼이 비어 보인다."""
+        return [
+            product.id
+            for product in Product.objects.all()
+            if any(not product.preset_answers.get(key) for key in PresetKey.values)
+        ]
+
     def _products_missing_axes(self) -> list[str]:
-        """축이 비면 그 상품은 취향 분석에서 사라지므로 적재 직후에 알려준다."""
-        return list(Product.objects.filter(category="").values_list("id", flat=True)) or list(
-            Product.objects.filter(mood="").values_list("id", flat=True)
-        )
+        """축이 하나라도 비면 그 상품은 취향 분석에서 사라지므로 적재 직후에 알려준다."""
+        blank_any_axis = Q()
+        for axis in ANALYSIS_AXES:
+            blank_any_axis |= Q(**{axis: ""})
+        return list(Product.objects.filter(blank_any_axis).values_list("id", flat=True))
