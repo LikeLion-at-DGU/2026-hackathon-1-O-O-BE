@@ -9,6 +9,14 @@ def new_message_id() -> str:
     return gen_id("m")
 
 
+class ActionType(models.TextChoices):
+    """클릭이 말풍선으로 남는 세 가지 경로."""
+
+    SCENE_CLICK = "scene_click", "진열대 클릭"
+    PRODUCT_CLICK = "product_click", "상품 클릭"
+    PRESET_VIEW = "preset_view", "프리셋 열람"
+
+
 class Role(models.TextChoices):
     ASSISTANT = "assistant", "챗봇"
     USER_ACTION = "user_action", "클릭이 남긴 메시지"
