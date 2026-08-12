@@ -5,12 +5,11 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from api.authentication import ANONYMOUS_UUID_HEADER
 from apps.catalog.repositories import get_default_store, scenes_with_products
 from apps.catalog.serializers import SceneSerializer, StoreBriefSerializer
 from apps.visits import services
 from apps.visits.serializers import EnterRequestSerializer, EnterResponseSerializer
-
-ANONYMOUS_UUID_HEADER = "HTTP_X_ANONYMOUS_UUID"
 
 
 class EnterView(APIView):

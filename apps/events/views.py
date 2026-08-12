@@ -1,13 +1,15 @@
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import status
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from api.authentication import ANONYMOUS_UUID_HEADER
 from api.permissions import IsOpenVisit
 from apps.events.serializers import EventBatchResultSerializer, EventBatchSerializer
 from apps.events.services import append_batch
-from apps.visits.services import touch
+from apps.visits.models import Visit
+from apps.visits.services import parse_uuid, touch
 
 
 class EventBatchView(APIView):
@@ -22,6 +24,14 @@ class EventBatchView(APIView):
     @extend_schema(
         request=EventBatchSerializer,
         responses={202: EventBatchResultSerializer},
+        parameters=[
+            OpenApiParameter(
+                name="X-Anonymous-UUID",
+                location=OpenApiParameter.HEADER,
+                required=True,
+                description="클라이언트가 보관하는 익명 UUID. visit token의 방문자와 일치해야 한다.",
+            )
+        ],
         tags=["Event"],
     )
     def post(self, request):
@@ -29,6 +39,7 @@ class EventBatchView(APIView):
         serializer.is_valid(raise_exception=True)
 
         visit = request.auth
+        self._assert_visitor_matches(request, visit)
         if serializer.validated_data["visit_id"] != visit.id:
             # 토큰이 가리키는 방문만 기록할 수 있다. 클라이언트가 보낸 visit_id를 믿지 않는다.
             raise PermissionDenied("다른 방문의 이벤트는 기록할 수 없습니다.")
@@ -36,3 +47,15 @@ class EventBatchView(APIView):
         result = append_batch(visit, serializer.validated_data["events"])
         touch(visit)
         return Response(result, status=status.HTTP_202_ACCEPTED)
+
+    def _assert_visitor_matches(self, request, visit: Visit) -> None:
+        """명세가 이 API에 X-Anonymous-UUID를 필수로 정의했다.
+
+        토큰만으로도 방문자를 알 수 있지만, 두 값이 어긋나면 클라이언트가 다른
+        브라우저의 토큰을 들고 있다는 뜻이므로 그대로 저장하면 남의 리포트가 오염된다.
+        """
+        raw = request.META.get(ANONYMOUS_UUID_HEADER)
+        if not raw:
+            raise ValidationError({"X-Anonymous-UUID": ["헤더가 필요합니다."]})
+        if parse_uuid(raw) != visit.visitor_id:
+            raise PermissionDenied("X-Anonymous-UUID가 visit token의 방문자와 일치하지 않습니다.")

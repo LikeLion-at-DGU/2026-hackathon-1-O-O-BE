@@ -11,6 +11,7 @@ from api.exceptions import InvalidVisitToken
 from apps.visits.models import Visit
 
 VISIT_TOKEN_HEADER = "HTTP_X_VISIT_TOKEN"
+ANONYMOUS_UUID_HEADER = "HTTP_X_ANONYMOUS_UUID"
 
 
 class VisitTokenAuthentication(BaseAuthentication):
