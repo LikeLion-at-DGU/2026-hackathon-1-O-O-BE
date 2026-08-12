@@ -1,0 +1,234 @@
+{
+  "_comment": "⚠️ 임시 데이터. 크롤링(D2)이 끝나면 이 파일만 교체하면 된다. 8개 축은 apps/catalog/models.py의 TextChoices 값만 사용한다.",
+  "store": { "id": "s_mcm", "name": "MCM 스토어" },
+  "scenes": [
+    {
+      "id": "sc_01",
+      "no": 1,
+      "name": "F/W 신상",
+      "products": [
+        {
+          "id": "p_101",
+          "no": 1,
+          "name": "[임시] Heritage 백팩",
+          "price": 890000,
+          "external_url": "https://example.com/products/p_101",
+          "story": "1976년 뮌헨의 여행 가방에서 출발한 실루엣을 현대적으로 재해석한 라인이다.",
+          "images": ["/media/products/placeholder.jpg"],
+          "category": "backpack",
+          "color": "cognac",
+          "material": "coated_canvas",
+          "pattern": "visetos_monogram",
+          "silhouette": "structured",
+          "mood": "classic_heritage",
+          "price_band": "mid",
+          "use_case": "daily",
+          "is_new": true,
+          "attributes": { "color": "코냑", "material": "코팅 캔버스", "size": "30x40cm", "capacity": "15L" },
+          "preset_answers": {
+            "price": "890,000원입니다. 백팩 라인 중 엔트리 가격대예요.",
+            "material": "코팅 캔버스에 레더 트리밍. 생활 방수가 되고 마른 천으로 닦아 관리합니다.",
+            "design_intent": "1976년 뮌헨의 여행 가방 실루엣을 현대적으로 재해석했습니다."
+          },
+          "llm_context": "클래식 헤리티지 무드의 코팅 캔버스 백팩. 비세토스 모노그램이 전면에 있고 구조적인 실루엣이다. 데일리 용도로 쓰기 좋고 15L 수납이다."
+        },
+        {
+          "id": "p_102",
+          "no": 2,
+          "name": "[임시] Stark 스터드 백팩",
+          "price": 1290000,
+          "external_url": "https://example.com/products/p_102",
+          "story": "스터드 디테일로 스트리트 무드를 강조한 시즌 시그니처.",
+          "images": ["/media/products/placeholder.jpg"],
+          "category": "backpack",
+          "color": "black",
+          "material": "smooth_leather",
+          "pattern": "studded",
+          "silhouette": "boxy",
+          "mood": "y2k_street",
+          "price_band": "high",
+          "use_case": "going_out",
+          "is_new": true,
+          "attributes": { "color": "블랙", "material": "스무스 레더", "size": "32x42cm", "capacity": "18L" },
+          "preset_answers": {
+            "price": "1,290,000원입니다. 스터드 공정이 들어간 상위 라인입니다.",
+            "material": "스무스 레더에 메탈 스터드. 비에 젖으면 바로 닦아주세요.",
+            "design_intent": "Y2K 스트리트 감성을 스터드로 표현한 시즌 시그니처입니다."
+          },
+          "llm_context": "블랙 스무스 레더에 메탈 스터드가 박힌 박시한 백팩. Y2K 스트리트 무드가 강하고 나들이·모임용으로 어울린다."
+        }
+      ]
+    },
+    {
+      "id": "sc_02",
+      "no": 2,
+      "name": "헤리티지",
+      "products": [
+        {
+          "id": "p_201",
+          "no": 1,
+          "name": "[임시] Classic 토트",
+          "price": 750000,
+          "external_url": "https://example.com/products/p_201",
+          "story": "출근길에 서류와 노트북을 함께 담도록 설계된 구조적 토트.",
+          "images": ["/media/products/placeholder.jpg"],
+          "category": "tote",
+          "color": "beige",
+          "material": "grained_leather",
+          "pattern": "solid",
+          "silhouette": "structured",
+          "mood": "minimal",
+          "price_band": "mid",
+          "use_case": "work",
+          "is_new": false,
+          "attributes": { "color": "베이지", "material": "그레인 레더", "size": "36x30cm", "capacity": "12L" },
+          "preset_answers": {
+            "price": "750,000원입니다. 토트 라인 중 기본 가격대입니다.",
+            "material": "그레인 레더로 스크래치가 잘 드러나지 않습니다.",
+            "design_intent": "노트북과 서류를 함께 담는 출근용 구조를 우선했습니다."
+          },
+          "llm_context": "베이지 그레인 레더의 미니멀한 구조적 토트. 출근용으로 노트북 수납이 가능하다."
+        },
+        {
+          "id": "p_202",
+          "no": 2,
+          "name": "[임시] Visetos 크로스백",
+          "price": 520000,
+          "external_url": "https://example.com/products/p_202",
+          "story": "모노그램을 작게 담아 가볍게 두를 수 있는 크로스백.",
+          "images": ["/media/products/placeholder.jpg"],
+          "category": "crossbody",
+          "color": "visetos_mix",
+          "material": "coated_canvas",
+          "pattern": "visetos_monogram",
+          "silhouette": "compact",
+          "mood": "classic_heritage",
+          "price_band": "entry",
+          "use_case": "daily",
+          "is_new": false,
+          "attributes": { "color": "비세토스 배색", "material": "코팅 캔버스", "size": "20x14cm", "capacity": "3L" },
+          "preset_answers": {
+            "price": "520,000원입니다. 엔트리 가격대의 크로스백입니다.",
+            "material": "코팅 캔버스라 가볍고 생활 방수가 됩니다.",
+            "design_intent": "모노그램을 작은 면적에 담아 부담 없이 매는 것을 의도했습니다."
+          },
+          "llm_context": "비세토스 배색 코팅 캔버스의 컴팩트한 크로스백. 엔트리 가격대이고 데일리로 가볍게 쓴다."
+        }
+      ]
+    },
+    {
+      "id": "sc_03",
+      "no": 3,
+      "name": "Y2K 스트리트",
+      "products": [
+        {
+          "id": "p_301",
+          "no": 1,
+          "name": "[임시] Metallic 숄더백",
+          "price": 680000,
+          "external_url": "https://example.com/products/p_301",
+          "story": "메탈릭 코팅으로 조명 아래에서 색이 변하는 시즌 한정 컬러.",
+          "images": ["/media/products/placeholder.jpg"],
+          "category": "shoulder",
+          "color": "metallic",
+          "material": "mixed",
+          "pattern": "logo_print",
+          "silhouette": "slouchy",
+          "mood": "bold_statement",
+          "price_band": "mid",
+          "use_case": "going_out",
+          "is_new": true,
+          "attributes": { "color": "실버 메탈릭", "material": "혼합", "size": "28x18cm", "capacity": "5L" },
+          "preset_answers": {
+            "price": "680,000원입니다. 시즌 한정 컬러입니다.",
+            "material": "메탈릭 코팅 혼합 소재로 마찰에 약해 단독 보관을 권합니다.",
+            "design_intent": "조명 아래에서 색이 변하는 효과를 노린 볼드한 시즌 컬러입니다."
+          },
+          "llm_context": "실버 메탈릭의 슬라우치한 숄더백. 볼드 스테이트먼트 무드이고 모임·나들이용이다."
+        },
+        {
+          "id": "p_302",
+          "no": 2,
+          "name": "[임시] Nylon 데일리 백팩",
+          "price": 430000,
+          "external_url": "https://example.com/products/p_302",
+          "story": "가벼운 나일론으로 매일 메기 좋게 만든 엔트리 라인.",
+          "images": ["/media/products/placeholder.jpg"],
+          "category": "backpack",
+          "color": "navy",
+          "material": "nylon",
+          "pattern": "logo_print",
+          "silhouette": "slouchy",
+          "mood": "minimal",
+          "price_band": "entry",
+          "use_case": "daily",
+          "is_new": false,
+          "attributes": { "color": "네이비", "material": "나일론", "size": "30x38cm", "capacity": "16L" },
+          "preset_answers": {
+            "price": "430,000원입니다. 가장 접근하기 쉬운 가격대입니다.",
+            "material": "나일론으로 가볍고 물세탁 없이 물티슈로 관리합니다.",
+            "design_intent": "매일 메는 무게를 우선해 소재부터 가볍게 잡았습니다."
+          },
+          "llm_context": "네이비 나일론의 가벼운 데일리 백팩. 미니멀 무드이고 엔트리 가격대다."
+        }
+      ]
+    },
+    {
+      "id": "sc_04",
+      "no": 4,
+      "name": "액세서리",
+      "products": [
+        {
+          "id": "p_401",
+          "no": 1,
+          "name": "[임시] Visetos 반지갑",
+          "price": 320000,
+          "external_url": "https://example.com/products/p_401",
+          "story": "카드 6장과 지폐를 담는 최소 구성의 반지갑.",
+          "images": ["/media/products/placeholder.jpg"],
+          "category": "wallet",
+          "color": "cognac",
+          "material": "coated_canvas",
+          "pattern": "visetos_monogram",
+          "silhouette": "compact",
+          "mood": "classic_heritage",
+          "price_band": "entry",
+          "use_case": "daily",
+          "is_new": false,
+          "attributes": { "color": "코냑", "material": "코팅 캔버스", "size": "11x9cm", "capacity": "카드 6장" },
+          "preset_answers": {
+            "price": "320,000원입니다. 선물용으로 많이 찾는 가격대입니다.",
+            "material": "코팅 캔버스로 오염에 강합니다.",
+            "design_intent": "카드 6장과 지폐만 담는 최소 구성을 의도했습니다."
+          },
+          "llm_context": "코냑 비세토스 반지갑. 컴팩트하고 엔트리 가격대라 선물용으로 자주 찾는다."
+        },
+        {
+          "id": "p_402",
+          "no": 2,
+          "name": "[임시] 스터드 키링",
+          "price": 180000,
+          "external_url": "https://example.com/products/p_402",
+          "story": "가방에 달아 포인트를 주는 스터드 키링.",
+          "images": ["/media/products/placeholder.jpg"],
+          "category": "accessory",
+          "color": "pink",
+          "material": "smooth_leather",
+          "pattern": "studded",
+          "silhouette": "compact",
+          "mood": "y2k_street",
+          "price_band": "entry",
+          "use_case": "going_out",
+          "is_new": true,
+          "attributes": { "color": "핑크", "material": "스무스 레더", "size": "9x4cm", "capacity": "-" },
+          "preset_answers": {
+            "price": "180,000원입니다. 가장 부담 없는 엔트리 아이템입니다.",
+            "material": "스무스 레더에 메탈 스터드. 마찰에 약해 가방 표면과 닿는 위치를 확인하세요.",
+            "design_intent": "가방에 달아 포인트를 주는 용도로 크기를 작게 잡았습니다."
+          },
+          "llm_context": "핑크 스터드 키링. Y2K 스트리트 무드의 소품이고 가장 저렴한 엔트리 아이템이다."
+        }
+      ]
+    }
+  ]
+}
