@@ -112,9 +112,8 @@ def _clamp_dwell(metadata: dict) -> dict:
     """체류시간 상한을 씌운다.
 
     탭을 백그라운드에 두면 30분이 찍힌다. 가장 중요한 관심 신호를 검증 없이 믿으면
-    취향 프로필이 한 상품에 끌려간다.
+    취향 프로필이 한 상품에 끌려간다. (형식·음수 검증은 시리얼라이저가 이미 했다)
     """
-    dwell = metadata.get(DWELL_KEY)
-    if not isinstance(dwell, int) or isinstance(dwell, bool):
+    if DWELL_KEY not in metadata:
         return metadata
-    return {**metadata, DWELL_KEY: min(dwell, settings.DWELL_MAX_MS)}
+    return {**metadata, DWELL_KEY: min(metadata[DWELL_KEY], settings.DWELL_MAX_MS)}

@@ -4,6 +4,7 @@ from datetime import timedelta
 from pathlib import Path
 
 import environ
+from corsheaders.defaults import default_headers
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -126,12 +127,8 @@ SPECTACULAR_SETTINGS = {
 
 CORS_ALLOWED_ORIGINS = env("CORS_ALLOWED_ORIGINS")
 CORS_ALLOW_ALL_ORIGINS = env("CORS_ALLOW_ALL_ORIGINS")  # 로컬 전용. prod에서 켜지 말 것
-CORS_ALLOW_HEADERS = (
-    "content-type",
-    "authorization",
-    "x-anonymous-uuid",
-    "x-visit-token",
-)
+# 기본 목록(accept·origin·x-requested-with 등)을 덮어쓰면 브라우저 preflight가 깨진다.
+CORS_ALLOW_HEADERS = (*default_headers, "x-anonymous-uuid", "x-visit-token")
 
 # 매장은 하나로 고정한다. 클라이언트가 매장을 지정하지 않고 서버가 이 값을 붙인다.
 DEFAULT_STORE_ID = env("DEFAULT_STORE_ID", default="s_mcm")
