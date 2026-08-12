@@ -34,3 +34,24 @@ class SceneSerializer(serializers.ModelSerializer):
     class Meta:
         model = Scene
         fields = ("scene_id", "no", "name", "products")
+
+
+class ProductDetailSerializer(serializers.ModelSerializer):
+    """상세 화면용. 분석 내부용 필드(8개 축·llm_context)는 내려주지 않는다."""
+
+    product_id = serializers.CharField(source="id")
+    scene_id = serializers.CharField(source="scene.id")
+
+    class Meta:
+        model = Product
+        fields = (
+            "product_id",
+            "name",
+            "images",
+            "price",
+            "attributes",
+            "story",
+            "scene_id",
+            "external_url",
+            "preset_answers",
+        )

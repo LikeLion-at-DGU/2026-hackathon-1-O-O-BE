@@ -4,6 +4,7 @@ JWT가 아니라 DB 토큰을 쓴다. 관람 중 토큰이 만료돼도 같은 �
 쓸 수 있어야 하고(이탈 복구), 필요하면 서버가 즉시 무효화할 수 있어야 한다.
 """
 
+from drf_spectacular.extensions import OpenApiAuthenticationExtension
 from rest_framework.authentication import BaseAuthentication
 
 from api.exceptions import InvalidVisitToken
@@ -30,3 +31,22 @@ class VisitTokenAuthentication(BaseAuthentication):
             raise InvalidVisitToken()
 
         return (None, visit)
+
+
+class VisitTokenScheme(OpenApiAuthenticationExtension):
+    """Swagger UI의 Authorize 버튼에 X-Visit-Token을 노출한다.
+
+    drf-spectacular는 import된 확장만 등록하므로, 인증 클래스와 같은 파일에 둔다.
+    (이 모듈은 DEFAULT_AUTHENTICATION_CLASSES 때문에 기동 시 항상 로드된다)
+    """
+
+    target_class = "api.authentication.VisitTokenAuthentication"
+    name = "VisitToken"
+
+    def get_security_definition(self, auto_schema) -> dict:
+        return {
+            "type": "apiKey",
+            "in": "header",
+            "name": "X-Visit-Token",
+            "description": "POST /api/v1/enter 응답으로 받은 visit_token 값을 그대로 넣는다.",
+        }
