@@ -27,8 +27,8 @@ class ChatLog(models.Model):
     product = models.ForeignKey(
         "catalog.Product", related_name="chat_logs", on_delete=models.SET_NULL, null=True, blank=True
     )
+    # 메시지는 한 번 쌓이면 고치지 않는다(append-only). Event와 같은 이유로 updated_at을 두지 않는다.
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ["created_at"]

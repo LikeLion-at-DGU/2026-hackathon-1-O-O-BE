@@ -111,7 +111,6 @@ REST_FRAMEWORK = {
     "PAGE_SIZE": 10,
     "EXCEPTION_HANDLER": "api.exceptions.oando_exception_handler",
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
-    "DEFAULT_THROTTLE_RATES": {"chat": "20/min"},
     "UNAUTHENTICATED_USER": None,
 }
 
@@ -138,7 +137,6 @@ OPENAI_API_KEY = env("OPENAI_API_KEY")
 # 도메인 규칙 (매직 넘버 방지)
 RESUME_WINDOW = timedelta(minutes=30)  # 미종료 Visit을 이어받아 주는 시간
 DWELL_MAX_MS = 300_000  # 클라이언트가 보낸 체류시간 상한 (탭 백그라운드 방어)
-CHAT_TIMELINE_LIMIT = 200  # GET /chat/messages가 한 번에 주는 최대 메시지 수
 
 LOGGING = {
     "version": 1,
