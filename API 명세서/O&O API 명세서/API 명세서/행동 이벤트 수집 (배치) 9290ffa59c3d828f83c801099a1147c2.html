@@ -1,0 +1,800 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>행동 이벤트 수집 (배치)</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+/* Override strong tags inside headings to maintain consistent weight */
+h1 strong,
+h2 strong,
+h3 strong {
+	font-weight: 600;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 10px;
+	padding: 1rem;
+}
+
+/* For default-background callouts, render the border outline. */
+.callout.block-color-default_background {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+/*
+ * Toggles and callouts hold arbitrary content, so they can easily be taller
+ * than a page. They must stay breakable: avoiding breaks inside them makes
+ * Chromium push the whole block onto the next page, which leaves the previous
+ * page mostly empty before every long toggle.
+ */
+details,
+aside {
+	margin: 1.25em 0;
+}
+
+/* Keep a toggle's title on the same page as the start of its content. */
+summary {
+	page-break-after: avoid;
+	break-after: avoid;
+}
+
+/*
+ * Toggle headings render as <h1/h2/h3 style="display:inline-block"> inside
+ * <summary>. Without this reset, the heading's margin-top pushes it below the
+ * ::marker (▼), so the triangle and the title appear on separate lines.
+ */
+summary h1,
+summary h2,
+summary h3,
+summary h4 {
+	margin-top: 0;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+
+	table.collection-content {
+		width: 100%;
+		table-layout: fixed;
+	}
+
+	table.collection-content th,
+	table.collection-content td {
+		overflow-wrap: anywhere;
+	}
+
+	table.collection-content td > .user,
+	table.collection-content td > time {
+		white-space: pre-wrap;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content-wrapper {
+	overflow-x: auto;
+}
+
+@media only print {
+	.collection-content-wrapper {
+		overflow-x: visible;
+	}
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.collection-content td {
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.column-list {
+	display: flex;
+	gap: 46px;
+}
+
+.column {
+	min-width: 0;
+	overflow: hidden;
+}
+
+.column > *:first-child {
+	margin-top: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding-inline: 0.125rem;
+	padding-block: 0.375rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+table {
+	border-collapse: collapse;
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol.numbered-list.numbered-list-digits-2 {
+	padding-inline-start: 2em;
+}
+
+ol.numbered-list.numbered-list-digits-3plus {
+	padding-inline-start: 2.4em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+/*
+ * Render emoji icons using a ::before pseudo-element to keep the glyph
+ * out of the DOM textContent traversal. This avoids double-rendering icons
+ * in callouts and page titles.
+ * NOTE(slim/html-export-pseudo-icons): I can't tagref this because it will
+ * flag as a duplicate tag after codegen.
+ */
+.icon[data-emoji]::before {
+	content: attr(data-emoji);
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.callout img.notion-static-icon {
+	width: 1em;
+	height: 1em;
+}
+
+.callout p {
+	margin: 0;
+}
+
+.callout h1,
+.callout h2,
+.callout h3 {
+	margin: 0 0 0.6rem;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	margin-right: 0.4em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+blockquote.quote-large {
+	font-size: 1.25em;
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.tab {
+	margin: 1.25em 0;
+	padding-inline: 1rem;
+	border: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.highlight-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.highlight-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.highlight-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.highlight-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.highlight-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.highlight-default_background {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray_background {
+	background: rgba(42, 28, 0, 0.07);
+}
+.highlight-brown_background {
+	background: rgba(139, 46, 0, 0.086);
+}
+.highlight-orange_background {
+	background: rgba(224, 101, 1, 0.129);
+}
+.highlight-yellow_background {
+	background: rgba(211, 168, 0, 0.137);
+}
+.highlight-teal_background {
+	background: rgba(0, 100, 45, 0.09);
+}
+.highlight-blue_background {
+	background: rgba(0, 124, 215, 0.094);
+}
+.highlight-purple_background {
+	background: rgba(102, 0, 178, 0.078);
+}
+.highlight-pink_background {
+	background: rgba(197, 0, 93, 0.086);
+}
+.highlight-red_background {
+	background: rgba(223, 22, 0, 0.094);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.block-color-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.block-color-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.block-color-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.block-color-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.block-color-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(240, 239, 237, 1);
+}
+.block-color-brown_background {
+	background: rgba(245, 237, 233, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 235, 222, 1);
+}
+.block-color-yellow_background {
+	background: rgba(249, 243, 220, 1);
+}
+.block-color-teal_background {
+	background: rgba(232, 241, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(229, 242, 252, 1);
+}
+.block-color-purple_background {
+	background: rgba(243, 235, 249, 1);
+}
+.block-color-pink_background {
+	background: rgba(250, 233, 241, 1);
+}
+.block-color-red_background {
+	background: rgba(252, 233, 231, 1);
+}
+.select-value-color-default { background-color: rgba(42, 28, 0, 0.07); }
+.select-value-color-gray { background-color: rgba(28, 19, 1, 0.11); }
+.select-value-color-brown { background-color: rgba(127, 51, 0, 0.156); }
+.select-value-color-orange { background-color: rgba(196, 88, 0, 0.203); }
+.select-value-color-yellow { background-color: rgba(209, 156, 0, 0.282); }
+.select-value-color-green { background-color: rgba(0, 96, 38, 0.156); }
+.select-value-color-blue { background-color: rgba(0, 118, 217, 0.203); }
+.select-value-color-purple { background-color: rgba(92, 0, 163, 0.141); }
+.select-value-color-pink { background-color: rgba(183, 0, 78, 0.152); }
+.select-value-color-red { background-color: rgba(206, 24, 0, 0.164); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style><style>@import url('https://cdn.jsdelivr.net/npm/katex@0.16.25/dist/katex-swap.min.css')</style></head><body><article id="9290ffa5-9c3d-828f-83c8-01099a1147c2" class="page sans"><header><h1 class="page-title" dir="auto">행동 이벤트 수집 (배치)</h1><p class="page-description" dir="auto"></p><table class="properties"><tbody><tr class="property-row property-row-text"><th><span class="icon property-icon"><img src="https://app.notion.com/icons/description_gray.svg" style="width:14px;height:14px;display:block"/></span>API Endpoint</th><td>/api/v1/events</td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://app.notion.com/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>HTTP method</th><td><span class="selected-value select-value-color-blue">POST</span></td></tr><tr class="property-row property-row-text"><th><span class="icon property-icon"><img src="https://app.notion.com/icons/description_gray.svg" style="width:14px;height:14px;display:block"/></span>메모</th><td>모았다가 한번에 전송. event_id로 중복 제거, 원본 그대로 쌓기만 함</td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://app.notion.com/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>파트</th><td><span class="selected-value select-value-color-green">Event</span></td></tr></tbody></table></header><div class="page-body"><h2 id="c9257c56-7ed2-479f-9b09-3517ed562849" class="" dir="auto">설명</h2><p id="496268ed-b278-40de-9984-7a7ef3f212f6" class="" dir="auto">프론트가 모아둔 행동 기록을 <strong>한번에 묶어서</strong> 보낸다. 매 클릭마다 서버를 치지 않고, 주기적으로 또는 페이지를 떠날 때 보내서 <strong>브라우저가 닫혀도 직전 기록이 날아가지 않게</strong> 한다.</p><p id="7560841b-9c27-48e7-b8d0-75a144fae085" class="" dir="auto">저장은 <strong>append-only</strong> — 쌓기만 하고 고치지 않는다. 같은 이벤트를 두 번 보내도 <code>event_id</code>로 걸러 한 번만 저장하므로(멱등), 실패하면 그냥 재전송하면 된다.</p><h2 id="183b3a03-645f-4978-bc52-c142943cb073" class="" dir="auto">Request</h2><p id="adb4db63-caa4-47bf-94ef-1d844b4d1f0b" class="" dir="auto">헤더: <code>X-Visit-Token</code> ✅, <code>X-Anonymous-UUID</code> ✅</p><table id="3feaab03-73a2-4619-b5bc-4044d47e652b" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="d6d7f431-7574-4ff3-849f-779de1b0d057" dir="ltr"><th id="qS?G" class="simple-table-header-color simple-table-header">필드</th><th id="bhR_" class="simple-table-header-color simple-table-header">타입</th><th id="qTcT" class="simple-table-header-color simple-table-header">필수</th><th id="^dCW" class="simple-table-header-color simple-table-header">설명</th></tr></thead><tbody><tr id="afa2684d-387e-45d1-b8d4-2386c728d0dd" dir="ltr"><td id="qS?G" class=""><code>visit_id</code></td><td id="bhR_" class="">string</td><td id="qTcT" class="">✅</td><td id="^dCW" class="">대상 방문</td></tr><tr id="696e6e83-2002-4f4f-a59e-1d04ac5f3dfc" dir="ltr"><td id="qS?G" class=""><code>events</code></td><td id="bhR_" class="">array</td><td id="qTcT" class="">✅</td><td id="^dCW" class="">이벤트 배열</td></tr></tbody></table><p id="3c9760d7-53de-48a0-ab09-1f81e510a07d" class="" dir="auto"><strong>events 항목</strong></p><table id="34bea312-03ba-471b-9bac-320afdb0edb6" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="02a38d9c-10f7-4ebb-af50-ec0169713cb9" dir="ltr"><th id="VweS" class="simple-table-header-color simple-table-header">필드</th><th id="BAMG" class="simple-table-header-color simple-table-header">타입</th><th id="FydX" class="simple-table-header-color simple-table-header">필수</th><th id="&gt;TBQ" class="simple-table-header-color simple-table-header">설명</th></tr></thead><tbody><tr id="6d940153-2c5a-4e09-9646-3e371da59736" dir="ltr"><td id="VweS" class=""><code>event_id</code></td><td id="BAMG" class="">string(UUID)</td><td id="FydX" class="">✅</td><td id="&gt;TBQ" class="">클라이언트가 생성. 중복 제거 키</td></tr><tr id="8141b8b5-9558-429c-a7dc-5a441e8247d7" dir="ltr"><td id="VweS" class=""><code>event_type</code></td><td id="BAMG" class="">string</td><td id="FydX" class="">✅</td><td id="&gt;TBQ" class="">아래 표 참고</td></tr><tr id="6eae18c3-4b45-41e3-ac56-cbc5e9ab07c2" dir="ltr"><td id="VweS" class=""><code>client_timestamp</code></td><td id="BAMG" class="">string(ISO8601)</td><td id="FydX" class="">✅</td><td id="&gt;TBQ" class="">클라에서 일어난 시각</td></tr><tr id="d0b6535b-6efc-4b08-89f6-eb1bec894d79" dir="ltr"><td id="VweS" class=""><code>scene_id</code></td><td id="BAMG" class="">string</td><td id="FydX" class="">❌</td><td id="&gt;TBQ" class="">전시존 대상 이벤트일 때</td></tr><tr id="d8db9315-62d0-482a-a3b9-3a8beceed7f8" dir="ltr"><td id="VweS" class=""><code>product_id</code></td><td id="BAMG" class="">string</td><td id="FydX" class="">❌</td><td id="&gt;TBQ" class="">상품 대상 이벤트일 때</td></tr><tr id="868c52d4-c30e-4484-aa1f-462facd9e0d4" dir="ltr"><td id="VweS" class=""><code>metadata</code></td><td id="BAMG" class="">object</td><td id="FydX" class="">❌</td><td id="&gt;TBQ" class=""><code>dwell_ms</code>(체류시간) 등</td></tr></tbody></table><h2 id="cec73513-6ed6-42b9-8b17-8ebe3a45e6cb" class="" dir="auto">이벤트 타입별 역할</h2><h3 id="6b2ff625-74ae-4116-8189-28838dc679e0" class="" dir="auto">매장 / 방문</h3><table id="82f79630-17f5-4cd7-b60d-630a2c30f676" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="c1498ed6-7fa0-4e07-881d-b2c7219928a5" dir="ltr"><th id="aGQ@" class="simple-table-header-color simple-table-header">event_type</th><th id="{&lt;A;" class="simple-table-header-color simple-table-header">언제</th><th id="HD@;" class="simple-table-header-color simple-table-header">어떤 역할인지</th></tr></thead><tbody><tr id="1e9ca702-aaf4-4bfb-8f78-edcf9a3adae3" dir="ltr"><td id="aGQ@" class=""><code>store_enter</code></td><td id="{&lt;A;" class="">입장 버튼을 눌러 들어왔을 때</td><td id="HD@;" class="">관람의 시작점. 퍼널 계산의 분모가 된다</td></tr><tr id="d81b3c06-4e36-42e1-ba4f-f47f942dec4e" dir="ltr"><td id="aGQ@" class=""><code>visit_start</code></td><td id="{&lt;A;" class="">방문이 시작될 때</td><td id="HD@;" class="">체류시간 측정의 기준 시각</td></tr><tr id="3c56fd1b-809d-4fb6-931a-3e92ba519e66" dir="ltr"><td id="aGQ@" class=""><code>visit_end</code></td><td id="{&lt;A;" class="">관람이 끝났을 때</td><td id="HD@;" class="">총 체류시간 확정. 리포트 분석의 신호</td></tr></tbody></table><h3 id="f3abfd3b-2cb2-47d8-9b40-59de37503493" class="" dir="auto">전시존 (매대)</h3><table id="6e4b9666-54ea-4a37-8a3c-290c1602c57e" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="d069c4f1-4a7c-4bdf-913e-686221ba462d" dir="ltr"><th id="~&gt;s=" class="simple-table-header-color simple-table-header">event_type</th><th id="vn@b" class="simple-table-header-color simple-table-header">언제</th><th id="Gev]" class="simple-table-header-color simple-table-header">어떤 역할인지</th></tr></thead><tbody><tr id="e13fdb8f-763d-48ee-b3e3-7b3504763c82" dir="ltr"><td id="~&gt;s=" class=""><code>scene_view</code></td><td id="vn@b" class="">전시존 화면에 들어갔을 때</td><td id="Gev]" class="">어떤 존이 사람을 끌어당기는지 (유입)</td></tr><tr id="d6daed16-fca6-49c5-b2ee-0c214318f9db" dir="ltr"><td id="~&gt;s=" class=""><code>scene_dwell</code></td><td id="vn@b" class="">그 존에 머문 시간</td><td id="Gev]" class="">어떤 구역에 관심이 쏠리는지. 진열 구성 개선 근거</td></tr><tr id="452f86e0-61d3-4d8d-a659-ba7ecacf6f5d" dir="ltr"><td id="~&gt;s=" class=""><code>hotspot_click</code></td><td id="vn@b" class="">존 안의 상품 핫스팟을 눌렀을 때</td><td id="Gev]" class="">존에서 상품으로 넘어간 전환. 진열이 잘 먹혔는지</td></tr></tbody></table><h3 id="2cc3d2da-8ae9-4525-a5d7-3001097e1fc1" class="" dir="auto">상품 (취향 분석의 핵심 재료)</h3><table id="766a8ced-5c92-41a2-8e7a-b3964a726474" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="339acaba-f7c9-453e-a289-fbdd637d4687" dir="ltr"><th id="vgmV" class="simple-table-header-color simple-table-header">event_type</th><th id="Ox[K" class="simple-table-header-color simple-table-header">언제</th><th id="eYd|" class="simple-table-header-color simple-table-header">어떤 역할인지</th></tr></thead><tbody><tr id="5bed9df2-5845-4b22-ba7b-6c3e4f131df2" dir="ltr"><td id="vgmV" class=""><code>product_view</code></td><td id="Ox[K" class="">상품 상세를 열었을 때</td><td id="eYd|" class="">기본 관심 신호. 가장 약한 가중치</td></tr><tr id="3d3787e4-c0dd-4b37-b453-2593d057b1f9" dir="ltr"><td id="vgmV" class=""><code>product_dwell</code></td><td id="Ox[K" class="">그 상품에 머문 시간</td><td id="eYd|" class=""><strong>가장 중요한 신호.</strong> 오래 볼수록 관심이 크다고 본다</td></tr><tr id="772c77b8-d58b-47c4-9091-c2845e402867" dir="ltr"><td id="vgmV" class=""><code>product_save</code></td><td id="Ox[K" class="">찜(하트)을 눌렀을 때</td><td id="eYd|" class="">의도가 명확한 강한 신호. 높은 가중치</td></tr><tr id="f04db3b1-49d5-4319-bcc5-74cc82a4eaa2" dir="ltr"><td id="vgmV" class=""><code>product_compare</code></td><td id="Ox[K" class="">두 상품을 비교했을 때</td><td id="eYd|" class="">구매 직전 고민 신호. 브랜드엔 &quot;자주 비교되는 조합&quot; 데이터</td></tr></tbody></table><blockquote id="2004c69b-a5de-444b-ad4a-7faa2f92d76d" class="" dir="auto">같은 상품을 다시 본 횟수(재조회)도 <code>product_view</code>가 여러 번 쌓이는 걸로 계산한다. 한 번 오래 본 것과 여러 번 돌아온 것 모두 관심으로 친다.</blockquote><h3 id="75e3b709-5c53-4639-ab07-c42dc04e462c" class="" dir="auto">챗봇</h3><table id="0926899d-6aff-418a-a23c-8532b3ab3957" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="4dd42aed-6d4d-447f-8360-848dc0ee3909" dir="ltr"><th id="NAkS" class="simple-table-header-color simple-table-header">event_type</th><th id="Qrd[" class="simple-table-header-color simple-table-header">언제</th><th id="YSEd" class="simple-table-header-color simple-table-header">어떤 역할인지</th></tr></thead><tbody><tr id="358084a1-fbf0-4ebf-8721-1ed9f7149900" dir="ltr"><td id="NAkS" class=""><code>chatbot_open</code></td><td id="Qrd[" class="">챗봇을 열었을 때</td><td id="YSEd" class="">정보를 더 원한다는 신호</td></tr><tr id="1a6eb1a1-c547-4c4e-9c57-aca9bcbbfe38" dir="ltr"><td id="NAkS" class=""><code>question_submit</code></td><td id="Qrd[" class="">질문을 보냈을 때</td><td id="YSEd" class="">무엇을 궁금해하는지. 행동으로 안 드러나는 취향·망설임을 잡는 통로</td></tr><tr id="36a9cfa8-bd47-488e-b415-0d557e303f92" dir="ltr"><td id="NAkS" class=""><code>recommendation_impression</code></td><td id="Qrd[" class="">챗봇이 추천을 띄웠을 때</td><td id="YSEd" class="">추천이 실제로 노출됐는지 (클릭률의 분모)</td></tr><tr id="25a04792-2824-450f-be29-3550151e885c" dir="ltr"><td id="NAkS" class=""><code>recommendation_click</code></td><td id="Qrd[" class="">그 추천을 눌렀을 때</td><td id="YSEd" class="">추천이 먹혔는지. 추천 로직 성능 측정</td></tr></tbody></table><p id="d22c8342-c39e-433c-8359-c8adb73d96a9" class="" dir="auto">(피팅 관련 이벤트는 이번 스코프에 없음)</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js" integrity="sha512-QXFMVAusM85vUYDaNgcYeU3rzSlc+bTV4JvkfJhjxSHlQEo+ig53BtnGkvFTiNJh8D+wv6uWAQ2vJaVmxe8d3w==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><pre id="1b449c3b-6091-4920-af19-ea33cfef7ec0" class="code code-wrap" data-notion-code-syntax="json"><code class="language-json" style="white-space:pre-wrap;word-break:break-all">{
+  &quot;visit_id&quot;: &quot;v_9f8e...&quot;,
+  &quot;events&quot;: [
+    { &quot;event_id&quot;: &quot;e_1&quot;, &quot;event_type&quot;: &quot;scene_view&quot;, &quot;scene_id&quot;: &quot;sc_01&quot;, &quot;client_timestamp&quot;: &quot;2026-08-11T06:01:10Z&quot; },
+    { &quot;event_id&quot;: &quot;e_2&quot;, &quot;event_type&quot;: &quot;product_dwell&quot;, &quot;product_id&quot;: &quot;p_101&quot;, &quot;client_timestamp&quot;: &quot;2026-08-11T06:01:40Z&quot;, &quot;metadata&quot;: { &quot;dwell_ms&quot;: 30000 } }
+  ]
+}</code></pre><h2 id="dc07be1f-3ea7-4590-b226-b34e9e6acaa7" class="" dir="auto">Response 202</h2><pre id="d7c2fc24-c4b5-43f7-9f31-1a05b8a84636" class="code code-wrap" data-notion-code-syntax="json"><code class="language-json" style="white-space:pre-wrap;word-break:break-all">{ &quot;accepted&quot;: 2, &quot;duplicated&quot;: 0 }</code></pre><h2 id="70afcd7d-f15a-4759-9fc1-18b4785e811c" class="" dir="auto">에러 / 관련 테이블</h2><p id="183e3845-c7e5-4f0e-a86f-646498c0c4ff" class="" dir="auto"><code>400 VALIDATION_ERROR</code> · <code>401 INVALID_VISIT_TOKEN</code> → <code>events</code></p></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>
