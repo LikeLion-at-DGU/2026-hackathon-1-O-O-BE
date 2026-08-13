@@ -75,7 +75,12 @@ def timeline(visit: Visit) -> list[ChatLog]:
 
 def current_context(visit: Visit) -> dict:
     """가장 최근에 클릭한 진열대·상품. POST /chat이 이걸 기본 문맥으로 쓴다."""
-    latest_product = visit.chat_logs.filter(product__isnull=False).order_by("-created_at").first()
+    latest_product = (
+        visit.chat_logs.filter(product__isnull=False)
+        .select_related("product")
+        .order_by("-created_at")
+        .first()
+    )
     latest_scene = visit.chat_logs.filter(scene__isnull=False).order_by("-created_at").first()
 
     product_id = latest_product.product_id if latest_product else None

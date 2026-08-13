@@ -2,29 +2,23 @@ from django.http import StreamingHttpResponse
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import status
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from api.permissions import IsOpenVisit, IsVisitAuthenticated
+from api.renderers import EventStreamRenderer
+from api.scoping import assert_own_visit
 from apps.chat import messages as timeline_service
 from apps.chat.serializers import (
     ActionMessageSerializer,
     ChatMessageSerializer,
     ChatRequestSerializer,
+    TimelineQuerySerializer,
     TimelineSerializer,
 )
 from apps.chat.services import respond
 from apps.chat.throttles import ChatThrottle
-from apps.visits.models import Visit
-
-
-def assert_own_visit(request, visit_id: str) -> Visit:
-    """토큰이 가리키는 방문만 다룰 수 있다. 클라이언트가 보낸 visit_id를 믿지 않는다."""
-    visit = request.auth
-    if visit_id != visit.id:
-        raise PermissionDenied("다른 방문의 대화는 다룰 수 없습니다.")
-    return visit
 
 
 class ChatMessagesView(APIView):
@@ -69,7 +63,9 @@ class ChatMessagesView(APIView):
         tags=["Chat"],
     )
     def get(self, request):
-        visit = assert_own_visit(request, request.query_params.get("visit_id", ""))
+        query = TimelineQuerySerializer(data=request.query_params)
+        query.is_valid(raise_exception=True)
+        visit = assert_own_visit(request, query.validated_data["visit_id"])
         return Response(
             {
                 "messages": ChatMessageSerializer(timeline_service.timeline(visit), many=True).data,
@@ -87,6 +83,9 @@ class ChatView(APIView):
 
     permission_classes = [IsOpenVisit]
     throttle_classes = [ChatThrottle]
+    # JSONRenderer를 앞에 둬서 에러 응답은 평소처럼 JSON으로 나가고,
+    # Accept: text/event-stream(Swagger UI 등)도 406 없이 통과한다.
+    renderer_classes = [JSONRenderer, EventStreamRenderer]
 
     @extend_schema(
         request=ChatRequestSerializer,

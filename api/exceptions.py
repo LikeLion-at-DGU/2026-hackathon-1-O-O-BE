@@ -13,6 +13,7 @@ DEFAULT_CODES = {
     status.HTTP_403_FORBIDDEN: "FORBIDDEN",
     status.HTTP_404_NOT_FOUND: "NOT_FOUND",
     status.HTTP_405_METHOD_NOT_ALLOWED: "METHOD_NOT_ALLOWED",
+    status.HTTP_406_NOT_ACCEPTABLE: "NOT_ACCEPTABLE",
     status.HTTP_409_CONFLICT: "CONFLICT",
     status.HTTP_429_TOO_MANY_REQUESTS: "RATE_LIMITED",
 }
@@ -22,6 +23,7 @@ FALLBACK_MESSAGES = {
     status.HTTP_401_UNAUTHORIZED: "인증 정보가 올바르지 않습니다.",
     status.HTTP_403_FORBIDDEN: "권한이 없습니다.",
     status.HTTP_404_NOT_FOUND: "요청한 리소스를 찾을 수 없습니다.",
+    status.HTTP_406_NOT_ACCEPTABLE: "요청한 응답 형식을 지원하지 않습니다.",
     status.HTTP_429_TOO_MANY_REQUESTS: "요청이 너무 많습니다. 잠시 후 다시 시도해주세요.",
 }
 

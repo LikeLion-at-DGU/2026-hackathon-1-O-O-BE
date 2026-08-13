@@ -42,19 +42,38 @@ class ChatMessageSerializer(serializers.ModelSerializer):
         fields = ("message_id", "role", "content", "created_at")
 
 
-class ContextSerializer(serializers.Serializer):
+class CurrentContextSerializer(serializers.Serializer):
+    """응답용. 가장 최근 클릭된 진열대·상품이며 둘 다 없을 수 있다."""
+
     scene_id = serializers.CharField(allow_null=True)
     product_id = serializers.CharField(allow_null=True)
 
 
 class TimelineSerializer(serializers.Serializer):
     messages = ChatMessageSerializer(many=True)
-    current_context = ContextSerializer()
+    current_context = CurrentContextSerializer()
 
 
-class ChatContextSerializer(serializers.Serializer):
+class TimelineQuerySerializer(serializers.Serializer):
+    visit_id = serializers.CharField()
+
+
+class ContextInputSerializer(serializers.Serializer):
+    """요청용 문맥 지정. 없는 id를 받으면 문맥이 조용히 비므로 존재를 검증한다."""
+
     scene_id = serializers.CharField(required=False, allow_null=True, default=None)
     product_id = serializers.CharField(required=False, allow_null=True, default=None)
+
+    def validate_scene_id(self, value: str | None) -> str | None:
+        return self._assert_exists(Scene, value, "scene_id")
+
+    def validate_product_id(self, value: str | None) -> str | None:
+        return self._assert_exists(Product, value, "product_id")
+
+    def _assert_exists(self, model, object_id: str | None, field: str) -> str | None:
+        if object_id and not model.objects.filter(id=object_id).exists():
+            raise serializers.ValidationError(f"존재하지 않습니다: {object_id}")
+        return object_id
 
 
 class ChatRequestSerializer(serializers.Serializer):
@@ -62,4 +81,4 @@ class ChatRequestSerializer(serializers.Serializer):
 
     visit_id = serializers.CharField()
     message = serializers.CharField(max_length=500)
-    context = ChatContextSerializer(required=False)
+    context = ContextInputSerializer(required=False)

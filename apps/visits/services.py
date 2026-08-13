@@ -99,13 +99,11 @@ def apply_demographics(visitor: Visitor, age_band: str, gender: str) -> None:
 
 def summarize(visit: Visit) -> dict:
     """이어하기 모달에 "3개 상품을 보던 중이었어요"를 띄우기 위한 요약."""
-    viewed = (
-        visit.events.filter(event_type=EventType.PRODUCT_VIEW, product__isnull=False)
-        .values("product_id")
-        .aggregate(count=Count("product_id", distinct=True))
+    viewed = visit.events.filter(event_type=EventType.PRODUCT_VIEW).aggregate(
+        count=Count("product_id", distinct=True)
     )
     return {
         "started_at": visit.started_at,
-        "products_viewed": viewed["count"] or 0,
+        "products_viewed": viewed["count"],
         "message_count": visit.chat_logs.count(),
     }
