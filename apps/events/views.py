@@ -6,6 +6,7 @@ from rest_framework.views import APIView
 
 from api.authentication import ANONYMOUS_UUID_HEADER
 from api.permissions import IsOpenVisit
+from api.scoping import assert_own_visit
 from apps.events.serializers import EventBatchResultSerializer, EventBatchSerializer
 from apps.events.services import append_batch
 from apps.visits.models import Visit
@@ -38,11 +39,8 @@ class EventBatchView(APIView):
         serializer = EventBatchSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        visit = request.auth
+        visit = assert_own_visit(request, serializer.validated_data["visit_id"])
         self._assert_visitor_matches(request, visit)
-        if serializer.validated_data["visit_id"] != visit.id:
-            # 토큰이 가리키는 방문만 기록할 수 있다. 클라이언트가 보낸 visit_id를 믿지 않는다.
-            raise PermissionDenied("다른 방문의 이벤트는 기록할 수 없습니다.")
 
         result = append_batch(visit, serializer.validated_data["events"])
         touch(visit)

@@ -6,9 +6,11 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from api.authentication import ANONYMOUS_UUID_HEADER
+from apps.catalog.models import Store
 from apps.catalog.repositories import get_default_store, scenes_with_products
 from apps.catalog.serializers import SceneSerializer, StoreBriefSerializer
 from apps.visits import services
+from apps.visits.models import Visit, Visitor
 from apps.visits.serializers import EnterRequestSerializer, EnterResponseSerializer
 
 
@@ -58,7 +60,7 @@ class EnterView(APIView):
         return Response(body, status=status.HTTP_200_OK)
 
     @transaction.atomic
-    def _resolve_visit(self, visitor, store, payload) -> tuple:
+    def _resolve_visit(self, visitor: Visitor, store: Store, payload: dict) -> tuple[Visit, bool]:
         """이어받을 Visit이 있으면 그것을, 없으면 새 Visit을 준다.
 
         이어할 때는 토큰까지 그대로 돌려주므로 클라이언트가 저장해 둔 토큰이 계속 유효하다.
