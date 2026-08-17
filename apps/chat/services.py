@@ -81,17 +81,20 @@ def _absorb(visit: Visit, question: str) -> dict:
     profile.save(update_fields=["vector", "updated_at"])
 
     return {
-        "axes": {axis: value for axis, value in preferred.items()},
-        "rejected": {axis: value for axis, value in rejected.items()},
+        "axes": {axis: values[0] for axis, values in preferred.items()},
+        "rejected": {axis: values for axis, values in rejected.items()},
         "reading": _reading(preferred, rejected),
         "needs_confirm": bool(preferred),
     }
 
 
-def _reading(preferred: dict, rejected: dict) -> str:
-    """ "베이지 · 미니멀로 읽었어요" — 되돌려 확인할 문장을 서버가 만든다."""
-    parts = [say(value) for value in preferred.values()]
-    parts += [f"{say(value)} 제외" for value in rejected.values()]
+def _reading(preferred: dict[str, list[str]], rejected: dict[str, list[str]]) -> str:
+    """되돌려 확인할 문장. "베이지 · 절제된 느낌으로 읽었어요"의 앞부분을 만든다.
+
+    축 하나에 값이 여럿 올 수 있으므로(빨강도 핑크도 싫어) 리스트를 펼쳐서 읽는다.
+    """
+    parts = [say(values[0]) for values in preferred.values()]
+    parts += [f"{say(value)} 제외" for values in rejected.values() for value in values]
     return " · ".join(parts)
 
 
