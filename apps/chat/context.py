@@ -4,10 +4,20 @@
 상품명을 말하지 않아도 되고, 서버가 지금 어떤 상품 얘기 중인지 알고 있다.
 """
 
+from apps.analysis import taste as taste_module
+from apps.analysis.recommend import Suggestion
+from apps.analysis.taste import Taste
 from apps.catalog.models import PresetKey, Product
 from apps.chat.messages import current_context, timeline
 from apps.chat.models import Role
-from apps.chat.prompts import CONTEXT_HEADER, SYSTEM_PROMPT, TIMELINE_HEADER
+from apps.chat.prompts import (
+    CANDIDATE_HEADER,
+    CONTEXT_HEADER,
+    SYSTEM_PROMPT,
+    TASTE_HEADER,
+    TIMELINE_HEADER,
+)
+from apps.chat.wording import say, say_axis
 from apps.visits.models import Visit
 
 TIMELINE_WINDOW = 12  # 프롬프트에 넣는 최근 메시지 수. 토큰을 아끼면서 흐름은 유지한다.
@@ -20,18 +30,53 @@ ROLE_TO_OPENAI = {
 }
 
 
-def build_messages(visit: Visit, question: str, override: dict | None = None) -> list[dict]:
-    """system + 상품 문맥 + 최근 타임라인 + 이번 질문."""
+def build_messages(
+    visit: Visit,
+    question: str,
+    override: dict | None = None,
+    taste: Taste | None = None,
+    candidates: list[Suggestion] | None = None,
+) -> list[dict]:
+    """system + 상품 문맥 + 취향 좌표 + 추천 후보 + 최근 타임라인 + 이번 질문."""
     context = override or current_context(visit)
     product = _target_product(context)
+    taste = taste if taste is not None else taste_module.read(visit)
 
     messages = [{"role": "system", "content": SYSTEM_PROMPT}]
     if product is not None:
         messages.append({"role": "system", "content": _describe(product)})
+    if summary := _describe_taste(taste):
+        messages.append({"role": "system", "content": summary})
+    if candidates:
+        messages.append({"role": "system", "content": _describe_candidates(candidates)})
     messages.append({"role": "system", "content": _describe_visitor(visit)})
     messages.extend(_recent_turns(visit))
     messages.append({"role": "user", "content": question})
     return messages
+
+
+def _describe_taste(taste: Taste) -> str:
+    """확정된 축과 유효 축만 넣는다. 애매한 축을 넣으면 LLM이 단정해버린다."""
+    lines = [f"- {say_axis(axis)}: {say(value)} (손님이 확인)" for axis, value in taste.locks.items()]
+    for axis in taste.valid_axes:
+        if axis in taste.locks:
+            continue
+        values = taste.values.get(axis, {})
+        if not values:
+            continue
+        top = max(values, key=lambda value: values[value])
+        if values[top] > 0:
+            lines.append(f"- {say_axis(axis)}: {say(top)} 쪽으로 보임")
+    return f"{TASTE_HEADER}\n" + "\n".join(lines) if lines else ""
+
+
+def _describe_candidates(candidates: list[Suggestion]) -> str:
+    """후보는 서버가 고른다. LLM은 이 목록 밖의 상품·번호를 말할 수 없다."""
+    lines = [
+        f"- {item.product.name} ({item.product.scene.no}번 진열대 {item.product.no}번) — {item.reason}"
+        for item in candidates
+    ]
+    return f"{CANDIDATE_HEADER}\n" + "\n".join(lines)
 
 
 def _target_product(context: dict) -> Product | None:

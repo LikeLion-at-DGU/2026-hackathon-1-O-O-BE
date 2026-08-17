@@ -7,6 +7,8 @@ from rest_framework.views import APIView
 from api.authentication import ANONYMOUS_UUID_HEADER
 from api.permissions import IsOpenVisit
 from api.scoping import assert_own_visit
+from apps.chat.messages import append_hypothesis
+from apps.chat.triggers import evaluate
 from apps.events.serializers import EventBatchResultSerializer, EventBatchSerializer
 from apps.events.services import append_batch
 from apps.visits.models import Visit
@@ -44,6 +46,11 @@ class EventBatchView(APIView):
 
         result = append_batch(visit, serializer.validated_data["events"])
         touch(visit)
+        # 행동이 쌓인 직후가 관찰의 유일한 시점이다. 조건에 걸리면 가설 말풍선을
+        # 타임라인에 넣고, 프론트는 GET /chat/messages의 pending_action에서 발견한다.
+        hypothesis = evaluate(visit)
+        if hypothesis is not None:
+            append_hypothesis(visit, hypothesis)
         return Response(result, status=status.HTTP_202_ACCEPTED)
 
     def _assert_visitor_matches(self, request, visit: Visit) -> None:
