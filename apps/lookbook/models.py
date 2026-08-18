@@ -73,6 +73,9 @@ class Lookbook(models.Model):
     # 무드 스냅샷 + _meta.seed. seed를 안 남기면 나온 결과를 되짚을 수 없다.
     mood_payload = models.JSONField(default=dict)
     image_url = models.CharField(max_length=300, blank=True)
+    # 프론트가 자리를 미리 잡아야 이미지가 뜰 때 화면이 튀지 않는다.
+    width = models.PositiveIntegerField(default=0)
+    height = models.PositiveIntegerField(default=0)
     error_code = models.CharField(max_length=40, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)

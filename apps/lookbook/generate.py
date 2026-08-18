@@ -14,14 +14,11 @@ from rest_framework.exceptions import PermissionDenied, ValidationError
 from apps.analysis.models import Report, ReportStatus
 from apps.catalog.models import Product
 from apps.lookbook import composition as composition_picker
-from apps.lookbook import jobs, storage
+from apps.lookbook import jobs, snapshot, storage
 from apps.lookbook.errors import RegenerationLimit, ReportPending
 from apps.lookbook.models import Composition, Lookbook
 
 logger = logging.getLogger(__name__)
-
-MOOD_KEY = "mood"
-SEED_META_KEY = "_meta"
 
 
 def accept(report: Report, visit, payload: dict) -> Lookbook:
@@ -99,7 +96,7 @@ def _create(report: Report, visit, payload: dict, products: list[Product]) -> Lo
                 photo_key=payload["photo_key"],
                 mask_key=payload.get("mask_key") or "",
                 composition=chosen,
-                mood_payload=_mood_payload(locked, seed),
+                mood_payload=snapshot.build(locked, visit, seed),
             )
         except IntegrityError:
             # UniqueConstraint(report, attempt)에 걸렸다. 동시 요청이라 500이 아니라 충돌이다.
@@ -114,16 +111,6 @@ def _create(report: Report, visit, payload: dict, products: list[Product]) -> Lo
         )
     )
     return lookbook
-
-
-def _mood_payload(report: Report, seed: int) -> dict:
-    """리포트에 박제된 무드를 그대로 복사하고 seed를 함께 남긴다.
-
-    무드는 `/finish` 워커가 이미 정했다. 생성 시점에 다시 계산하면 같은 리포트인데
-    화보마다 톤이 달라진다. 랜덤은 구도 선택에만 들어간다.
-    """
-    mood = report.payload.get(MOOD_KEY, {}) if isinstance(report.payload, dict) else {}
-    return {**mood, SEED_META_KEY: {"seed": seed}}
 
 
 def remaining_regenerations(attempt: int) -> int:

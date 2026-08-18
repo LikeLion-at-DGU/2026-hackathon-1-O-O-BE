@@ -9,13 +9,15 @@ from rest_framework.views import APIView
 
 from api.permissions import IsVisitAuthenticated
 from apps.analysis.models import Report, ReportStatus
-from apps.lookbook import candidates, generate, jobs, mocks, progress, storage, worker
-from apps.lookbook.errors import ReportPending
+from apps.lookbook import candidates, detail, generate, jobs, mocks, progress, storage, worker
+from apps.lookbook.errors import LookbookNotReady, ReportPending
+from apps.lookbook.models import Lookbook, LookbookStatus
 from apps.lookbook.serializers import (
     CandidateListSerializer,
     JobStatusSerializer,
     LookbookCreateResponseSerializer,
     LookbookCreateSerializer,
+    LookbookDetailSerializer,
     PresignRequestSerializer,
     PresignResponseSerializer,
 )
@@ -142,3 +144,22 @@ class LookbookCreateView(APIView):
             },
             status=status.HTTP_202_ACCEPTED,
         )
+
+
+class LookbookDetailView(APIView):
+    """GET /api/v1/lookbooks/{share_slug} — 완성 화보.
+
+    **인증이 없다.** 남이 열어도 보여야 하는 공유 링크라 slug가 곧 열쇠다.
+    박제된 값을 그대로 내고 재계산하지 않는다.
+    """
+
+    authentication_classes = []
+    permission_classes = [AllowAny]
+
+    @extend_schema(responses={200: LookbookDetailSerializer}, auth=[], tags=["Lookbook"])
+    def get(self, request, share_slug: str):
+        lookbook = get_object_or_404(Lookbook, pk=share_slug)
+        if lookbook.status != LookbookStatus.READY:
+            # "없음"과 "아직"은 프론트가 다르게 처리해야 한다.
+            raise LookbookNotReady()
+        return Response(detail.build(lookbook), status=status.HTTP_200_OK)

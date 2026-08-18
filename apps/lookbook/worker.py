@@ -67,8 +67,9 @@ def _generate(lookbook: Lookbook) -> str:
 
 def _mark_ready(lookbook: Lookbook, image_url: str) -> None:
     lookbook.image_url = image_url  # ★ 이미지 먼저
+    lookbook.width, lookbook.height = settings.LOOKBOOK_IMAGE_SIZE
     lookbook.status = LookbookStatus.READY  # ★ 완료 표시는 맨 마지막
-    lookbook.save(update_fields=["image_url", "status", "updated_at"])
+    lookbook.save(update_fields=["image_url", "width", "height", "status", "updated_at"])
 
     state = jobs.read(lookbook.job_id) or _state_of(lookbook)
     state.status = jobs.STATUS_READY
