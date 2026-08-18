@@ -6,7 +6,7 @@
 
 from django.test import SimpleTestCase
 
-from apps.lookbook import jobs, progress, scoring
+from apps.lookbook import composition, jobs, progress, scoring, snapshot, storage
 from apps.lookbook.jobs import JobState
 from apps.lookbook.scoring import ProductSignals, ReasonCode, ScoredCandidate
 
@@ -152,3 +152,148 @@ class RetryableTest(SimpleTestCase):
 
     def test_에러가_없으면_재시도_대상이_아니다(self):
         self.assertFalse(JobState(job_id="job_1", share_slug="look-1").is_retryable)
+
+
+class UploadKeyTest(SimpleTestCase):
+    def test_확장자는_선언된_타입에서_뽑는다(self):
+        self.assertTrue(storage.new_photo_key("image/jpeg").endswith(".jpg"))
+        self.assertTrue(storage.new_photo_key("image/png").endswith(".png"))
+        self.assertTrue(storage.new_photo_key("image/webp").endswith(".webp"))
+
+    def test_키는_날짜_경로_아래_무작위_이름이다(self):
+        key = storage.new_photo_key("image/jpeg")
+
+        self.assertTrue(key.startswith(f"{storage.PHOTO_PREFIX}/"))
+        self.assertEqual(len(key.split("/")), 5)  # photos/YYYY/MM/DD/name.jpg
+
+    def test_매번_다른_키가_나온다(self):
+        keys = {storage.new_photo_key("image/jpeg") for _ in range(50)}
+
+        self.assertEqual(len(keys), 50)
+
+    def test_마스크는_사진과_짝이_되는_키를_쓴다(self):
+        photo = "photos/2026/08/17/9c1f4a2b.jpg"
+
+        self.assertEqual(storage.mask_key_for(photo), "photos/2026/08/17/9c1f4a2b_mask.png")
+
+    def test_마스크는_원본_확장자와_무관하게_png다(self):
+        self.assertTrue(storage.mask_key_for("photos/2026/08/17/a.webp").endswith("_mask.png"))
+
+
+class SeedTest(SimpleTestCase):
+    def test_첫_컷은_같은_방문에서_항상_같다(self):
+        first = composition.seed_for("v_abc", attempt=1)
+        second = composition.seed_for("v_abc", attempt=1)
+
+        self.assertEqual(first, second)
+
+    def test_사람마다_다른_seed가_나온다(self):
+        self.assertNotEqual(composition.seed_for("v_abc", 1), composition.seed_for("v_xyz", 1))
+
+    def test_재생성은_매번_달라진다(self):
+        seeds = {composition.seed_for("v_abc", attempt=2) for _ in range(20)}
+
+        self.assertGreater(len(seeds), 1)
+
+
+class FakeComposition:
+    def __init__(self, code, min_face, max_face):
+        self.code = code
+        self.min_face = min_face
+        self.max_face = max_face
+
+    def accepts(self, face_ratio):
+        return face_ratio is None or self.min_face <= face_ratio <= self.max_face
+
+
+class CompositionChoiceTest(SimpleTestCase):
+    def setUp(self):
+        self.all = [
+            FakeComposition("close_up", 0.15, 1.00),
+            FakeComposition("half_body", 0.05, 0.35),
+            FakeComposition("wide", 0.00, 0.15),
+            FakeComposition("product_focus", 0.00, 1.00),
+        ]
+
+    def test_얼굴이_크면_와이드는_후보에서_빠진다(self):
+        picked = {composition.choose(self.all, 0.5, seed).code for seed in range(20)}
+
+        self.assertNotIn("wide", picked)
+
+    def test_얼굴을_못_찾으면_전부_후보다(self):
+        picked = {composition.choose(self.all, None, seed).code for seed in range(20)}
+
+        self.assertEqual(len(picked), len(self.all))
+
+    def test_같은_seed는_같은_구도를_고른다(self):
+        first = composition.choose(self.all, 0.2, seed=7)
+        second = composition.choose(self.all, 0.2, seed=7)
+
+        self.assertEqual(first.code, second.code)
+
+    def test_이미_쓴_구도는_피한다(self):
+        picked = composition.choose(self.all, None, seed=0, used_codes=("close_up",))
+
+        self.assertNotEqual(picked.code, "close_up")
+
+    def test_후보가_다_소진되면_다시_쓴다(self):
+        used = tuple(item.code for item in self.all)
+
+        self.assertIsNotNone(composition.choose(self.all, None, seed=0, used_codes=used))
+
+
+class MagicByteTest(SimpleTestCase):
+    def test_jpeg를_알아본다(self):
+        self.assertTrue(storage.is_image(b"\xff\xd8\xff\xe0" + b"\x00" * 8))
+
+    def test_png를_알아본다(self):
+        self.assertTrue(storage.is_image(b"\x89PNG\r\n\x1a\n" + b"\x00" * 4))
+
+    def test_webp를_알아본다(self):
+        self.assertTrue(storage.is_image(b"RIFF\x00\x00\x00\x00WEBP"))
+
+    def test_이미지가_아니면_거른다(self):
+        """content_type은 클라이언트 선언값이라 image/jpeg라 해놓고 아무거나 올릴 수 있다."""
+        self.assertFalse(storage.is_image(b"<!DOCTYPE ht"))
+
+
+class SnapshotTest(SimpleTestCase):
+    class FakeReport:
+        def __init__(self, payload):
+            self.payload = payload
+
+    class FakeVisit:
+        muse_no = 14
+        muse_label = "N.014"
+        id = "v_abc"
+
+    def test_리포트의_무드와_지표를_그대로_옮긴다(self):
+        report = self.FakeReport({"mood": {"code": "cognac_noir"}, "stats": [{"key": "cuts", "value": 32}]})
+
+        stored = snapshot.build(report, self.FakeVisit(), seed=7)
+
+        self.assertEqual(snapshot.mood_of(stored)["code"], "cognac_noir")
+        self.assertEqual(snapshot.stats_of(stored)[0]["value"], 32)
+
+    def test_뮤즈_번호가_함께_박제된다(self):
+        stored = snapshot.build(self.FakeReport({}), self.FakeVisit(), seed=7)
+
+        self.assertEqual(stored["muse_no"], 14)
+        self.assertEqual(stored["muse_label"], "N.014")
+
+    def test_seed를_남긴다(self):
+        """안 남기면 나온 결과를 되짚을 수 없다."""
+        stored = snapshot.build(self.FakeReport({}), self.FakeVisit(), seed=99)
+
+        self.assertEqual(stored[snapshot.META_KEY]["seed"], 99)
+
+    def test_리포트에_무드가_없어도_죽지_않는다(self):
+        stored = snapshot.build(self.FakeReport({}), self.FakeVisit(), seed=1)
+
+        self.assertEqual(snapshot.mood_of(stored), {})
+        self.assertEqual(snapshot.stats_of(stored), [])
+
+    def test_지표가_배열이_아니면_빈_배열로_본다(self):
+        stored = snapshot.build(self.FakeReport({"stats": "깨진값"}), self.FakeVisit(), seed=1)
+
+        self.assertEqual(snapshot.stats_of(stored), [])

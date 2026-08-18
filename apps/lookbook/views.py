@@ -1,6 +1,7 @@
+from django.conf import settings
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
-from rest_framework.exceptions import APIException, NotFound, PermissionDenied
+from rest_framework.exceptions import NotFound, PermissionDenied
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
@@ -8,16 +9,18 @@ from rest_framework.views import APIView
 
 from api.permissions import IsVisitAuthenticated
 from apps.analysis.models import Report, ReportStatus
-from apps.lookbook import candidates, jobs, mocks
-from apps.lookbook.serializers import CandidateListSerializer, JobStatusSerializer
-
-
-class ReportPending(APIException):
-    """분석이 아직 안 끝났다. 잠시 뒤 다시 부르면 되는 상태라 409로 구분한다."""
-
-    status_code = status.HTTP_409_CONFLICT
-    default_code = "CONFLICT"
-    default_detail = "report_pending"
+from apps.lookbook import candidates, detail, generate, jobs, mocks, progress, storage, worker
+from apps.lookbook.errors import LookbookNotReady, ReportPending
+from apps.lookbook.models import Lookbook, LookbookStatus
+from apps.lookbook.serializers import (
+    CandidateListSerializer,
+    JobStatusSerializer,
+    LookbookCreateResponseSerializer,
+    LookbookCreateSerializer,
+    LookbookDetailSerializer,
+    PresignRequestSerializer,
+    PresignResponseSerializer,
+)
 
 
 class LookbookCandidateView(APIView):
@@ -68,3 +71,95 @@ class LookbookJobView(APIView):
         if state is None:
             raise NotFound("진행 상태를 찾을 수 없습니다. 만료되었거나 없는 작업입니다.")
         return Response(jobs.as_response(state), status=status.HTTP_200_OK)
+
+
+class UploadPresignView(APIView):
+    """POST /api/v1/uploads/presign — 사진·마스크 업로드 URL 2개를 한 번에 발급한다.
+
+    마스크는 인물 실루엣이다. 화보 생성 때 그 영역을 건드리지 않아야 체형과 얼굴이
+    보존되므로, 사진과 짝으로 올릴 자리를 함께 내준다.
+    """
+
+    permission_classes = [IsVisitAuthenticated]
+
+    @extend_schema(
+        request=PresignRequestSerializer,
+        responses={200: PresignResponseSerializer},
+        tags=["Lookbook"],
+    )
+    def post(self, request):
+        serializer = PresignRequestSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        content_type = serializer.validated_data["content_type"]
+
+        photo = storage.presign_put(storage.new_photo_key(content_type), content_type)
+        mask = storage.presign_put(storage.mask_key_for(photo.key), storage.MASK_CONTENT_TYPE)
+
+        return Response(
+            {
+                "photo_key": photo.key,
+                "photo_upload_url": photo.upload_url,
+                "mask_key": mask.key,
+                "mask_upload_url": mask.upload_url,
+                "headers": {
+                    "photo": {"Content-Type": photo.content_type},
+                    "mask": {"Content-Type": mask.content_type},
+                },
+                "expires_in": settings.UPLOAD_URL_TTL_SEC,
+            },
+            status=status.HTTP_200_OK,
+        )
+
+
+class LookbookCreateView(APIView):
+    """POST /api/v1/reports/{slug}/lookbook — 화보 생성·재생성.
+
+    큐에 넣고 즉시 202를 돌려준다. [다시 돌리기]도 같은 엔드포인트를 같은 값으로
+    재호출하면 되고, 매번 새 share_slug를 발급한다 — 이미 공유한 링크의 이미지가
+    바뀌면 남이 열었을 때 다른 화보가 보이기 때문이다.
+    """
+
+    permission_classes = [IsVisitAuthenticated]
+
+    @extend_schema(
+        request=LookbookCreateSerializer,
+        responses={202: LookbookCreateResponseSerializer},
+        tags=["Lookbook"],
+    )
+    def post(self, request, slug: str):
+        serializer = LookbookCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        report = get_object_or_404(Report.objects.select_related("visit"), pk=slug)
+        lookbook = generate.accept(report, request.auth, serializer.validated_data)
+        worker.enqueue(lookbook)
+
+        return Response(
+            {
+                "job_id": lookbook.job_id,
+                "share_slug": lookbook.share_slug,
+                "attempt": lookbook.attempt,
+                "remaining_regenerations": generate.remaining_regenerations(lookbook.attempt),
+                "poll_after_ms": progress.POLL_SLOW_MS,
+            },
+            status=status.HTTP_202_ACCEPTED,
+        )
+
+
+class LookbookDetailView(APIView):
+    """GET /api/v1/lookbooks/{share_slug} — 완성 화보.
+
+    **인증이 없다.** 남이 열어도 보여야 하는 공유 링크라 slug가 곧 열쇠다.
+    박제된 값을 그대로 내고 재계산하지 않는다.
+    """
+
+    authentication_classes = []
+    permission_classes = [AllowAny]
+
+    @extend_schema(responses={200: LookbookDetailSerializer}, auth=[], tags=["Lookbook"])
+    def get(self, request, share_slug: str):
+        lookbook = get_object_or_404(Lookbook, pk=share_slug)
+        if lookbook.status != LookbookStatus.READY:
+            # "없음"과 "아직"은 프론트가 다르게 처리해야 한다.
+            raise LookbookNotReady()
+        return Response(detail.build(lookbook), status=status.HTTP_200_OK)
