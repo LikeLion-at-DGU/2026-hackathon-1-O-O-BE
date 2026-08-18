@@ -1,0 +1,36 @@
+# O&O 백엔드 systemd 유닛
+#
+# 배치: /etc/systemd/system/oando.service
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now oando
+#
+# 왜 uvicorn(ASGI)인가: 챗봇이 SSE로 스트리밍한다. WSGI로도 동작하지만
+# ASGI가 스트리밍 응답을 훨씬 자연스럽게 흘려보낸다.
+#
+# 왜 워커 1개인가: 리포트 생성이 threading.Thread로 돌고 DB는 SQLite다.
+# SQLite는 쓰기가 DB 전체를 잠그므로, 프로세스를 늘리면 각자 스레드를 돌려
+# 쓰기 경합만 늘어난다. 2vCore + 데모 트래픽에는 1개로 충분하다.
+
+[Unit]
+Description=O&O backend (uvicorn)
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/srv/oando
+# .env는 systemd가 아니라 settings.py의 django-environ이 직접 읽는다.
+# EnvironmentFile로 중복해서 읽히면 따옴표·주석 처리 방식이 달라 값이 깨진다.
+ExecStart=/srv/oando/venv/bin/uvicorn config.asgi:application \
+    --host 127.0.0.1 \
+    --port 8000 \
+    --workers 1 \
+    --proxy-headers \
+    --forwarded-allow-ips='127.0.0.1'
+Restart=always
+RestartSec=3
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

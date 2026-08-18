@@ -13,6 +13,8 @@ env = environ.Env(
     ALLOWED_HOSTS=(list, ["localhost", "127.0.0.1"]),
     CORS_ALLOWED_ORIGINS=(list, ["http://localhost:3000", "http://localhost:5173"]),
     CORS_ALLOW_ALL_ORIGINS=(bool, False),
+    CORS_ALLOWED_ORIGIN_REGEXES=(list, []),
+    CSRF_TRUSTED_ORIGINS=(list, []),
     OPENAI_API_KEY=(str, ""),
     OPENAI_MODEL=(str, "gpt-4o-mini"),
 )
@@ -100,6 +102,8 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = "static/"
+# collectstatic이 모아둘 위치. DEBUG=False에서 django-admin의 CSS를 nginx가 여기서 서빙한다.
+STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_URL = "media/"
 MEDIA_ROOT = BASE_DIR / "media"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
@@ -130,6 +134,19 @@ CORS_ALLOWED_ORIGINS = env("CORS_ALLOWED_ORIGINS")
 CORS_ALLOW_ALL_ORIGINS = env("CORS_ALLOW_ALL_ORIGINS")  # 로컬 전용. prod에서 켜지 말 것
 # 기본 목록(accept·origin·x-requested-with 등)을 덮어쓰면 브라우저 preflight가 깨진다.
 CORS_ALLOW_HEADERS = (*default_headers, "x-anonymous-uuid", "x-visit-token")
+# Netlify의 PR 미리보기·브랜치 배포는 도메인이 매번 달라진다
+# (deploy-preview-3--사이트.netlify.app). 고정 목록으로는 커버가 안 돼서 정규식을 쓴다.
+CORS_ALLOWED_ORIGIN_REGEXES = env("CORS_ALLOWED_ORIGIN_REGEXES")
+
+# nginx가 TLS를 끊고 평문으로 넘겨주므로, 이 헤더가 없으면 Django는 자기가 http로
+# 서비스된다고 착각한다. Swagger의 서버 주소와 미디어 URL이 http로 나가 mixed content가 된다.
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+# https로 열린 django-admin에서 로그인하려면 Origin이 신뢰 목록에 있어야 한다.
+CSRF_TRUSTED_ORIGINS = env("CSRF_TRUSTED_ORIGINS")
+# 배포는 https이므로 관리자 세션 쿠키를 평문으로 흘리지 않는다.
+# 로컬은 http라서 True로 두면 admin 로그인이 아예 안 된다.
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
 
 # 매장은 하나로 고정한다. 클라이언트가 매장을 지정하지 않고 서버가 이 값을 붙인다.
 DEFAULT_STORE_ID = env("DEFAULT_STORE_ID", default="s_mcm")
