@@ -20,7 +20,9 @@ env = environ.Env(
 )
 environ.Env.read_env(BASE_DIR / ".env")
 
-SECRET_KEY = env("DJANGO_SECRET_KEY", default="dev-only-insecure-key-change-me")
+# 이름을 둘 다 받는다. 배포 문서·튜토리얼마다 SECRET_KEY와 DJANGO_SECRET_KEY가 섞여 있는데,
+# 한쪽만 읽으면 값을 넘겨도 조용히 개발용 기본키로 떠서 알아채기 어렵다.
+SECRET_KEY = env("DJANGO_SECRET_KEY", default=env("SECRET_KEY", default="dev-only-insecure-key-change-me"))
 DEBUG = env("DEBUG")
 ALLOWED_HOSTS = env("ALLOWED_HOSTS")
 
@@ -170,7 +172,7 @@ CHAT_TIMELINE_LIMIT = 200  # GET /chat/messages가 한 번에 주는 최대 메�
 
 # 화보 생성 진행 상태는 휘발성이라 DB가 아니라 캐시에 둔다. 폴링이 화보당 8~9번이라
 # 그대로 DB에 붙이면 전부 같은 답을 가져오는 조회가 초당 수십 번 발생한다.
-# ⚠️ LocMem은 프로세스마다 따로 논다. uvicorn을 --workers 2 이상으로 띄우면 폴링이
+# ⚠️ LocMem은 프로세스마다 따로 논다. gunicorn을 --workers 2 이상으로 띄우면 폴링이
 #    다른 프로세스에 붙어 404가 나므로, 배포에서는 REDIS_URL을 반드시 채운다.
 REDIS_URL = env("REDIS_URL", default="")
 CACHES = {
@@ -187,6 +189,10 @@ LOOKBOOK_MAX_ATTEMPT = 3  # 재생성 횟수. 이미지 생성은 호출당 비�
 # 벤더가 붙기 전까지 가짜 결과로 워커·폴링·완료 화면을 실제 경로로 돌린다.
 LOOKBOOK_FAKE_AI = env.bool("LOOKBOOK_FAKE_AI", default=True)
 LOOKBOOK_FAKE_DELAY_SEC = env.int("LOOKBOOK_FAKE_DELAY_SEC", default=8)
+# 화보에 찍히는 고정 문구. 생성 시점에 스냅샷으로 복사되므로 나중에 바꿔도 옛 화보는 그대로다.
+LOOKBOOK_VENUE = env("LOOKBOOK_VENUE", default="MCM HAUS SEOUL")
+LOOKBOOK_SEASON = env("LOOKBOOK_SEASON", default="2026 F/W")
+LOOKBOOK_IMAGE_SIZE = (1080, 1350)  # 인스타그램 세로 비율
 
 # 업로드 — 사진 바이트는 Django를 지나가지 않는다. 서버는 presign URL만 발급한다.
 PHOTO_MAX_BYTES = 5 * 1024 * 1024

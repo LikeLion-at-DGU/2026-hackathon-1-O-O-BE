@@ -93,3 +93,30 @@ class LookbookCreateResponseSerializer(serializers.Serializer):
     attempt = serializers.IntegerField()
     remaining_regenerations = serializers.IntegerField()
     poll_after_ms = serializers.IntegerField()
+
+
+class LookbookProductSerializer(serializers.Serializer):
+    product_id = serializers.CharField()
+    name = serializers.CharField()
+    image_url = serializers.CharField(allow_null=True)
+    price = serializers.IntegerField()
+    detail_url = serializers.CharField()
+
+
+class LookbookDetailSerializer(serializers.Serializer):
+    """완성 화보. mood·stats·muse_no는 생성 시점에 박제된 값을 그대로 낸다."""
+
+    share_slug = serializers.CharField()
+    attempt = serializers.IntegerField()
+    image_url = serializers.CharField()
+    width = serializers.IntegerField()
+    height = serializers.IntegerField()
+    muse_no = serializers.IntegerField(allow_null=True)
+    muse_label = serializers.CharField(allow_null=True)
+    venue = serializers.CharField(allow_null=True)
+    season = serializers.CharField(allow_null=True)
+    mood = serializers.DictField(help_text="code · name · reason · palette")
+    stats = serializers.ListField(help_text="key · label · value. 프론트는 순회만 한다")
+    products = LookbookProductSerializer(many=True)
+    report_slug = serializers.CharField()
+    created_at = serializers.DateTimeField()
