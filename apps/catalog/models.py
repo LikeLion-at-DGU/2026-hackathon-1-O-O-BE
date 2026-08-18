@@ -29,6 +29,8 @@ class Category(models.TextChoices):
     SHOULDER = "shoulder", "숄더백"
     WALLET = "wallet", "지갑"
     ACCESSORY = "accessory", "액세서리"
+    # 5·6단이 의류다. 가방만 있는 분류로는 15개 상품이 어디에도 못 들어간다.
+    CLOTHING = "clothing", "의류"
 
 
 class Color(models.TextChoices):
