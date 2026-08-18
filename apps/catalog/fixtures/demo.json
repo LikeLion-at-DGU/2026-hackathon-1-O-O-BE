@@ -1,232 +1,2305 @@
 {
-  "_comment": "⚠️ 임시 데이터. 크롤링(D2)이 끝나면 이 파일만 교체하면 된다. 8개 축은 apps/catalog/models.py의 TextChoices 값만 사용한다.",
-  "store": { "id": "s_mcm", "name": "MCM 스토어" },
+  "_comment": "scripts/xlsx_to_demo.py가 만든 파일. 빈 축은 사람이 채운다.",
+  "store": {
+    "id": "s_mcm",
+    "name": "MCM 스토어"
+  },
   "scenes": [
     {
       "id": "sc_01",
       "no": 1,
-      "name": "F/W 신상",
+      "name": "토트백",
       "products": [
         {
           "id": "p_101",
           "no": 1,
-          "name": "[임시] Heritage 백팩",
-          "price": 890000,
-          "external_url": "https://example.com/products/p_101",
-          "story": "1976년 뮌헨의 여행 가방에서 출발한 실루엣을 현대적으로 재해석한 라인이다.",
-          "images": ["/media/products/placeholder.jpg"],
-          "category": "backpack",
-          "color": "cognac",
-          "material": "coated_canvas",
-          "pattern": "visetos_monogram",
+          "name": "Milla 스페니시 엠보스드 레더 토트",
+          "price": 1690000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/가방/토트백-쇼퍼백/milla-스페니시-엠보스드-레더-토트/MWTGSMA02QA001.html?cgid=bags-totes-shoppers",
+          "story": "뮌헨 아이콘의 재탄생",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MWTGSMA02QA001_01",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MWTGSMA02QA001_09",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MWTGSMA02QA001_02"
+          ],
+          "cutout_url": "",
+          "is_new": false,
+          "attributes": {
+            "color": "lotus pink",
+            "material": "스페인산 엠보스드 레더",
+            "dimensions": "약 11 x 25 x 18cm",
+            "size": "S"
+          },
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
+          "category": "tote",
+          "color": "pink",
+          "material": "grained_leather",
+          "pattern": "solid",
+          "price_band": "high",
           "silhouette": "structured",
           "mood": "classic_heritage",
-          "price_band": "mid",
-          "use_case": "daily",
-          "is_new": true,
-          "attributes": { "color": "코냑", "material": "코팅 캔버스", "size": "30x40cm", "capacity": "15L" },
-          "preset_answers": {
-            "price": "890,000원입니다. 백팩 라인 중 엔트리 가격대예요.",
-            "material": "코팅 캔버스에 레더 트리밍. 생활 방수가 되고 마른 천으로 닦아 관리합니다.",
-            "design_intent": "1976년 뮌헨의 여행 가방 실루엣을 현대적으로 재해석했습니다."
-          },
-          "llm_context": "클래식 헤리티지 무드의 코팅 캔버스 백팩. 비세토스 모노그램이 전면에 있고 구조적인 실루엣이다. 데일리 용도로 쓰기 좋고 15L 수납이다."
+          "use_case": "work"
         },
         {
           "id": "p_102",
           "no": 2,
-          "name": "[임시] Stark 스터드 백팩",
-          "price": 1290000,
-          "external_url": "https://example.com/products/p_102",
-          "story": "스터드 디테일로 스트리트 무드를 강조한 시즌 시그니처.",
-          "images": ["/media/products/placeholder.jpg"],
-          "category": "backpack",
-          "color": "black",
-          "material": "smooth_leather",
-          "pattern": "studded",
-          "silhouette": "boxy",
-          "mood": "y2k_street",
-          "price_band": "high",
-          "use_case": "going_out",
-          "is_new": true,
-          "attributes": { "color": "블랙", "material": "스무스 레더", "size": "32x42cm", "capacity": "18L" },
-          "preset_answers": {
-            "price": "1,290,000원입니다. 스터드 공정이 들어간 상위 라인입니다.",
-            "material": "스무스 레더에 메탈 스터드. 비에 젖으면 바로 닦아주세요.",
-            "design_intent": "Y2K 스트리트 감성을 스터드로 표현한 시즌 시그니처입니다."
+          "name": "Milla 스페니시 엠보스드 레더 토트",
+          "price": 1690000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/가방/토트백-쇼퍼백/milla-스페니시-엠보스드-레더-토트/MWTGSMA02QA001.html?cgid=bags-totes-shoppers",
+          "story": "뮌헨 아이콘의 재탄생",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MWTGSMA02QA001_01",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MWTGSMA02QA001_09",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MWTGSMA02QA001_02"
+          ],
+          "cutout_url": "",
+          "is_new": false,
+          "attributes": {
+            "color": "블랙",
+            "material": "스페인산 엠보스드 레더",
+            "dimensions": "약 11 x 25 x 18cm",
+            "size": "S"
           },
-          "llm_context": "블랙 스무스 레더에 메탈 스터드가 박힌 박시한 백팩. Y2K 스트리트 무드가 강하고 나들이·모임용으로 어울린다."
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
+          "category": "tote",
+          "color": "black",
+          "material": "grained_leather",
+          "pattern": "solid",
+          "price_band": "high",
+          "silhouette": "structured",
+          "mood": "classic_heritage",
+          "use_case": "work"
+        },
+        {
+          "id": "p_103",
+          "no": 3,
+          "name": "Milla 그레인 가죽 토트",
+          "price": 1690000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/가방/토트백-쇼퍼백/milla-그레인-가죽-토트/MWTGAMA02OQ001.html?cgid=bags-totes-shoppers",
+          "story": "뮌헨 아이콘의 재탄생",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MWTGAMA02OQ001_01",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MWTGAMA02OQ001_09",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MWTGAMA02OQ001_02"
+          ],
+          "cutout_url": "",
+          "is_new": false,
+          "attributes": {
+            "color": "orangeade",
+            "material": "그레인 레더",
+            "dimensions": "약 11 x 25 x 18cm",
+            "size": "S"
+          },
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
+          "category": "tote",
+          "color": "red",
+          "material": "grained_leather",
+          "pattern": "solid",
+          "price_band": "high",
+          "silhouette": "structured",
+          "mood": "classic_heritage",
+          "use_case": "work"
+        },
+        {
+          "id": "p_104",
+          "no": 4,
+          "name": "Aren 비세토스 스쿨 토트",
+          "price": 1150000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/가방/토트백-쇼퍼백/aren-비세토스-스쿨-토트/MWTGSTA034B001.html?cgid=bags-totes-shoppers",
+          "story": "가죽 트림이 더해진 비세토스 모노그램 캔버스 토트백",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MWTGSTA034B001_01",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MWTGSTA034B001_09",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MWTGSTA034B001_02"
+          ],
+          "cutout_url": "",
+          "is_new": false,
+          "attributes": {
+            "color": "cinnamon",
+            "material": "비세토스 모노그램 캔버스",
+            "dimensions": "약 13 x 31 x 22cm",
+            "size": "S"
+          },
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
+          "category": "tote",
+          "color": "beige",
+          "material": "coated_canvas",
+          "pattern": "visetos_monogram",
+          "price_band": "mid",
+          "silhouette": "structured",
+          "mood": "classic_heritage",
+          "use_case": "daily"
+        },
+        {
+          "id": "p_105",
+          "no": 5,
+          "name": "Aren 비세토스 스쿨 토트",
+          "price": 1150000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/가방/토트백-쇼퍼백/aren-비세토스-스쿨-토트/MWTGSTA034B001.html?cgid=bags-totes-shoppers",
+          "story": "가죽 트림이 더해진 비세토스 모노그램 캔버스 토트백",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MWTGSTA034B001_01",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MWTGSTA034B001_09",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MWTGSTA034B001_02"
+          ],
+          "cutout_url": "",
+          "is_new": false,
+          "attributes": {
+            "color": "soft pink",
+            "material": "비세토스 모노그램 캔버스",
+            "dimensions": "약 13 x 31 x 22cm",
+            "size": "S"
+          },
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
+          "category": "tote",
+          "color": "pink",
+          "material": "coated_canvas",
+          "pattern": "visetos_monogram",
+          "price_band": "mid",
+          "silhouette": "structured",
+          "mood": "classic_heritage",
+          "use_case": "daily"
+        },
+        {
+          "id": "p_106",
+          "no": 6,
+          "name": "Aren 비세토스 스쿨 토트",
+          "price": 1150000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/가방/토트백-쇼퍼백/aren-비세토스-스쿨-토트/MWTGSTA034B001.html?cgid=bags-totes-shoppers",
+          "story": "가죽 트림이 더해진 비세토스 모노그램 캔버스 토트백",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MWTGSTA034B001_01",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MWTGSTA034B001_09",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MWTGSTA034B001_02"
+          ],
+          "cutout_url": "",
+          "is_new": false,
+          "attributes": {
+            "color": "black",
+            "material": "비세토스 모노그램 캔버스",
+            "dimensions": "약 13 x 31 x 22cm",
+            "size": "S"
+          },
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
+          "category": "tote",
+          "color": "black",
+          "material": "coated_canvas",
+          "pattern": "visetos_monogram",
+          "price_band": "mid",
+          "silhouette": "structured",
+          "mood": "classic_heritage",
+          "use_case": "daily"
+        },
+        {
+          "id": "p_107",
+          "no": 7,
+          "name": "Pina 비세토스 스터드 장식 토트",
+          "price": 1690000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/가방/토트백-쇼퍼백/pina-비세토스-스터드-장식-토트/MWTGATA02CO001.html?cgid=bags-totes-shoppers",
+          "story": "나파 가죽 트림과 메탈 스터드 장식이 돋보이는 비세토스 토트백",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MWTGATA02CO001_01",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MWTGATA02CO001_09",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MWTGATA02CO001_02"
+          ],
+          "cutout_url": "",
+          "is_new": false,
+          "attributes": {
+            "color": "cognac",
+            "material": "비세토스 모노그램 캔버스",
+            "dimensions": "약 13 x 30 x 24cm",
+            "size": "M"
+          },
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
+          "category": "tote",
+          "color": "cognac",
+          "material": "coated_canvas",
+          "pattern": "studded",
+          "price_band": "high",
+          "silhouette": "structured",
+          "mood": "bold_statement",
+          "use_case": "going_out"
+        },
+        {
+          "id": "p_108",
+          "no": 8,
+          "name": "Aren 비세토스 N/S 토트",
+          "price": 1050000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/가방/토트백-쇼퍼백/aren-비세토스-n-s-토트/MMTGSTA04BK001.html?cgid=bags-totes-shoppers",
+          "story": "천연 가죽 트림과 로고 우븐 웨빙 스트랩이 어우러진 토트백",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MMTGSTA04BK001_01"
+          ],
+          "cutout_url": "",
+          "is_new": false,
+          "attributes": {
+            "color": "black",
+            "material": "비세토스 모노그램 캔버스",
+            "dimensions": "약 9 x 17 x 21cm",
+            "size": "미니"
+          },
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
+          "category": "tote",
+          "color": "black",
+          "material": "coated_canvas",
+          "pattern": "visetos_monogram",
+          "price_band": "mid",
+          "silhouette": "compact",
+          "mood": "classic_heritage",
+          "use_case": "daily"
+        },
+        {
+          "id": "p_109",
+          "no": 9,
+          "name": "Aren 비세토스 N/S 토트",
+          "price": 1050000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/가방/토트백-쇼퍼백/aren-비세토스-n-s-토트/MMTGSTA04BK001.html?cgid=bags-totes-shoppers",
+          "story": "천연 가죽 트림과 로고 우븐 웨빙 스트랩이 어우러진 토트백",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MMTGSTA04BK001_01"
+          ],
+          "cutout_url": "",
+          "is_new": false,
+          "attributes": {
+            "color": "cognac",
+            "material": "비세토스 모노그램 캔버스",
+            "dimensions": "약 9 x 17 x 21cm",
+            "size": "미니"
+          },
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
+          "category": "tote",
+          "color": "cognac",
+          "material": "coated_canvas",
+          "pattern": "visetos_monogram",
+          "price_band": "mid",
+          "silhouette": "compact",
+          "mood": "classic_heritage",
+          "use_case": "daily"
         }
       ]
     },
     {
       "id": "sc_02",
       "no": 2,
-      "name": "헤리티지",
+      "name": "백팩",
       "products": [
         {
           "id": "p_201",
           "no": 1,
-          "name": "[임시] Classic 토트",
-          "price": 750000,
-          "external_url": "https://example.com/products/p_201",
-          "story": "출근길에 서류와 노트북을 함께 담도록 설계된 구조적 토트.",
-          "images": ["/media/products/placeholder.jpg"],
-          "category": "tote",
-          "color": "beige",
-          "material": "grained_leather",
-          "pattern": "solid",
-          "silhouette": "structured",
-          "mood": "minimal",
-          "price_band": "mid",
-          "use_case": "work",
+          "name": "Stark 사이드 스터드 비세토스 백팩",
+          "price": 1650000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/가방/백팩/stark-사이드-스터드-비세토스-백팩/MMKGSVE034B001.html?cgid=bags-backpacks",
+          "story": "피라미드 스터드 장식과 가죽 트림이 돋보이는 비세토스 백팩",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MMKGSVE034B001_01",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MMKGSVE034B001_09",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MMKGSVE034B001_02"
+          ],
+          "cutout_url": "",
           "is_new": false,
-          "attributes": { "color": "베이지", "material": "그레인 레더", "size": "36x30cm", "capacity": "12L" },
-          "preset_answers": {
-            "price": "750,000원입니다. 토트 라인 중 기본 가격대입니다.",
-            "material": "그레인 레더로 스크래치가 잘 드러나지 않습니다.",
-            "design_intent": "노트북과 서류를 함께 담는 출근용 구조를 우선했습니다."
+          "attributes": {
+            "color": "black",
+            "material": "비세토스 모노그램 캔버스",
+            "dimensions": "약 11 x 25 x 31cm",
+            "size": "S"
           },
-          "llm_context": "베이지 그레인 레더의 미니멀한 구조적 토트. 출근용으로 노트북 수납이 가능하다."
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
+          "category": "backpack",
+          "color": "black",
+          "material": "coated_canvas",
+          "pattern": "studded",
+          "price_band": "high",
+          "silhouette": "structured",
+          "mood": "bold_statement",
+          "use_case": "daily"
         },
         {
           "id": "p_202",
           "no": 2,
-          "name": "[임시] Visetos 크로스백",
-          "price": 520000,
-          "external_url": "https://example.com/products/p_202",
-          "story": "모노그램을 작게 담아 가볍게 두를 수 있는 크로스백.",
-          "images": ["/media/products/placeholder.jpg"],
-          "category": "crossbody",
-          "color": "visetos_mix",
+          "name": "Stark 사이드 스터드 비세토스 백팩",
+          "price": 1650000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/가방/백팩/stark-사이드-스터드-비세토스-백팩/MMKGSVE034B001.html?cgid=bags-backpacks",
+          "story": "피라미드 스터드 장식과 가죽 트림이 돋보이는 비세토스 백팩",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MMKGSVE034B001_01",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MMKGSVE034B001_09",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MMKGSVE034B001_02"
+          ],
+          "cutout_url": "",
+          "is_new": false,
+          "attributes": {
+            "color": "cognac",
+            "material": "비세토스 모노그램 캔버스",
+            "dimensions": "약 11 x 25 x 31cm",
+            "size": "S"
+          },
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
+          "category": "backpack",
+          "color": "cognac",
+          "material": "coated_canvas",
+          "pattern": "studded",
+          "price_band": "high",
+          "silhouette": "structured",
+          "mood": "bold_statement",
+          "use_case": "daily"
+        },
+        {
+          "id": "p_203",
+          "no": 3,
+          "name": "Stark 사이드 스터드 비세토스 백팩",
+          "price": 1650000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/가방/백팩/stark-사이드-스터드-비세토스-백팩/MMKGSVE034B001.html?cgid=bags-backpacks",
+          "story": "피라미드 스터드 장식과 가죽 트림이 돋보이는 비세토스 백팩",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MMKGSVE034B001_01",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MMKGSVE034B001_09",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MMKGSVE034B001_02"
+          ],
+          "cutout_url": "",
+          "is_new": false,
+          "attributes": {
+            "color": "soft pink",
+            "material": "비세토스 모노그램 캔버스",
+            "dimensions": "약 11 x 25 x 31cm",
+            "size": "S"
+          },
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
+          "category": "backpack",
+          "color": "pink",
+          "material": "coated_canvas",
+          "pattern": "studded",
+          "price_band": "high",
+          "silhouette": "structured",
+          "mood": "bold_statement",
+          "use_case": "daily"
+        },
+        {
+          "id": "p_204",
+          "no": 4,
+          "name": "Stark 사이드 스터드 비세토스 백팩",
+          "price": 1650000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/가방/백팩/stark-사이드-스터드-비세토스-백팩/MMKGSVE034B001.html?cgid=bags-backpacks",
+          "story": "피라미드 스터드 장식과 가죽 트림이 돋보이는 비세토스 백팩",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MMKGSVE034B001_01",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MMKGSVE034B001_09",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MMKGSVE034B001_02"
+          ],
+          "cutout_url": "",
+          "is_new": false,
+          "attributes": {
+            "color": "beige",
+            "material": "비세토스 모노그램 캔버스",
+            "dimensions": "약 11 x 25 x 31cm",
+            "size": "S"
+          },
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
+          "category": "backpack",
+          "color": "beige",
+          "material": "coated_canvas",
+          "pattern": "studded",
+          "price_band": "high",
+          "silhouette": "structured",
+          "mood": "bold_statement",
+          "use_case": "daily"
+        },
+        {
+          "id": "p_205",
+          "no": 5,
+          "name": "Stark 사이드 스터드 비세토스 백팩",
+          "price": 1650000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/가방/백팩/stark-사이드-스터드-비세토스-백팩/MMKGSVE034B001.html?cgid=bags-backpacks",
+          "story": "피라미드 스터드 장식과 가죽 트림이 돋보이는 비세토스 백팩",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MMKGSVE034B001_01",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MMKGSVE034B001_09",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MMKGSVE034B001_02"
+          ],
+          "cutout_url": "",
+          "is_new": false,
+          "attributes": {
+            "color": "white",
+            "material": "비세토스 모노그램 캔버스",
+            "dimensions": "약 11 x 25 x 31cm",
+            "size": "S"
+          },
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
+          "category": "backpack",
+          "color": "white",
+          "material": "coated_canvas",
+          "pattern": "studded",
+          "price_band": "high",
+          "silhouette": "structured",
+          "mood": "bold_statement",
+          "use_case": "daily"
+        },
+        {
+          "id": "p_206",
+          "no": 6,
+          "name": "Stark 사이드 스터드 비세토스 백팩",
+          "price": 1650000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/가방/백팩/stark-사이드-스터드-비세토스-백팩/MMKGSVE034B001.html?cgid=bags-backpacks",
+          "story": "피라미드 스터드 장식과 가죽 트림이 돋보이는 비세토스 백팩",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MMKGSVE034B001_01",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MMKGSVE034B001_09",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MMKGSVE034B001_02"
+          ],
+          "cutout_url": "",
+          "is_new": false,
+          "attributes": {
+            "color": "cinnamon",
+            "material": "비세토스 모노그램 캔버스",
+            "dimensions": "약 11 x 25 x 31cm",
+            "size": "S"
+          },
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
+          "category": "backpack",
+          "color": "beige",
+          "material": "coated_canvas",
+          "pattern": "studded",
+          "price_band": "high",
+          "silhouette": "structured",
+          "mood": "bold_statement",
+          "use_case": "daily"
+        },
+        {
+          "id": "p_207",
+          "no": 7,
+          "name": "Aren 비세토스 드로우스트링 백팩",
+          "price": 1650000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/가방/백팩/aren-비세토스-드로우스트링-백팩/MWKFATA01CO001.html?cgid=bags-backpacks",
+          "story": "버클 하드웨어와 가죽 트림이 더해진 드로우스트링 백팩",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MWKFATA01CO001_01"
+          ],
+          "cutout_url": "",
+          "is_new": false,
+          "attributes": {
+            "color": "cognac",
+            "material": "비세토스 모노그램 캔버스",
+            "dimensions": "약 13 x 29 x 32cm",
+            "size": "S"
+          },
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
+          "category": "backpack",
+          "color": "cognac",
           "material": "coated_canvas",
           "pattern": "visetos_monogram",
-          "silhouette": "compact",
+          "price_band": "high",
+          "silhouette": "slouchy",
           "mood": "classic_heritage",
-          "price_band": "entry",
-          "use_case": "daily",
+          "use_case": "daily"
+        },
+        {
+          "id": "p_208",
+          "no": 8,
+          "name": "Aren 비세토스 드로우스트링 백팩",
+          "price": 1650000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/가방/백팩/aren-비세토스-드로우스트링-백팩/MWKFATA01CO001.html?cgid=bags-backpacks",
+          "story": "버클 하드웨어와 가죽 트림이 더해진 드로우스트링 백팩",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MWKFATA01CO001_01"
+          ],
+          "cutout_url": "",
           "is_new": false,
-          "attributes": { "color": "비세토스 배색", "material": "코팅 캔버스", "size": "20x14cm", "capacity": "3L" },
-          "preset_answers": {
-            "price": "520,000원입니다. 엔트리 가격대의 크로스백입니다.",
-            "material": "코팅 캔버스라 가볍고 생활 방수가 됩니다.",
-            "design_intent": "모노그램을 작은 면적에 담아 부담 없이 매는 것을 의도했습니다."
+          "attributes": {
+            "color": "soft pink",
+            "material": "비세토스 모노그램 캔버스",
+            "dimensions": "약 13 x 29 x 32cm",
+            "size": "S"
           },
-          "llm_context": "비세토스 배색 코팅 캔버스의 컴팩트한 크로스백. 엔트리 가격대이고 데일리로 가볍게 쓴다."
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
+          "category": "backpack",
+          "color": "pink",
+          "material": "coated_canvas",
+          "pattern": "visetos_monogram",
+          "price_band": "high",
+          "silhouette": "slouchy",
+          "mood": "classic_heritage",
+          "use_case": "daily"
+        },
+        {
+          "id": "p_209",
+          "no": 9,
+          "name": "Aren ECONYL®과 가죽 드로우스트링 백팩",
+          "price": 1190000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/가방/백팩/aren-econyl과-가죽-드로우스트링-백팩/MWKFATA04BK001.html?cgid=bags-backpacks",
+          "story": "비세토스 가죽 트림이 돋보이는 ECONYL® 드로우스트링 백팩",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MWKFATA04BK001_01",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MWKFATA04BK001_09",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MWKFATA04BK001_02"
+          ],
+          "cutout_url": "",
+          "is_new": false,
+          "attributes": {
+            "color": "black",
+            "material": "ECONYL® 재생 나일론",
+            "dimensions": "약 11 x 23 x 25cm",
+            "size": "S"
+          },
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
+          "category": "backpack",
+          "color": "black",
+          "material": "nylon",
+          "pattern": "solid",
+          "price_band": "mid",
+          "silhouette": "slouchy",
+          "mood": "minimal",
+          "use_case": "daily"
         }
       ]
     },
     {
       "id": "sc_03",
       "no": 3,
-      "name": "Y2K 스트리트",
+      "name": "쇼퍼백",
       "products": [
         {
           "id": "p_301",
           "no": 1,
-          "name": "[임시] Metallic 숄더백",
-          "price": 680000,
-          "external_url": "https://example.com/products/p_301",
-          "story": "메탈릭 코팅으로 조명 아래에서 색이 변하는 시즌 한정 컬러.",
-          "images": ["/media/products/placeholder.jpg"],
-          "category": "shoulder",
-          "color": "metallic",
-          "material": "mixed",
-          "pattern": "logo_print",
-          "silhouette": "slouchy",
-          "mood": "bold_statement",
-          "price_band": "mid",
-          "use_case": "going_out",
-          "is_new": true,
-          "attributes": { "color": "실버 메탈릭", "material": "혼합", "size": "28x18cm", "capacity": "5L" },
-          "preset_answers": {
-            "price": "680,000원입니다. 시즌 한정 컬러입니다.",
-            "material": "메탈릭 코팅 혼합 소재로 마찰에 약해 단독 보관을 권합니다.",
-            "design_intent": "조명 아래에서 색이 변하는 효과를 노린 볼드한 시즌 컬러입니다."
+          "name": "New Liz 비세토스 쇼퍼",
+          "price": 1090000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/가방/토트백-쇼퍼백/new-liz-비세토스-쇼퍼/MWPGSLR02I8001.html?cgid=bags-totes-shoppers",
+          "story": "매칭 지퍼 파우치와 나파 가죽 트림이 더해진 비세토스 쇼퍼백",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MWPGSLR02I8001_01",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MWPGSLR02I8001_09",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MWPGSLR02I8001_02"
+          ],
+          "cutout_url": "",
+          "is_new": false,
+          "attributes": {
+            "color": "cinnamon",
+            "material": "비세토스 모노그램 캔버스",
+            "dimensions": "약 17 x 30 x 35cm",
+            "size": "M"
           },
-          "llm_context": "실버 메탈릭의 슬라우치한 숄더백. 볼드 스테이트먼트 무드이고 모임·나들이용이다."
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
+          "category": "tote",
+          "color": "beige",
+          "material": "coated_canvas",
+          "pattern": "visetos_monogram",
+          "price_band": "mid",
+          "silhouette": "structured",
+          "mood": "classic_heritage",
+          "use_case": "work"
         },
         {
           "id": "p_302",
           "no": 2,
-          "name": "[임시] Nylon 데일리 백팩",
-          "price": 430000,
-          "external_url": "https://example.com/products/p_302",
-          "story": "가벼운 나일론으로 매일 메기 좋게 만든 엔트리 라인.",
-          "images": ["/media/products/placeholder.jpg"],
-          "category": "backpack",
-          "color": "navy",
-          "material": "nylon",
-          "pattern": "logo_print",
-          "silhouette": "slouchy",
-          "mood": "minimal",
-          "price_band": "entry",
-          "use_case": "daily",
+          "name": "New Liz 비세토스 쇼퍼",
+          "price": 1090000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/가방/토트백-쇼퍼백/new-liz-비세토스-쇼퍼/MWPGSLR02I8001.html?cgid=bags-totes-shoppers",
+          "story": "매칭 지퍼 파우치와 나파 가죽 트림이 더해진 비세토스 쇼퍼백",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MWPGSLR02I8001_01",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MWPGSLR02I8001_09",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MWPGSLR02I8001_02"
+          ],
+          "cutout_url": "",
           "is_new": false,
-          "attributes": { "color": "네이비", "material": "나일론", "size": "30x38cm", "capacity": "16L" },
-          "preset_answers": {
-            "price": "430,000원입니다. 가장 접근하기 쉬운 가격대입니다.",
-            "material": "나일론으로 가볍고 물세탁 없이 물티슈로 관리합니다.",
-            "design_intent": "매일 메는 무게를 우선해 소재부터 가볍게 잡았습니다."
+          "attributes": {
+            "color": "beige + black",
+            "material": "비세토스 모노그램 캔버스",
+            "dimensions": "약 17 x 30 x 35cm",
+            "size": "M"
           },
-          "llm_context": "네이비 나일론의 가벼운 데일리 백팩. 미니멀 무드이고 엔트리 가격대다."
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
+          "category": "tote",
+          "color": "visetos_mix",
+          "material": "coated_canvas",
+          "pattern": "visetos_monogram",
+          "price_band": "mid",
+          "silhouette": "structured",
+          "mood": "classic_heritage",
+          "use_case": "work"
+        },
+        {
+          "id": "p_303",
+          "no": 3,
+          "name": "New Liz 비세토스 쇼퍼",
+          "price": 1090000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/가방/토트백-쇼퍼백/new-liz-비세토스-쇼퍼/MWPGSLR02I8001.html?cgid=bags-totes-shoppers",
+          "story": "매칭 지퍼 파우치와 나파 가죽 트림이 더해진 비세토스 쇼퍼백",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MWPGSLR02I8001_01",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MWPGSLR02I8001_09",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MWPGSLR02I8001_02"
+          ],
+          "cutout_url": "",
+          "is_new": false,
+          "attributes": {
+            "color": "cognac",
+            "material": "비세토스 모노그램 캔버스",
+            "dimensions": "약 17 x 30 x 35cm",
+            "size": "M"
+          },
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
+          "category": "tote",
+          "color": "cognac",
+          "material": "coated_canvas",
+          "pattern": "visetos_monogram",
+          "price_band": "mid",
+          "silhouette": "structured",
+          "mood": "classic_heritage",
+          "use_case": "work"
+        },
+        {
+          "id": "p_304",
+          "no": 4,
+          "name": "New Liz 비세토스 쇼퍼",
+          "price": 1090000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/가방/토트백-쇼퍼백/new-liz-비세토스-쇼퍼/MWPGSLR02I8001.html?cgid=bags-totes-shoppers",
+          "story": "매칭 지퍼 파우치와 나파 가죽 트림이 더해진 비세토스 쇼퍼백",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MWPGSLR02I8001_01",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MWPGSLR02I8001_09",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MWPGSLR02I8001_02"
+          ],
+          "cutout_url": "",
+          "is_new": false,
+          "attributes": {
+            "color": "soft pink",
+            "material": "비세토스 모노그램 캔버스",
+            "dimensions": "약 17 x 30 x 35cm",
+            "size": "M"
+          },
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
+          "category": "tote",
+          "color": "pink",
+          "material": "coated_canvas",
+          "pattern": "visetos_monogram",
+          "price_band": "mid",
+          "silhouette": "structured",
+          "mood": "classic_heritage",
+          "use_case": "work"
+        },
+        {
+          "id": "p_305",
+          "no": 5,
+          "name": "New Liz 비세토스 쇼퍼",
+          "price": 1090000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/가방/토트백-쇼퍼백/new-liz-비세토스-쇼퍼/MWPGSLR02I8001.html?cgid=bags-totes-shoppers",
+          "story": "매칭 지퍼 파우치와 나파 가죽 트림이 더해진 비세토스 쇼퍼백",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MWPGSLR02I8001_01",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MWPGSLR02I8001_09",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MWPGSLR02I8001_02"
+          ],
+          "cutout_url": "",
+          "is_new": false,
+          "attributes": {
+            "color": "black",
+            "material": "비세토스 모노그램 캔버스",
+            "dimensions": "약 17 x 30 x 35cm",
+            "size": "M"
+          },
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
+          "category": "tote",
+          "color": "black",
+          "material": "coated_canvas",
+          "pattern": "visetos_monogram",
+          "price_band": "mid",
+          "silhouette": "structured",
+          "mood": "classic_heritage",
+          "use_case": "work"
+        },
+        {
+          "id": "p_306",
+          "no": 6,
+          "name": "Toni 그라데이션 탑 지퍼 쇼퍼",
+          "price": 1090000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/가방/토트백-쇼퍼백/toni-그라데이션-탑-지퍼-쇼퍼/MWPGSMT12L8001.html?cgid=bags-totes-shoppers",
+          "story": "그라데이션 모티프에 천연 가죽 트림이 더해진 쇼퍼백",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MWPGSMT12L8001_01",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MWPGSMT12L8001_09",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MWPGSMT12L8001_02"
+          ],
+          "cutout_url": "",
+          "is_new": false,
+          "attributes": {
+            "color": "della robbia blue",
+            "material": "비세토스 모노그램 캔버스",
+            "dimensions": "약 16 x 35 x 30cm",
+            "size": "M"
+          },
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
+          "category": "tote",
+          "color": "navy",
+          "material": "coated_canvas",
+          "pattern": "visetos_monogram",
+          "price_band": "mid",
+          "silhouette": "boxy",
+          "mood": "bold_statement",
+          "use_case": "going_out"
+        },
+        {
+          "id": "p_307",
+          "no": 7,
+          "name": "Toni 비세토스 탑 지퍼 쇼퍼",
+          "price": 970000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/가방/토트백-쇼퍼백/toni-비세토스-탑-지퍼-쇼퍼/MWPFAMT08K8001.html?cgid=bags-totes-shoppers",
+          "story": "뛰어난 활용성을 자랑하는 컴팩트 쇼퍼백",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MWPFAMT08K8001_01",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MWPFAMT08K8001_09",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MWPFAMT08K8001_02"
+          ],
+          "cutout_url": "",
+          "is_new": false,
+          "attributes": {
+            "color": "khaki moss",
+            "material": "가죽 크로스바디 스트랩",
+            "dimensions": "약 10 x 19 x 19cm",
+            "size": "미니"
+          },
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
+          "category": "tote",
+          "color": "beige",
+          "material": "coated_canvas",
+          "pattern": "visetos_monogram",
+          "price_band": "mid",
+          "silhouette": "compact",
+          "mood": "minimal",
+          "use_case": "daily"
+        },
+        {
+          "id": "p_308",
+          "no": 8,
+          "name": "Toni 비세토스 탑 지퍼 쇼퍼",
+          "price": 970000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/가방/토트백-쇼퍼백/toni-비세토스-탑-지퍼-쇼퍼/MWPFAMT08K8001.html?cgid=bags-totes-shoppers",
+          "story": "뛰어난 활용성을 자랑하는 컴팩트 쇼퍼백",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MWPFAMT08K8001_01",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MWPFAMT08K8001_09",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MWPFAMT08K8001_02"
+          ],
+          "cutout_url": "",
+          "is_new": false,
+          "attributes": {
+            "color": "cognac",
+            "material": "가죽 크로스바디 스트랩",
+            "dimensions": "약 10 x 19 x 19cm",
+            "size": "미니"
+          },
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
+          "category": "tote",
+          "color": "cognac",
+          "material": "coated_canvas",
+          "pattern": "visetos_monogram",
+          "price_band": "mid",
+          "silhouette": "compact",
+          "mood": "minimal",
+          "use_case": "daily"
+        },
+        {
+          "id": "p_309",
+          "no": 9,
+          "name": "Toni 비세토스 탑 지퍼 쇼퍼",
+          "price": 970000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/가방/토트백-쇼퍼백/toni-비세토스-탑-지퍼-쇼퍼/MWPFAMT08K8001.html?cgid=bags-totes-shoppers",
+          "story": "뛰어난 활용성을 자랑하는 컴팩트 쇼퍼백",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MWPFAMT08K8001_01",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MWPFAMT08K8001_09",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MWPFAMT08K8001_02"
+          ],
+          "cutout_url": "",
+          "is_new": false,
+          "attributes": {
+            "color": "white",
+            "material": "가죽 크로스바디 스트랩",
+            "dimensions": "약 10 x 19 x 19cm",
+            "size": "미니"
+          },
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
+          "category": "tote",
+          "color": "white",
+          "material": "coated_canvas",
+          "pattern": "visetos_monogram",
+          "price_band": "mid",
+          "silhouette": "compact",
+          "mood": "minimal",
+          "use_case": "daily"
         }
       ]
     },
     {
       "id": "sc_04",
       "no": 4,
-      "name": "액세서리",
+      "name": "악세서리",
       "products": [
         {
           "id": "p_401",
           "no": 1,
-          "name": "[임시] Visetos 반지갑",
-          "price": 320000,
-          "external_url": "https://example.com/products/p_401",
-          "story": "카드 6장과 지폐를 담는 최소 구성의 반지갑.",
-          "images": ["/media/products/placeholder.jpg"],
-          "category": "wallet",
-          "color": "cognac",
-          "material": "coated_canvas",
-          "pattern": "visetos_monogram",
-          "silhouette": "compact",
-          "mood": "classic_heritage",
-          "price_band": "entry",
-          "use_case": "daily",
+          "name": "모노그램 프린트 레더 2D Stark 비세토스 백팩 참",
+          "price": 290000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/%EB%82%A8%EC%84%B1/%ED%8C%A8%EC%85%98%EC%86%8C%ED%92%88/%EB%AA%A8%EB%91%90%EB%B3%B4%EA%B8%B0/%EB%AA%A8%EB%85%B8%EA%B7%B8%EB%9E%A8-%ED%94%84%EB%A6%B0%ED%8A%B8-%EB%A0%88%EB%8D%94-2d-stark-%EB%B9%84%EC%84%B8%ED%86%A0%EC%8A%A4-%EB%B0%B1%ED%8C%A9-%EC%B0%B8-/MXZGATA19CO001.html",
+          "story": "하우스의 시그니처이자 아이코닉한 Stark 백팩은, 고유의 실루엣과 디테일을 살린 2D 레더 참으로 재해석되었습니다. 레더 스트랩과 키 링 클라스프가 더해져 다양한 방식으로 연출할 수 있습니다.",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MXZGATA19CO001_01",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MXZGATA19CO001_04"
+          ],
+          "cutout_url": "",
           "is_new": false,
-          "attributes": { "color": "코냑", "material": "코팅 캔버스", "size": "11x9cm", "capacity": "카드 6장" },
-          "preset_answers": {
-            "price": "320,000원입니다. 선물용으로 많이 찾는 가격대입니다.",
-            "material": "코팅 캔버스로 오염에 강합니다.",
-            "design_intent": "카드 6장과 지폐만 담는 최소 구성을 의도했습니다."
+          "attributes": {
+            "color": "코냑",
+            "material": "나파 레더",
+            "size": "프리 사이즈",
+            "capacity": "-"
           },
-          "llm_context": "코냑 비세토스 반지갑. 컴팩트하고 엔트리 가격대라 선물용으로 자주 찾는다."
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
+          "category": "accessory",
+          "color": "cognac",
+          "material": "smooth_leather",
+          "pattern": "visetos_monogram",
+          "price_band": "entry",
+          "silhouette": "",
+          "mood": "",
+          "use_case": ""
         },
         {
           "id": "p_402",
           "no": 2,
-          "name": "[임시] 스터드 키링",
-          "price": 180000,
-          "external_url": "https://example.com/products/p_402",
-          "story": "가방에 달아 포인트를 주는 스터드 키링.",
-          "images": ["/media/products/placeholder.jpg"],
+          "name": "모노그램 프린트 레더 2D Stark 비세토스 백팩 참",
+          "price": 290000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/%EB%82%A8%EC%84%B1/%ED%8C%A8%EC%85%98%EC%86%8C%ED%92%88/%EB%AA%A8%EB%91%90%EB%B3%B4%EA%B8%B0/%EB%AA%A8%EB%85%B8%EA%B7%B8%EB%9E%A8-%ED%94%84%EB%A6%B0%ED%8A%B8-%EB%A0%88%EB%8D%94-2d-stark-%EB%B9%84%EC%84%B8%ED%86%A0%EC%8A%A4-%EB%B0%B1%ED%8C%A9-%EC%B0%B8-/MXZGATA19BK001.html",
+          "story": "하우스의 시그니처이자 아이코닉한 Stark 백팩은, 고유의 실루엣과 디테일을 살린 2D 레더 참으로 재해석되었습니다. 레더 스트랩과 키 링 클라스프가 더해져 다양한 방식으로 연출할 수 있습니다.",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MXZGATA19BK001_01",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MXZGATA19BK001_04"
+          ],
+          "cutout_url": "",
+          "is_new": false,
+          "attributes": {
+            "color": "블랙",
+            "material": "나파 레더",
+            "size": "프리 사이즈",
+            "capacity": "-"
+          },
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
+          "category": "accessory",
+          "color": "black",
+          "material": "smooth_leather",
+          "pattern": "visetos_monogram",
+          "price_band": "entry",
+          "silhouette": "",
+          "mood": "",
+          "use_case": ""
+        },
+        {
+          "id": "p_403",
+          "no": 3,
+          "name": "모노그램 프린트 레더 2D Stark 비세토스 백팩 참",
+          "price": 290000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/%EB%82%A8%EC%84%B1/%ED%8C%A8%EC%85%98%EC%86%8C%ED%92%88/%EB%AA%A8%EB%91%90%EB%B3%B4%EA%B8%B0/%EB%AA%A8%EB%85%B8%EA%B7%B8%EB%9E%A8-%ED%94%84%EB%A6%B0%ED%8A%B8-%EB%A0%88%EB%8D%94-2d-stark-%EB%B9%84%EC%84%B8%ED%86%A0%EC%8A%A4-%EB%B0%B1%ED%8C%A9-%EC%B0%B8-/MXZGATA19PZ001.html",
+          "story": "하우스의 시그니처이자 아이코닉한 Stark 백팩은, 고유의 실루엣과 디테일을 살린 2D 레더 참으로 재해석되었습니다. 레더 스트랩과 키 링 클라스프가 더해져 다양한 방식으로 연출할 수 있습니다.",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MXZGATA19PZ001_01",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MXZGATA19PZ001_04"
+          ],
+          "cutout_url": "",
+          "is_new": false,
+          "attributes": {
+            "color": "핑크",
+            "material": "나파 레더",
+            "size": "프리 사이즈",
+            "capacity": "-"
+          },
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
           "category": "accessory",
           "color": "pink",
           "material": "smooth_leather",
-          "pattern": "studded",
+          "pattern": "visetos_monogram",
+          "price_band": "entry",
+          "silhouette": "",
+          "mood": "",
+          "use_case": ""
+        },
+        {
+          "id": "p_404",
+          "no": 4,
+          "name": "모노그램 프린트 레더 2D Ella 비세토스 보스턴 참",
+          "price": 290000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/%EB%82%A8%EC%84%B1/%ED%8C%A8%EC%85%98%EC%86%8C%ED%92%88/%EB%AA%A8%EB%91%90%EB%B3%B4%EA%B8%B0/%EB%AA%A8%EB%85%B8%EA%B7%B8%EB%9E%A8-%ED%94%84%EB%A6%B0%ED%8A%B8-%EB%A0%88%EB%8D%94-2d-ella-%EB%B9%84%EC%84%B8%ED%86%A0%EC%8A%A4-%EB%B3%B4%EC%8A%A4%ED%84%B4-%EC%B0%B8/MXZGATA20CO001.html",
+          "story": "뮌헨의 황금기에서 영감을 받아 탄생한 Ella 보스턴 백은, 헤리티지 디자인의 우아함을 고스란히 담아낸 2D 레더 참으로 새롭게 선보입니다. 레더 스트랩과 키 링 클라스프를 더해 다채로운 스타일링이 가능합니다.",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MXZGATA20CO001_01",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MXZGATA20CO001_04"
+          ],
+          "cutout_url": "",
+          "is_new": false,
+          "attributes": {
+            "color": "코냑",
+            "material": "나파 레더",
+            "size": "프리 사이즈",
+            "capacity": "-"
+          },
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
+          "category": "accessory",
+          "color": "cognac",
+          "material": "smooth_leather",
+          "pattern": "visetos_monogram",
+          "price_band": "entry",
+          "silhouette": "",
+          "mood": "",
+          "use_case": ""
+        },
+        {
+          "id": "p_405",
+          "no": 5,
+          "name": "모노그램 프린트 레더 2D Ella 비세토스 보스턴 참",
+          "price": 290000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/%EB%82%A8%EC%84%B1/%ED%8C%A8%EC%85%98%EC%86%8C%ED%92%88/%EB%AA%A8%EB%91%90%EB%B3%B4%EA%B8%B0/%EB%AA%A8%EB%85%B8%EA%B7%B8%EB%9E%A8-%ED%94%84%EB%A6%B0%ED%8A%B8-%EB%A0%88%EB%8D%94-2d-ella-%EB%B9%84%EC%84%B8%ED%86%A0%EC%8A%A4-%EB%B3%B4%EC%8A%A4%ED%84%B4-%EC%B0%B8/MXZGATA20BK001.html",
+          "story": "뮌헨의 황금기에서 영감을 받아 탄생한 Ella 보스턴 백은, 헤리티지 디자인의 우아함을 고스란히 담아낸 2D 레더 참으로 새롭게 선보입니다. 레더 스트랩과 키 링 클라스프를 더해 다채로운 스타일링이 가능합니다.",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MXZGATA20BK001_01",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MXZGATA20BK001_04"
+          ],
+          "cutout_url": "",
+          "is_new": false,
+          "attributes": {
+            "color": "블랙",
+            "material": "나파 레더",
+            "size": "프리 사이즈",
+            "capacity": "-"
+          },
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
+          "category": "accessory",
+          "color": "black",
+          "material": "smooth_leather",
+          "pattern": "visetos_monogram",
+          "price_band": "entry",
+          "silhouette": "",
+          "mood": "",
+          "use_case": ""
+        },
+        {
+          "id": "p_406",
+          "no": 6,
+          "name": "모노그램 프린트 레더 2D Ella 비세토스 보스턴 참",
+          "price": 290000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/%EB%82%A8%EC%84%B1/%ED%8C%A8%EC%85%98%EC%86%8C%ED%92%88/%EB%AA%A8%EB%91%90%EB%B3%B4%EA%B8%B0/%EB%AA%A8%EB%85%B8%EA%B7%B8%EB%9E%A8-%ED%94%84%EB%A6%B0%ED%8A%B8-%EB%A0%88%EB%8D%94-2d-ella-%EB%B9%84%EC%84%B8%ED%86%A0%EC%8A%A4-%EB%B3%B4%EC%8A%A4%ED%84%B4-%EC%B0%B8/MXZGATA20PZ001.html",
+          "story": "뮌헨의 황금기에서 영감을 받아 탄생한 Ella 보스턴 백은, 헤리티지 디자인의 우아함을 고스란히 담아낸 2D 레더 참으로 새롭게 선보입니다. 레더 스트랩과 키 링 클라스프를 더해 다채로운 스타일링이 가능합니다.",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MXZGATA20PZ001_01",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MXZGATA20PZ001_04"
+          ],
+          "cutout_url": "",
+          "is_new": false,
+          "attributes": {
+            "color": "핑크",
+            "material": "나파 레더",
+            "size": "프리 사이즈",
+            "capacity": "-"
+          },
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
+          "category": "accessory",
+          "color": "pink",
+          "material": "smooth_leather",
+          "pattern": "visetos_monogram",
+          "price_band": "entry",
+          "silhouette": "",
+          "mood": "",
+          "use_case": ""
+        },
+        {
+          "id": "p_407",
+          "no": 7,
+          "name": "Aren 비세토스 불독 2D 참",
+          "price": 270000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/%EB%82%A8%EC%84%B1/%ED%8C%A8%EC%85%98%EC%86%8C%ED%92%88/%EB%AA%A8%EB%91%90%EB%B3%B4%EA%B8%B0/aren-%EB%B9%84%EC%84%B8%ED%86%A0%EC%8A%A4-%EB%B6%88%EB%8F%85-2d-%EC%B0%B8/MXZGSTA18ED001.html",
+          "story": "MCM에서 프리 사이즈 Dark Grey Aren 비세토스 불독 2D 참 (을/를) 만나 보세요. 비세토스 모노그램 캔버스에 천연 가죽 트림을 더한 불독 참",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MXZGSTA18ED001_01",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MXZGSTA18ED001_09",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MXZGSTA18ED001_04"
+          ],
+          "cutout_url": "",
+          "is_new": false,
+          "attributes": {
+            "color": "다크그레이",
+            "material": "비세토스 모노그램 캔버스",
+            "size": "프리 사이즈",
+            "capacity": "-"
+          },
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
+          "category": "accessory",
+          "color": "",
+          "material": "coated_canvas",
+          "pattern": "visetos_monogram",
+          "price_band": "entry",
+          "silhouette": "",
+          "mood": "",
+          "use_case": ""
+        },
+        {
+          "id": "p_408",
+          "no": 8,
+          "name": "Aren 비세토스 닥스훈트 2D 참",
+          "price": 270000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/%EB%82%A8%EC%84%B1/%ED%8C%A8%EC%85%98%EC%86%8C%ED%92%88/%EB%AA%A8%EB%91%90%EB%B3%B4%EA%B8%B0/aren-%EB%B9%84%EC%84%B8%ED%86%A0%EC%8A%A4-%EB%8B%A5%EC%8A%A4%ED%9B%88%ED%8A%B8-2d-%EC%B0%B8/MXZGSTA19CO001.html",
+          "story": "뮌헨 하우스의 독일적 헤리티지를 담은 닥스훈트 참으로, 비세토스 캔버스와 천연 나파 가죽의 조화가 돋보입니다. 장인의 손길이 더해진 이 액세서리를 가방이나 백팩에 더해, 언제나 곁을 지켜주는 반려처럼 함께하세요.",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MXZGSTA19CO001_01",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MXZGSTA19CO001_09",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MXZGSTA19CO001_04",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MXZGSTA19CO001_10"
+          ],
+          "cutout_url": "",
+          "is_new": false,
+          "attributes": {
+            "color": "코냑",
+            "material": "비세토스 모노그램 캔버스",
+            "size": "프리 사이즈",
+            "capacity": "-"
+          },
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
+          "category": "accessory",
+          "color": "cognac",
+          "material": "coated_canvas",
+          "pattern": "visetos_monogram",
+          "price_band": "entry",
+          "silhouette": "",
+          "mood": "",
+          "use_case": ""
+        },
+        {
+          "id": "p_409",
+          "no": 9,
+          "name": "Aren 비세토스 래빗 2D 참",
+          "price": 270000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/%EB%82%A8%EC%84%B1/%ED%8C%A8%EC%85%98%EC%86%8C%ED%92%88/%EB%AA%A8%EB%91%90%EB%B3%B4%EA%B8%B0/aren-%EB%B9%84%EC%84%B8%ED%86%A0%EC%8A%A4-%EB%9E%98%EB%B9%97-2d-%EC%B0%B8/MXZGSTA17PZ001.html",
+          "story": "하우스의 유쾌한 상징, MCM 래빗을 비세토스 캔버스와 나파 가죽으로 재해석한 2D 참입니다. 장인의 손길이 더해진 이 액세서리는 매 순간 활기찬 즐거움을 전하며, 위트 있는 키 홀더로도 활용할 수 있습니다.",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MXZGSTA17PZ001_01",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MXZGSTA17PZ001_09",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MXZGSTA17PZ001_04"
+          ],
+          "cutout_url": "",
+          "is_new": false,
+          "attributes": {
+            "color": "핑크",
+            "material": "비세토스 모노그램 캔버스",
+            "size": "프리 사이즈",
+            "capacity": "-"
+          },
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
+          "category": "accessory",
+          "color": "pink",
+          "material": "coated_canvas",
+          "pattern": "visetos_monogram",
+          "price_band": "entry",
+          "silhouette": "",
+          "mood": "",
+          "use_case": ""
+        },
+        {
+          "id": "p_410",
+          "no": 10,
+          "name": "모노그램 프린트 쁘띠 실크 스카프",
+          "price": 175000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/%EC%97%AC%EC%84%B1/%ED%8C%A8%EC%85%98%EC%86%8C%ED%92%88/%EC%81%98%EB%9D%A0-%EC%8A%A4%EC%B9%B4%ED%94%84-%EC%8A%A4%EC%B9%B4%ED%94%84/%EB%AA%A8%EB%85%B8%EA%B7%B8%EB%9E%A8-%ED%94%84%EB%A6%B0%ED%8A%B8-%EC%81%98%EB%9D%A0-%EC%8B%A4%ED%81%AC-%EC%8A%A4%EC%B9%B4%ED%94%84/MEFDAMM11CO001.html",
+          "story": "오가닉 이탈리안 실크로 수제작한 리버서블 액세서리로 앞면에는 유명한 비세토스 모노그램 프린트를 선보입니다. 반대쪽 면은 헤리티지 MCM 로고가 돋보이는 스트라이프 컬러 블록 모티프로 장식되었습니다. 스카프로 착용하거나 사랑스럽게 리본 매듭으로 묶거나 가방 핸들을 감싸서 스타일링할 수 있습니다.",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MEFDAMM11CO001_01",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MEFDAMM11CO001_03",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MEFDAMM11CO001_04",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MEFDAMM11CO001_05"
+          ],
+          "cutout_url": "",
+          "is_new": false,
+          "attributes": {
+            "color": "코냑",
+            "material": "오가닉 실크 100%",
+            "size": "프리 사이즈 (약 8 x 120 x 0 센티미터)",
+            "capacity": "-"
+          },
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
+          "category": "accessory",
+          "color": "cognac",
+          "material": "",
+          "pattern": "visetos_monogram",
+          "price_band": "entry",
+          "silhouette": "",
+          "mood": "",
+          "use_case": ""
+        },
+        {
+          "id": "p_411",
+          "no": 11,
+          "name": "M50 로고 쁘띠 실크 스카프",
+          "price": 195000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/%EC%97%AC%EC%84%B1/%ED%8C%A8%EC%85%98%EC%86%8C%ED%92%88/%EC%81%98%EB%9D%A0-%EC%8A%A4%EC%B9%B4%ED%94%84-%EC%8A%A4%EC%B9%B4%ED%94%84/m50-%EB%A1%9C%EA%B3%A0-%EC%81%98%EB%9D%A0-%EC%8B%A4%ED%81%AC-%EC%8A%A4%EC%B9%B4%ED%94%84/MEFGAMM13BK001.html",
+          "story": "고급 실크 소재의 양면 스카프. 앞면에는 50주년 기념하는 시그니처 라우렐 문양을, 뒷면에는 뮌헨 하우스를 상징하는 클래식한 레터링을 담아냈습니다. 스카프로 활용하거나 사랑스러운 리본으로 묶어 연출할 수 있으며, 가방 핸들에 감아 트래블 룩을 완성해 보세요.",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MEFGAMM13BK001_01",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MEFGAMM13BK001_09",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MEFGAMM13BK001_02",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MEFGAMM13BK001_03",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MEFGAMM13BK001_10",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MEFGAMM13BK001_11"
+          ],
+          "cutout_url": "",
+          "is_new": false,
+          "attributes": {
+            "color": "블랙",
+            "material": "실크 100%",
+            "size": "프리 사이즈 (약 8 x 120 x 0 센티미터)",
+            "capacity": "-"
+          },
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
+          "category": "accessory",
+          "color": "black",
+          "material": "",
+          "pattern": "",
+          "price_band": "entry",
+          "silhouette": "",
+          "mood": "",
+          "use_case": ""
+        },
+        {
+          "id": "p_412",
+          "no": 12,
+          "name": "애니멀 패턴 쁘띠 실크 스카프",
+          "price": 195000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/%EC%97%AC%EC%84%B1/%ED%8C%A8%EC%85%98%EC%86%8C%ED%92%88/%EC%81%98%EB%9D%A0-%EC%8A%A4%EC%B9%B4%ED%94%84-%EC%8A%A4%EC%B9%B4%ED%94%84/%EC%95%A0%EB%8B%88%EB%A9%80-%ED%8C%A8%ED%84%B4-%EC%81%98%EB%9D%A0-%EC%8B%A4%ED%81%AC-%EC%8A%A4%EC%B9%B4%ED%94%84/MEFGAMM16CO001.html",
+          "story": "애니멀 프린트와 클래식 코드가 어우러진 양면 실크 스카프. 한쪽 면에는 비세토스 시그니처 모노그램이, 다른 한쪽 면에는 얼루갈, 호랑이&middot;레오파드 패턴이 어우러져 있습니다.로 구성되었습니다. 스카프로 활용하거나 사랑스러운 리본으로 묶어 연출할 수 있으며, 가방 핸들에 감아 트래블 룩을 완성해 보세요.",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MEFGAMM16CO001_01",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MEFGAMM16CO001_09",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MEFGAMM16CO001_02",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MEFGAMM16CO001_03",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MEFGAMM16CO001_10",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MEFGAMM16CO001_11"
+          ],
+          "cutout_url": "",
+          "is_new": false,
+          "attributes": {
+            "color": "코냑",
+            "material": "실크 100%",
+            "size": "프리 사이즈 (약 8 x 120 x 0 센티미터)",
+            "capacity": "-"
+          },
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
+          "category": "accessory",
+          "color": "cognac",
+          "material": "",
+          "pattern": "visetos_monogram",
+          "price_band": "entry",
+          "silhouette": "",
+          "mood": "",
+          "use_case": ""
+        },
+        {
+          "id": "p_413",
+          "no": 13,
+          "name": "모노그램 프린트 쁘띠 스카프",
+          "price": 175000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/%EC%97%AC%EC%84%B1/%ED%8C%A8%EC%85%98%EC%86%8C%ED%92%88/%EC%81%98%EB%9D%A0-%EC%8A%A4%EC%B9%B4%ED%94%84-%EC%8A%A4%EC%B9%B4%ED%94%84/%EB%AA%A8%EB%85%B8%EA%B7%B8%EB%9E%A8-%ED%94%84%EB%A6%B0%ED%8A%B8-%EC%81%98%EB%9D%A0-%EC%8A%A4%EC%B9%B4%ED%94%84/MEFDAMM11PZ001.html",
+          "story": "장인의 정교한 핸드 스티치로 완성된 오가닉 실크 스카프. 전면에는 소프트 핑크 컬러의 비세토스 모노그램 프린트가 돋보이며, 반대편에는 클래식 &ldquo;MCM&rdquo; 로고 모티프가 더해진 스트라이프 컬러 블록 디자인을 양면으로 즐길 수 있습니다. 목에 둘러 스카프로 연출하거나 리본으로 묶거나, 가방 핸들에 감아 우아한 트래블 스타일을 완성할 수 있습니다.",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MEFDAMM11PZ001_01",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MEFDAMM11PZ001_09",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MEFDAMM11PZ001_04",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MEFDAMM11PZ001_05",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MEFDAMM11PZ001_10"
+          ],
+          "cutout_url": "",
+          "is_new": false,
+          "attributes": {
+            "color": "핑크",
+            "material": "앞면: 비세토스 모노그램 프린트가 더해진 재생 나일론",
+            "size": "프리 사이즈 (약 8 x 120 x 0 센티미터)",
+            "capacity": "-"
+          },
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
+          "category": "accessory",
+          "color": "pink",
+          "material": "nylon",
+          "pattern": "visetos_monogram",
+          "price_band": "entry",
+          "silhouette": "",
+          "mood": "",
+          "use_case": ""
+        },
+        {
+          "id": "p_414",
+          "no": 14,
+          "name": "로레토스 자카드 쁘띠 스카프",
+          "price": 195000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/%EC%97%AC%EC%84%B1/%ED%8C%A8%EC%85%98%EC%86%8C%ED%92%88/%EC%81%98%EB%9D%A0-%EC%8A%A4%EC%B9%B4%ED%94%84-%EC%8A%A4%EC%B9%B4%ED%94%84/%EB%A1%9C%EB%A0%88%ED%86%A0%EC%8A%A4-%EC%9E%90%EC%B9%B4%EB%93%9C-%EC%81%98%EB%9D%A0-%EC%8A%A4%EC%B9%B4%ED%94%84/MEFEAMM06E4001.html",
+          "story": "오가닉 실크로 제작되었으며 양면의 대조적인 로레토스 모노그램이 돋보이는 리버서블 디자인의 수작업 이탈리안 자카드 스카프입니다. 가방에 리본으로 스타일링하거나 손잡이에 감아 우아한 룩을 연출할 수 있는 고급스러운 액세서리입니다.",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MEFEAMM06E4001_01",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MEFEAMM06E4001_09",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MEFEAMM06E4001_04"
+          ],
+          "cutout_url": "",
+          "is_new": false,
+          "attributes": {
+            "color": "블루",
+            "material": "로레토스 모노그램 자카드",
+            "size": "프리 사이즈 (약 160 x 15 x 0 센티미터)",
+            "capacity": "-"
+          },
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
+          "category": "accessory",
+          "color": "",
+          "material": "",
+          "pattern": "visetos_monogram",
+          "price_band": "entry",
+          "silhouette": "",
+          "mood": "",
+          "use_case": ""
+        },
+        {
+          "id": "p_415",
+          "no": 15,
+          "name": "로레토스 자카드 쁘띠 스카프",
+          "price": 195000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/%EC%97%AC%EC%84%B1/%ED%8C%A8%EC%85%98%EC%86%8C%ED%92%88/%EC%81%98%EB%9D%A0-%EC%8A%A4%EC%B9%B4%ED%94%84-%EC%8A%A4%EC%B9%B4%ED%94%84/%EB%A1%9C%EB%A0%88%ED%86%A0%EC%8A%A4-%EC%9E%90%EC%B9%B4%EB%93%9C-%EC%81%98%EB%9D%A0-%EC%8A%A4%EC%B9%B4%ED%94%84/MEFEAMM06Y9001.html",
+          "story": "이탈리안 실크 자카드 스카프로 대조적인 컬러의 로레토스 모노그램을 양면에 배치하여 감각적인 느낌을 선사합니다. 손바느질로 완성된 이 고급스러운 액세서리는 사랑스러운 리본처럼 묶거나, 가방 손잡이에 감아 우아한 룩을 완성할 수 있습니다.",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MEFEAMM06Y9001_01",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MEFEAMM06Y9001_09",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MEFEAMM06Y9001_04"
+          ],
+          "cutout_url": "",
+          "is_new": false,
+          "attributes": {
+            "color": "골드",
+            "material": "로레토스 모노그램 자카드",
+            "size": "프리 사이즈 (약 160 x 15 x 0 센티미터)",
+            "capacity": "-"
+          },
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
+          "category": "accessory",
+          "color": "",
+          "material": "",
+          "pattern": "visetos_monogram",
+          "price_band": "entry",
+          "silhouette": "",
+          "mood": "",
+          "use_case": ""
+        },
+        {
+          "id": "p_416",
+          "no": 16,
+          "name": "리버서블 모노그램 프린트 쁘띠 스카프",
+          "price": 175000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/%EC%97%AC%EC%84%B1/%ED%8C%A8%EC%85%98%EC%86%8C%ED%92%88/%EC%81%98%EB%9D%A0-%EC%8A%A4%EC%B9%B4%ED%94%84-%EC%8A%A4%EC%B9%B4%ED%94%84/%EB%A6%AC%EB%B2%84%EC%84%9C%EB%B8%94-%EB%AA%A8%EB%85%B8%EA%B7%B8%EB%9E%A8-%ED%94%84%EB%A6%B0%ED%8A%B8-%EC%81%98%EB%9D%A0-%EC%8A%A4%EC%B9%B4%ED%94%84/MEFFAMM01XC001.html",
+          "story": "유기농 이탈리아산 실크를 사용해 손바느질로 마감한 이 쁘띠 스카프는, 한쪽 면에는 이번 시즌의 그라데이션 모노그램을, 다른 한쪽에는 시그니처 비세토스 모노그램을 담고 있습니다. 리본으로 연출하거나 가방 손잡이에 감아 우아한 트래블 룩을 완성할 수 있는 고급스러운 액세서리입니다.",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MEFFAMM01XC001_01",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MEFFAMM01XC001_09",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MEFFAMM01XC001_04",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MEFFAMM01XC001_10",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MEFFAMM01XC001_11"
+          ],
+          "cutout_url": "",
+          "is_new": false,
+          "attributes": {
+            "color": "레드",
+            "material": "100% 오가닉 실크",
+            "size": "프리 사이즈 (약 5 x 120 x 0 센티미터)",
+            "capacity": "-"
+          },
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
+          "category": "accessory",
+          "color": "red",
+          "material": "",
+          "pattern": "visetos_monogram",
+          "price_band": "entry",
+          "silhouette": "",
+          "mood": "",
+          "use_case": ""
+        },
+        {
+          "id": "p_417",
+          "no": 17,
+          "name": "리버서블 모노그램 프린트 쁘띠 스카프",
+          "price": 175000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/%EC%97%AC%EC%84%B1/%ED%8C%A8%EC%85%98%EC%86%8C%ED%92%88/%EC%81%98%EB%9D%A0-%EC%8A%A4%EC%B9%B4%ED%94%84-%EC%8A%A4%EC%B9%B4%ED%94%84/%EB%A6%AC%EB%B2%84%EC%84%9C%EB%B8%94-%EB%AA%A8%EB%85%B8%EA%B7%B8%EB%9E%A8-%ED%94%84%EB%A6%B0%ED%8A%B8-%EC%81%98%EB%9D%A0-%EC%8A%A4%EC%B9%B4%ED%94%84/MEFFAMM01Y0001.html",
+          "story": "유기농 이탈리아산 실크를 사용해 손바느질로 마감한 이 쁘띠 스카프는, 한쪽 면에는 이번 시즌의 그라데이션 모노그램을, 다른 한쪽에는 시그니처 비세토스 모노그램을 담고 있습니다. 리본으로 연출하거나 가방 손잡이에 감아 우아한 트래블 룩을 완성할 수 있는 고급스러운 액세서리입니다.",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MEFFAMM01Y0001_01",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MEFFAMM01Y0001_09",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MEFFAMM01Y0001_04",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MEFFAMM01Y0001_10",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MEFFAMM01Y0001_11"
+          ],
+          "cutout_url": "",
+          "is_new": false,
+          "attributes": {
+            "color": "골드",
+            "material": "100% 오가닉 실크",
+            "size": "프리 사이즈 (약 5 x 120 x 0 센티미터)",
+            "capacity": "-"
+          },
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
+          "category": "accessory",
+          "color": "",
+          "material": "",
+          "pattern": "visetos_monogram",
+          "price_band": "entry",
+          "silhouette": "",
+          "mood": "",
+          "use_case": ""
+        },
+        {
+          "id": "p_418",
+          "no": 18,
+          "name": "리버서블 모노그램 프린트 쁘띠 스카프",
+          "price": 175000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/%EC%97%AC%EC%84%B1/%ED%8C%A8%EC%85%98%EC%86%8C%ED%92%88/%EC%81%98%EB%9D%A0-%EC%8A%A4%EC%B9%B4%ED%94%84-%EC%8A%A4%EC%B9%B4%ED%94%84/%EB%A6%AC%EB%B2%84%EC%84%9C%EB%B8%94-%EB%AA%A8%EB%85%B8%EA%B7%B8%EB%9E%A8-%ED%94%84%EB%A6%B0%ED%8A%B8-%EC%81%98%EB%9D%A0-%EC%8A%A4%EC%B9%B4%ED%94%84/MEFGSMM03L8001.html",
+          "story": "이탈리아산 오가닉 실크로 제작된 핸드 스티치 스카프는 한쪽 면에는 시즌 그라데이션 모노그램을, 다른 면에는 시그니처 비세토스 모노그램을 담아냈습니다. 리버서블 디자인으로 리본처럼 연출하거나 가방 핸들에 묶어 세련된 스타일을 완성할 수 있습니다.",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MEFGSMM03L8001_01",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MEFGSMM03L8001_09",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MEFGSMM03L8001_04",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MEFGSMM03L8001_05",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MEFGSMM03L8001_10",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MEFGSMM03L8001_11",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MEFGSMM03L8001_12"
+          ],
+          "cutout_url": "",
+          "is_new": false,
+          "attributes": {
+            "color": "블루",
+            "material": "100% 오가닉 실크",
+            "size": "미니 (약 5 x 120 x 0 센티미터)",
+            "capacity": "-"
+          },
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
+          "category": "accessory",
+          "color": "",
+          "material": "",
+          "pattern": "visetos_monogram",
+          "price_band": "entry",
+          "silhouette": "",
+          "mood": "",
+          "use_case": ""
+        }
+      ]
+    },
+    {
+      "id": "sc_05",
+      "no": 5,
+      "name": "여성의류",
+      "products": [
+        {
+          "id": "p_501",
+          "no": 1,
+          "name": "모노그램 레더 벨트가 더해진 별자리 데님 재킷",
+          "price": 1390000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/%EB%AA%A8%EB%85%B8%EA%B7%B8%EB%9E%A8-%EB%A0%88%EB%8D%94-%EB%B2%A8%ED%8A%B8%EA%B0%80-%EB%8D%94%ED%95%B4%EC%A7%84-%EB%B3%84%EC%9E%90%EB%A6%AC-%EB%8D%B0%EB%8B%98-%EC%9E%AC%ED%82%B7/MFJGSMM051H040.html",
+          "story": "시즌의 별자리 콘셉트를 반영해 레터링, 라우렐, 다이아몬드가 별자리처럼 표현된 크롭 데님 재킷입니다. 슬림 핏에 클래식 비세토스 모노그램 프린트가 더해진 코냑 컬러 가죽 벨트로 완성도를 높였습니다.",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MFJGSMM051H040_01",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MFJGSMM051H040_09",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MFJGSMM051H040_04",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MFJGSMM051H040_10",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MFJGSMM051H040_11",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MFJGSMM051H040_12"
+          ],
+          "cutout_url": "",
+          "is_new": false,
+          "attributes": {
+            "color": "블루",
+            "material": "코튼 100%",
+            "size": "40 IT",
+            "capacity": "-"
+          },
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
+          "category": "clothing",
+          "color": "",
+          "material": "",
+          "pattern": "visetos_monogram",
+          "price_band": "high",
+          "silhouette": "",
+          "mood": "",
+          "use_case": ""
+        },
+        {
+          "id": "p_502",
+          "no": 2,
+          "name": "별자리 데님 진",
+          "price": 790000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/%EB%B3%84%EC%9E%90%EB%A6%AC-%EB%8D%B0%EB%8B%98-%EC%A7%84/MFPGSMM021H038.html",
+          "story": "시즌의 별자리 콘셉트를 반영해 레터링, 라우렐, 다이아몬드가 별자리처럼 표현된 오버사이즈 데님 진. 곡선형 절개로 볼륨감을 살렸으며, 클래식 비세토스 모노그램 프린트가 더해진 코냑 가죽 패치로 마무리되었습니다.",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MFPGSMM021H038_01",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MFPGSMM021H038_09",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MFPGSMM021H038_04",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MFPGSMM021H038_10",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MFPGSMM021H038_11",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MFPGSMM021H038_12"
+          ],
+          "cutout_url": "",
+          "is_new": false,
+          "attributes": {
+            "color": "블루",
+            "material": "코튼 100%",
+            "size": "38 IT",
+            "capacity": "-"
+          },
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
+          "category": "clothing",
+          "color": "",
+          "material": "",
+          "pattern": "visetos_monogram",
+          "price_band": "mid",
+          "silhouette": "",
+          "mood": "",
+          "use_case": ""
+        },
+        {
+          "id": "p_503",
+          "no": 3,
+          "name": "모노그램 크롭 티셔츠",
+          "price": 390000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/%EB%AA%A8%EB%85%B8%EA%B7%B8%EB%9E%A8-%ED%81%AC%EB%A1%AD-%ED%8B%B0%EC%85%94%EC%B8%A0-/MFTGSMM05WT00L.html",
+          "story": "밑단에 비세토스 모노그램 자카드 신축성 밴드로 포인트를 준 크롭 길이 오가닉 코튼 티셔츠. 하우스의 시그니처인 라우렐 엠블럼은 가슴 부분에 톤온톤 자수로 실루엣을 완성하였습니다.",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MFTGSMM05WT00L_01",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MFTGSMM05WT00L_09",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MFTGSMM05WT00L_04",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MFTGSMM05WT00L_10",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MFTGSMM05WT00L_11",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MFTGSMM05WT00L_12"
+          ],
+          "cutout_url": "",
+          "is_new": false,
+          "attributes": {
+            "color": "화이트",
+            "material": "100% 오가닉 면",
+            "size": "L",
+            "capacity": "-"
+          },
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
+          "category": "clothing",
+          "color": "white",
+          "material": "",
+          "pattern": "visetos_monogram",
+          "price_band": "entry",
+          "silhouette": "",
+          "mood": "",
+          "use_case": ""
+        },
+        {
+          "id": "p_504",
+          "no": 4,
+          "name": "울 트윌 모노그램 팬츠",
+          "price": 970000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/%EC%9A%B8-%ED%8A%B8%EC%9C%8C-%EB%AA%A8%EB%85%B8%EA%B7%B8%EB%9E%A8-%ED%8C%AC%EC%B8%A0/MFPGSMM03NL038.html",
+          "story": "뮬징(mulesing)을 하지 않고 동물 복지를 고려하여 세심하게 직조된 일본산 울로 만든 이 오버사이즈 팬츠는 비세토스 모노그램이 특징인 신축성 있는 자카드 허리 밴드로 장식되었습니다. 정교한 스티치 패턴은 앞쪽의 사이드 포켓을 장식하며 섬세한 재봉 예술을 더하였습니다.",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MFPGSMM03NL038_01",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MFPGSMM03NL038_09",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MFPGSMM03NL038_04",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MFPGSMM03NL038_10",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MFPGSMM03NL038_11",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MFPGSMM03NL038_12"
+          ],
+          "cutout_url": "",
+          "is_new": false,
+          "attributes": {
+            "color": "브라운",
+            "material": "100% 울",
+            "size": "38 IT",
+            "capacity": "-"
+          },
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
+          "category": "clothing",
+          "color": "",
+          "material": "",
+          "pattern": "visetos_monogram",
+          "price_band": "mid",
+          "silhouette": "",
+          "mood": "",
+          "use_case": ""
+        },
+        {
+          "id": "p_505",
+          "no": 5,
+          "name": "디스코 시퀸 티셔츠",
+          "price": 450000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/%EB%94%94%EC%8A%A4%EC%BD%94-%EC%8B%9C%ED%80%B8-%ED%8B%B0%EC%85%94%EC%B8%A0-/MFTGAMM01WT00L.html",
+          "story": "70년대 음악과 문화를 기념하는 티셔츠. 반짝이는 시퀸 자수가 더해진 감각적인 타이포그래피로 시즌 테마 &lsquo;MCM Disco&rsquo;를 표현했습니다. 환경 보호를 위해 화학물질 없이 재배한 오가닉 코튼 원사를 사용했습니다.",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MFTGAMM01WT00L_01",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MFTGAMM01WT00L_09",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MFTGAMM01WT00L_04",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MFTGAMM01WT00L_10",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MFTGAMM01WT00L_11",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MFTGAMM01WT00L_12"
+          ],
+          "cutout_url": "",
+          "is_new": false,
+          "attributes": {
+            "color": "화이트",
+            "material": "100% 오가닉 면",
+            "size": "L",
+            "capacity": "-"
+          },
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
+          "category": "clothing",
+          "color": "white",
+          "material": "",
+          "pattern": "",
+          "price_band": "entry",
+          "silhouette": "",
+          "mood": "",
+          "use_case": ""
+        },
+        {
+          "id": "p_506",
+          "no": 6,
+          "name": "루렉스 데님 오버올 스커트",
+          "price": 890000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/%EB%A3%A8%EB%A0%89%EC%8A%A4-%EB%8D%B0%EB%8B%98-%EC%98%A4%EB%B2%84%EC%98%AC-%EC%8A%A4%EC%BB%A4%ED%8A%B8/MFKGAMM01LI00M.html",
+          "story": "70년대 스타일을 현대적으로 재해석한 여성스러운 오버롤 스커트. 메탈릭 루렉스 섬유로 은은한 광택을 구현했으며, 로고 각인 메탈 버튼과 다이아몬드 스터드, 비세토스 모노그램 패치와 실리콘 로고 플레이트 패치가 하우스의 헤리티지를 담아냅니다.",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MFKGAMM01LI00M_01",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MFKGAMM01LI00M_09",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MFKGAMM01LI00M_04",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MFKGAMM01LI00M_10",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MFKGAMM01LI00M_11",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MFKGAMM01LI00M_12"
+          ],
+          "cutout_url": "",
+          "is_new": false,
+          "attributes": {
+            "color": "블루",
+            "material": "66.2% 코튼, 22.8% 폴리에스테르, 11% 금속 코팅 섬유",
+            "size": "M",
+            "capacity": "-"
+          },
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
+          "category": "clothing",
+          "color": "",
+          "material": "",
+          "pattern": "visetos_monogram",
+          "price_band": "mid",
+          "silhouette": "",
+          "mood": "",
+          "use_case": ""
+        }
+      ]
+    },
+    {
+      "id": "sc_06",
+      "no": 6,
+      "name": "남성의류",
+      "products": [
+        {
+          "id": "p_601",
+          "no": 1,
+          "name": "50주년 기념 티셔츠",
+          "price": 390000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/50%EC%A3%BC%EB%85%84-%EA%B8%B0%EB%85%90-%ED%8B%B0%EC%85%94%EC%B8%A0-/MHTGAMM024B00L.html",
+          "story": "1976년에 설립된 뮌헨 하우스는 숏슬리브 티셔츠의 가슴 부분 자수 로고 패치로 창립 50주년을 기념합니다. 사용된 오가닉 코튼 원사는 환경 보호를 위해 화학 물질을 사용하지 않고 재배되었습니다.",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MHTGAMM024B00L_01",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MHTGAMM024B00L_09",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MHTGAMM024B00L_04",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MHTGAMM024B00L_10",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MHTGAMM024B00L_11",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MHTGAMM024B00L_12"
+          ],
+          "cutout_url": "",
+          "is_new": false,
+          "attributes": {
+            "color": "브라운",
+            "material": "100% 오가닉 면",
+            "size": "L",
+            "capacity": "-"
+          },
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
+          "category": "clothing",
+          "color": "",
+          "material": "",
+          "pattern": "",
+          "price_band": "entry",
+          "silhouette": "",
+          "mood": "",
+          "use_case": ""
+        },
+        {
+          "id": "p_602",
+          "no": 2,
+          "name": "50주년 기념 티셔츠",
+          "price": 390000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/50%EC%A3%BC%EB%85%84-%EA%B8%B0%EB%85%90-%ED%8B%B0%EC%85%94%EC%B8%A0-/MHTGAMM02VC00L.html",
+          "story": "1976년에 설립된 뮌헨 하우스는 숏슬리브 티셔츠의 가슴 부분 자수 로고 패치로 창립 50주년을 기념합니다. 사용된 오가닉 코튼 원사는 환경 보호를 위해 화학 물질을 사용하지 않고 재배되었습니다.",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MHTGAMM02VC00L_01",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MHTGAMM02VC00L_04"
+          ],
+          "cutout_url": "",
+          "is_new": false,
+          "attributes": {
+            "color": "블루",
+            "material": "100% 오가닉 면",
+            "size": "L",
+            "capacity": "-"
+          },
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
+          "category": "clothing",
+          "color": "",
+          "material": "",
+          "pattern": "",
+          "price_band": "entry",
+          "silhouette": "",
+          "mood": "",
+          "use_case": ""
+        },
+        {
+          "id": "p_603",
+          "no": 3,
+          "name": "모노그램 카고 팬츠 ECONYL&reg;",
+          "price": 990000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/%EB%AA%A8%EB%85%B8%EA%B7%B8%EB%9E%A8-%EC%B9%B4%EA%B3%A0-%ED%8C%AC%EC%B8%A0-econyl%C2%AE-/MHPGAMM01BK00L.html",
+          "story": "리사이클 나일론으로 제작된 팬츠로, 카고 포켓 디테일을 더한 오버사이즈 실루엣으로 뮌헨 하우스 특유의 유틸리터리 감성을 전달합니다. 시그니처 비세토스 모노그램이 더해져 아이코닉한 스타일을 완성합니다.",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MHPGAMM01BK00L_01",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MHPGAMM01BK00L_09",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MHPGAMM01BK00L_04",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MHPGAMM01BK00L_10",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MHPGAMM01BK00L_11",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MHPGAMM01BK00L_12",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MHPGAMM01BK00L_13"
+          ],
+          "cutout_url": "",
+          "is_new": false,
+          "attributes": {
+            "color": "블랙",
+            "material": "100% ECONYL® 재생 나일론",
+            "size": "L",
+            "capacity": "-"
+          },
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
+          "category": "clothing",
+          "color": "black",
+          "material": "nylon",
+          "pattern": "visetos_monogram",
+          "price_band": "mid",
+          "silhouette": "",
+          "mood": "",
+          "use_case": ""
+        },
+        {
+          "id": "p_604",
+          "no": 4,
+          "name": "모노그램 패치 포켓 티셔츠",
+          "price": 330000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/%EB%AA%A8%EB%85%B8%EA%B7%B8%EB%9E%A8-%ED%8C%A8%EC%B9%98-%ED%8F%AC%EC%BC%93-%ED%8B%B0%EC%85%94%EC%B8%A0-/MHTEAMM07BD00L.html",
+          "story": "환경 보호를 위해 화학물질 없이 재배된 오가닉 코튼을 사용한 오버사이즈 티셔츠. 바이에른 다이아몬드에서 영감을 받아, 시그니처 비세토스 모노그램 프린트가 더해진 리사이클 나일론 포켓에 뮌헨을 상징하는 라우렐 로고 자수가 포인트로 더해졌습니다.",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MHTEAMM07BD00L_01",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MHTEAMM07BD00L_09",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MHTEAMM07BD00L_04",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MHTEAMM07BD00L_10",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MHTEAMM07BD00L_11",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MHTEAMM07BD00L_12",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MHTEAMM07BD00L_13"
+          ],
+          "cutout_url": "",
+          "is_new": false,
+          "attributes": {
+            "color": "블랙",
+            "material": "100% 오가닉 면",
+            "size": "L",
+            "capacity": "-"
+          },
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
+          "category": "clothing",
+          "color": "black",
+          "material": "",
+          "pattern": "visetos_monogram",
+          "price_band": "entry",
+          "silhouette": "",
+          "mood": "",
+          "use_case": ""
+        },
+        {
+          "id": "p_605",
+          "no": 5,
+          "name": "모노그램 패치 포켓 티셔츠",
+          "price": 330000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/%EB%AA%A8%EB%85%B8%EA%B7%B8%EB%9E%A8-%ED%8C%A8%EC%B9%98-%ED%8F%AC%EC%BC%93-%ED%8B%B0%EC%85%94%EC%B8%A0-/MHTEAMM07BK00M.html",
+          "story": "유기농 코튼을 사용한 오버사이즈 핏 유니섹스 티셔츠로, 화학 물질 없이 재배된 소재가 글로벌 생태계에 미치는 영향을 최소화합니다. 뮌헨을 상징하는 바이에른 다이아몬드에서 영감을 받은 기하학적 디자인의 리사이클 나일론 포켓에는 비세토스 모노그램 프린트와 라우렐 로고 자수가 정교하게 어우러져 감각적인 포인트를 더합니다.",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MHTEAMM07BK00M_01",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MHTEAMM07BK00M_09",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MHTEAMM07BK00M_04",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MHTEAMM07BK00M_10",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MHTEAMM07BK00M_11",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MHTEAMM07BK00M_12"
+          ],
+          "cutout_url": "",
+          "is_new": false,
+          "attributes": {
+            "color": "블랙",
+            "material": "100% 오가닉 면",
+            "size": "M",
+            "capacity": "-"
+          },
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
+          "category": "clothing",
+          "color": "black",
+          "material": "",
+          "pattern": "visetos_monogram",
+          "price_band": "entry",
+          "silhouette": "",
+          "mood": "",
+          "use_case": ""
+        },
+        {
+          "id": "p_606",
+          "no": 6,
+          "name": "모노그램 패치 포켓 티셔츠",
+          "price": 330000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/%EB%AA%A8%EB%85%B8%EA%B7%B8%EB%9E%A8-%ED%8C%A8%EC%B9%98-%ED%8F%AC%EC%BC%93-%ED%8B%B0%EC%85%94%EC%B8%A0-/MHTEAMM07BW00L.html",
+          "story": "글로벌 생태계에 미치는 피해를 최소화하기 위한 노력으로 화학물질을 사용하지 않고 재배한 오가닉 코튼 소재로 제작된 유니섹스 오버사이즈 티셔츠. 뮌헨을 상징하는 바이에른 다이아몬드에서 영감을 받은 재생 나일론 포켓의 포켓 위에 라우렐 로고 자수와 시그니처 비세토스 모노그램 프린트가 더해졌습니다.",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MHTEAMM07BW00L_01",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MHTEAMM07BW00L_09",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MHTEAMM07BW00L_04",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MHTEAMM07BW00L_10",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MHTEAMM07BW00L_11",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MHTEAMM07BW00L_12",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MHTEAMM07BW00L_13"
+          ],
+          "cutout_url": "",
+          "is_new": false,
+          "attributes": {
+            "color": "블랙",
+            "material": "100% 오가닉 면",
+            "size": "L",
+            "capacity": "-"
+          },
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
+          "category": "clothing",
+          "color": "black",
+          "material": "",
+          "pattern": "visetos_monogram",
+          "price_band": "entry",
+          "silhouette": "",
+          "mood": "",
+          "use_case": ""
+        },
+        {
+          "id": "p_607",
+          "no": 7,
+          "name": "에센셜 로고 폰테 쇼츠",
+          "price": 410000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/%EB%82%A8%EC%84%B1/%EC%9D%98%EB%A5%98/%EB%AA%A8%EB%91%90%EB%B3%B4%EA%B8%B0/%EC%97%90%EC%84%BC%EC%85%9C-%EB%A1%9C%EA%B3%A0-%ED%8F%B0%ED%85%8C-%EC%87%BC%EC%B8%A0/MHPGABC01BK00L.html?cgid=men-all-clothing",
+          "story": "톤온톤 라우렐 자수와 로고 자카드 허리밴드가 돋보이는 남성용 폰테 쇼츠로, 사이드 및 뒷면 포켓이 더해져 매칭 트랙 재킷과 함께 코디하기 좋습니다.",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MHPGABC01BK00L_01"
+          ],
+          "cutout_url": "",
+          "is_new": false,
+          "attributes": {
+            "color": "블랙 / 멜란지 그레이",
+            "material": "폴리에스테르 51%, 코튼 43%, 스판덱스 6%",
+            "size": "S, M, L, XL",
+            "capacity": "-"
+          },
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
+          "category": "clothing",
+          "color": "black",
+          "material": "",
+          "pattern": "",
+          "price_band": "entry",
+          "silhouette": "",
+          "mood": "",
+          "use_case": ""
+        },
+        {
+          "id": "p_608",
+          "no": 8,
+          "name": "모노그램 프린트 가죽이 더해진 울 트윌 재킷",
+          "price": 1490000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/%EB%AA%A8%EB%85%B8%EA%B7%B8%EB%9E%A8-%ED%94%84%EB%A6%B0%ED%8A%B8-%EA%B0%80%EC%A3%BD%EC%9D%B4-%EB%8D%94%ED%95%B4%EC%A7%84-%EC%9A%B8-%ED%8A%B8%EC%9C%8C-%EC%9E%AC%ED%82%B7/MHJGSMM02GK048.html",
+          "story": "일본산 프리미엄 울을 사용한 이 재킷은 시그니처 라우렐 로고 자수, 비세토스 모노그램 프린트 레더 디테일, 바이에른 다이아몬드에서 영감을 받은 포켓 등 하우스의 클래식 코드가 곳곳에 담겨 있습니다. 크롭 실루엣과 넓은 숄더 라인이 더해져 세련되면서도 자신감 있는 룩을 연출합니다.",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MHJGSMM02GK048_01",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MHJGSMM02GK048_09",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MHJGSMM02GK048_04",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MHJGSMM02GK048_10",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MHJGSMM02GK048_11",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MHJGSMM02GK048_12",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MHJGSMM02GK048_13"
+          ],
+          "cutout_url": "",
+          "is_new": false,
+          "attributes": {
+            "color": "베이지",
+            "material": "100% 울",
+            "size": "48 IT",
+            "capacity": "-"
+          },
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
+          "category": "clothing",
+          "color": "beige",
+          "material": "",
+          "pattern": "visetos_monogram",
+          "price_band": "high",
+          "silhouette": "",
+          "mood": "",
+          "use_case": ""
+        },
+        {
+          "id": "p_609",
+          "no": 9,
+          "name": "모노그램 프린트 가죽이 더해진 울 트윌 팬츠",
+          "price": 990000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/%EB%AA%A8%EB%85%B8%EA%B7%B8%EB%9E%A8-%ED%94%84%EB%A6%B0%ED%8A%B8-%EA%B0%80%EC%A3%BD%EC%9D%B4-%EB%8D%94%ED%95%B4%EC%A7%84-%EC%9A%B8-%ED%8A%B8%EC%9C%8C-%ED%8C%AC%EC%B8%A0/MHPGSMM01GK048.html",
+          "story": "일본산 울 트윌 소재로 제작된 팬츠. 비대칭 랩 디자인이 돋보이며, 시그니처 비세토스 모노그램이 장식된 코냑 그레인 레더 벨트로 포인트를 더했습니다. 매치되는 울 트윌 재킷과 함께 스타일링하여 시즌 룩을 완성해보세요.",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MHPGSMM01GK048_01",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MHPGSMM01GK048_09",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MHPGSMM01GK048_04",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MHPGSMM01GK048_10",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MHPGSMM01GK048_11",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MHPGSMM01GK048_12"
+          ],
+          "cutout_url": "",
+          "is_new": false,
+          "attributes": {
+            "color": "베이지",
+            "material": "비세토스 모노그램 프린트가 더해진 가죽 벨트",
+            "size": "48 IT",
+            "capacity": "-"
+          },
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
+          "category": "clothing",
+          "color": "beige",
+          "material": "smooth_leather",
+          "pattern": "visetos_monogram",
+          "price_band": "mid",
+          "silhouette": "",
+          "mood": "",
+          "use_case": ""
+        }
+      ]
+    },
+    {
+      "id": "sc_07",
+      "no": 7,
+      "name": "F/W 신상",
+      "products": [
+        {
+          "id": "p_701",
+          "no": 1,
+          "name": "Stark 디스코 비세토스 백팩",
+          "price": 2150000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/가방/백팩/stark-디스코-비세토스-백팩/MMKGAVE02CO001.html?cgid=bags-backpacks",
+          "story": "MCM Disco 모티프와 나파 가죽 트리밍을 더한 백팩",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MMKGAVE02CO001_01",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MMKGAVE02CO001_09",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MMKGAVE02CO001_02"
+          ],
+          "cutout_url": "",
+          "is_new": true,
+          "attributes": {
+            "color": "cognac",
+            "material": "비세토스 모노그램 캔버스",
+            "dimensions": "약 16 x 33 x 43cm",
+            "size": "M"
+          },
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
+          "category": "backpack",
+          "color": "cognac",
+          "material": "coated_canvas",
+          "pattern": "visetos_monogram",
+          "price_band": "high",
+          "silhouette": "structured",
+          "mood": "y2k_street",
+          "use_case": "travel"
+        },
+        {
+          "id": "p_702",
+          "no": 2,
+          "name": "Ella 디스코 비세토스 보스턴",
+          "price": 1390000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/가방/숄더백-크로스백/-ella-디스코-비세토스-보스턴/MWBGAEA01CO001.html?cgid=bags-shoulder-crossbody-bags",
+          "story": "나파 가죽 트리밍과 바바리안 다이아몬드 가죽 참을 더한 보스턴백",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MWBGAEA01CO001_01",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MWBGAEA01CO001_09",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MWBGAEA01CO001_02"
+          ],
+          "cutout_url": "",
+          "is_new": true,
+          "attributes": {
+            "color": "cognac",
+            "material": "비세토스 모노그램 캔버스",
+            "dimensions": "약 12 x 22 x 15cm",
+            "size": "S"
+          },
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
+          "category": "shoulder",
+          "color": "cognac",
+          "material": "coated_canvas",
+          "pattern": "visetos_monogram",
+          "price_band": "high",
+          "silhouette": "structured",
+          "mood": "y2k_street",
+          "use_case": "going_out"
+        },
+        {
+          "id": "p_703",
+          "no": 3,
+          "name": "Toni 디스코 비세토스 탑 지퍼 쇼퍼",
+          "price": 1150000,
+          "external_url": "https://kr.mcmworldwide.com/ko_KR/가방/토트백-쇼퍼백/toni-디스코-비세토스-탑-지퍼-쇼퍼/MWPGAMT01CO001.html?cgid=bags-totes-shoppers",
+          "story": "MCM Disco 모티프를 더한 쇼퍼백",
+          "images": [
+            "https://images.mcmworldwide.com/i/mcmworldwide/MWPGAMT01CO001_01",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MWPGAMT01CO001_09",
+            "https://images.mcmworldwide.com/i/mcmworldwide/MWPGAMT01CO001_02"
+          ],
+          "cutout_url": "",
+          "is_new": true,
+          "attributes": {
+            "color": "cognac",
+            "material": "비세토스 모노그램 캔버스",
+            "dimensions": "약 9 x 16 x 14cm",
+            "size": "M"
+          },
+          "preset_answers": {
+            "price": "",
+            "material": "",
+            "design_intent": ""
+          },
+          "llm_context": "",
+          "category": "tote",
+          "color": "cognac",
+          "material": "coated_canvas",
+          "pattern": "visetos_monogram",
+          "price_band": "mid",
           "silhouette": "compact",
           "mood": "y2k_street",
-          "price_band": "entry",
-          "use_case": "going_out",
-          "is_new": true,
-          "attributes": { "color": "핑크", "material": "스무스 레더", "size": "9x4cm", "capacity": "-" },
-          "preset_answers": {
-            "price": "180,000원입니다. 가장 부담 없는 엔트리 아이템입니다.",
-            "material": "스무스 레더에 메탈 스터드. 마찰에 약해 가방 표면과 닿는 위치를 확인하세요.",
-            "design_intent": "가방에 달아 포인트를 주는 용도로 크기를 작게 잡았습니다."
-          },
-          "llm_context": "핑크 스터드 키링. Y2K 스트리트 무드의 소품이고 가장 저렴한 엔트리 아이템이다."
+          "use_case": "going_out"
         }
       ]
     }
