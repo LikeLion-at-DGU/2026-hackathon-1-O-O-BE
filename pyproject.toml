@@ -1,0 +1,7 @@
+[tool.ruff]
+line-length = 110
+# 마크다운 안의 코드 블록까지 재포맷해서 문서 diff를 오염시키므로 md는 제외한다.
+exclude = ["venv", "*/migrations/*", "*.md"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "DJ"]

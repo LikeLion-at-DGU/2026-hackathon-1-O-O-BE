@@ -1,0 +1,142 @@
+from django.http import StreamingHttpResponse
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import OpenApiParameter, extend_schema
+from rest_framework import status
+from rest_framework.renderers import JSONRenderer
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from api.permissions import IsOpenVisit, IsVisitAuthenticated
+from api.renderers import EventStreamRenderer
+from api.scoping import assert_own_visit
+from apps.chat import answers
+from apps.chat import messages as timeline_service
+from apps.chat.serializers import (
+    ANSWER_TYPES,
+    ActionMessageSerializer,
+    ActionResultSerializer,
+    ChatMessageSerializer,
+    ChatRequestSerializer,
+    TimelineQuerySerializer,
+    TimelineSerializer,
+)
+from apps.chat.services import respond
+from apps.chat.throttles import ChatThrottle
+
+
+class ChatMessagesView(APIView):
+    """/api/v1/chat/messages — 클릭 적립(POST)과 타임라인 복원(GET).
+
+    POST: 진열대·상품 클릭이 직전과 같으면 말풍선을 새로 쌓지 않고 200으로 기존
+    메시지를 돌려준다. 조회 횟수 같은 수치는 POST /events가 따로 남긴다.
+    GET: 화면을 이동하거나 이어하기로 돌아와도 이 호출 하나로 타임라인이 복원된다.
+
+    쓰기는 진행 중인 관람만, 읽기는 종료된 관람도 허용한다.
+    """
+
+    def get_permissions(self):
+        return [IsOpenVisit()] if self.request.method == "POST" else [IsVisitAuthenticated()]
+
+    @extend_schema(
+        request=ActionMessageSerializer,
+        responses={201: ActionResultSerializer, 200: ActionResultSerializer},
+        tags=["Chat"],
+    )
+    def post(self, request):
+        serializer = ActionMessageSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        payload = serializer.validated_data
+        visit = assert_own_visit(request, payload["visit_id"])
+
+        if payload["type"] in ANSWER_TYPES:
+            return self._answer(visit, payload)
+        return self._click(visit, payload)
+
+    def _click(self, visit, payload):
+        message, created = timeline_service.append_action(
+            visit,
+            payload["type"],
+            scene=payload["scene"],
+            product=payload["product"],
+            preset_key=payload["preset_key"] or "",
+        )
+        body = {
+            "messages": ChatMessageSerializer(
+                timeline_service.messages_after(visit, message), many=True
+            ).data,
+            "recommendations": [],
+            "profile_completion": timeline_service.completion(visit),
+        }
+        code = status.HTTP_201_CREATED if created else status.HTTP_200_OK
+        return Response(body, status=code)
+
+    def _answer(self, visit, payload):
+        """가설에 답한 것. 손님의 선택을 말풍선으로 남기고 좌표에 반영한다."""
+        timeline_service.assert_pending(visit, payload["reply_to"])
+        echo = timeline_service.append_answer(visit, payload)
+        outcome = answers.apply(visit, payload["type"], payload["product"], payload["option"] or "")
+        return Response(
+            {
+                "messages": ChatMessageSerializer([echo, *outcome.messages], many=True).data,
+                "recommendations": [item.as_dict() for item in outcome.suggestions],
+                "profile_completion": outcome.completion,
+            },
+            status=status.HTTP_201_CREATED,
+        )
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(name="visit_id", required=True, description="대상 방문"),
+        ],
+        responses={200: TimelineSerializer},
+        tags=["Chat"],
+    )
+    def get(self, request):
+        query = TimelineQuerySerializer(data=request.query_params)
+        query.is_valid(raise_exception=True)
+        visit = assert_own_visit(request, query.validated_data["visit_id"])
+        return Response(
+            {
+                "messages": ChatMessageSerializer(timeline_service.timeline(visit), many=True).data,
+                "current_context": timeline_service.current_context(visit),
+                "pending_action": timeline_service.pending_action(visit),
+            }
+        )
+
+
+class ChatView(APIView):
+    """POST /api/v1/chat — 컨텍스트 챗봇 (AI ①). text/event-stream으로 답한다.
+
+    클라이언트는 문맥을 다시 보내지 않는다. 서버가 chat_logs에서 최근 메시지와
+    가장 최근 클릭된 상품을 읽어 프롬프트를 조립한다. context를 명시로 보내면 그게 우선한다.
+    """
+
+    permission_classes = [IsOpenVisit]
+    throttle_classes = [ChatThrottle]
+    # JSONRenderer를 앞에 둬서 에러 응답은 평소처럼 JSON으로 나가고,
+    # Accept: text/event-stream(Swagger UI 등)도 406 없이 통과한다.
+    renderer_classes = [JSONRenderer, EventStreamRenderer]
+
+    @extend_schema(
+        request=ChatRequestSerializer,
+        responses={(200, "text/event-stream"): OpenApiTypes.STR},
+        tags=["Chat"],
+        description=(
+            'SSE 스트림. data: {"delta": "..."} 조각이 이어지고 '
+            'data: {"done": true, "message_id": "...", "recommendations": []} 로 끝난다.'
+        ),
+    )
+    def post(self, request):
+        serializer = ChatRequestSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        payload = serializer.validated_data
+        visit = assert_own_visit(request, payload["visit_id"])
+
+        response = StreamingHttpResponse(
+            respond(visit, payload["message"], payload.get("context")),
+            content_type="text/event-stream",
+        )
+        # 프록시가 버퍼링하면 스트리밍이 통째로 지연된다.
+        response["X-Accel-Buffering"] = "no"
+        response["Cache-Control"] = "no-cache"
+        return response
