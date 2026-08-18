@@ -9,9 +9,12 @@ from rest_framework.views import APIView
 from api.permissions import IsOpenVisit, IsVisitAuthenticated
 from api.renderers import EventStreamRenderer
 from api.scoping import assert_own_visit
+from apps.chat import answers
 from apps.chat import messages as timeline_service
 from apps.chat.serializers import (
+    ANSWER_TYPES,
     ActionMessageSerializer,
+    ActionResultSerializer,
     ChatMessageSerializer,
     ChatRequestSerializer,
     TimelineQuerySerializer,
@@ -36,7 +39,7 @@ class ChatMessagesView(APIView):
 
     @extend_schema(
         request=ActionMessageSerializer,
-        responses={201: ChatMessageSerializer, 200: ChatMessageSerializer},
+        responses={201: ActionResultSerializer, 200: ActionResultSerializer},
         tags=["Chat"],
     )
     def post(self, request):
@@ -45,6 +48,11 @@ class ChatMessagesView(APIView):
         payload = serializer.validated_data
         visit = assert_own_visit(request, payload["visit_id"])
 
+        if payload["type"] in ANSWER_TYPES:
+            return self._answer(visit, payload)
+        return self._click(visit, payload)
+
+    def _click(self, visit, payload):
         message, created = timeline_service.append_action(
             visit,
             payload["type"],
@@ -52,8 +60,29 @@ class ChatMessagesView(APIView):
             product=payload["product"],
             preset_key=payload["preset_key"] or "",
         )
+        body = {
+            "messages": ChatMessageSerializer(
+                timeline_service.messages_after(visit, message), many=True
+            ).data,
+            "recommendations": [],
+            "profile_completion": timeline_service.completion(visit),
+        }
         code = status.HTTP_201_CREATED if created else status.HTTP_200_OK
-        return Response(ChatMessageSerializer(message).data, status=code)
+        return Response(body, status=code)
+
+    def _answer(self, visit, payload):
+        """가설에 답한 것. 손님의 선택을 말풍선으로 남기고 좌표에 반영한다."""
+        timeline_service.assert_pending(visit, payload["reply_to"])
+        echo = timeline_service.append_answer(visit, payload)
+        outcome = answers.apply(visit, payload["type"], payload["product"], payload["option"] or "")
+        return Response(
+            {
+                "messages": ChatMessageSerializer([echo, *outcome.messages], many=True).data,
+                "recommendations": [item.as_dict() for item in outcome.suggestions],
+                "profile_completion": outcome.completion,
+            },
+            status=status.HTTP_201_CREATED,
+        )
 
     @extend_schema(
         parameters=[
@@ -70,6 +99,7 @@ class ChatMessagesView(APIView):
             {
                 "messages": ChatMessageSerializer(timeline_service.timeline(visit), many=True).data,
                 "current_context": timeline_service.current_context(visit),
+                "pending_action": timeline_service.pending_action(visit),
             }
         )
 

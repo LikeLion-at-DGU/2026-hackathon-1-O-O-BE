@@ -9,8 +9,10 @@ import logging
 
 from django.conf import settings
 
+from apps.analysis.taste import profile_of
 from apps.catalog.models import PresetKey, Product, Scene
 from apps.chat.models import ActionType, ChatLog, Role
+from apps.chat.triggers import Hypothesis
 from apps.visits.models import Visit
 
 logger = logging.getLogger(__name__)
@@ -116,3 +118,106 @@ def _is_repeat(visit: Visit, content: str) -> bool:
 
 def _last_action(visit: Visit) -> ChatLog | None:
     return visit.chat_logs.filter(role=Role.USER_ACTION).order_by("-created_at").first()
+
+
+def append_hypothesis(visit: Visit, hypothesis: Hypothesis) -> ChatLog:
+    """가설을 말풍선으로 넣고, 예산·쿨다운 상태를 갱신한다.
+
+    가설의 종류·축·대상 상품을 `TasteProfile.vector["pending"]`에 저장한다.
+    응답(`맞아요`)이 왔을 때 그게 무슨 가설이었는지 알아야 좌표에 반영할 수 있고,
+    `chat_logs`에는 문구만 남아 복원이 불가능하다.
+    """
+    from apps.events.models import EventType
+
+    message = ChatLog.objects.create(visit=visit, role=Role.ASSISTANT, content=hypothesis.message)
+    profile = profile_of(visit)
+    vector = dict(profile.vector)
+
+    vector["pending"] = {
+        "message_id": message.message_id,
+        "kind": hypothesis.kind,
+        "axis": hypothesis.axis,
+        "value": hypothesis.asked_value,
+        "products": [product.id for product in hypothesis.products],
+        "options": hypothesis.options,
+    }
+    vector["confirm_count"] = vector.get("confirm_count", 0) + 1
+    vector["asked_at_views"] = visit.events.filter(event_type=EventType.PRODUCT_VIEW).count()
+
+    if hypothesis.kind == "axis_confirm":
+        vector["axis_asked"] = True
+    elif hypothesis.kind in ("product_confirm", "contrast", "avoidance"):
+        vector["general_count"] = vector.get("general_count", 0) + 1
+
+    if hypothesis.kind == "contrast":
+        vector["contrast_asked"] = True
+    elif hypothesis.kind == "quick_browse":
+        vector["quick_asked"] = True
+    elif hypothesis.kind == "shift":
+        vector["shift_asked"] = True
+
+    if hypothesis.kind == "product_confirm":
+        asked = vector.setdefault("asked_products", [])
+        asked += [product.id for product in hypothesis.products if product.id not in asked]
+
+    profile.vector = vector
+    profile.save(update_fields=["vector", "updated_at"])
+    return message
+
+
+def pending_action(visit: Visit) -> dict | None:
+    """지금 답해야 할 버튼. 답하면 서버가 지운다."""
+    pending = profile_of(visit).vector.get("pending")
+    if not pending:
+        return None
+    return {
+        "kind": pending["kind"],
+        "reply_to": pending["message_id"],
+        "options": pending["options"],
+    }
+
+
+def append_answer(visit: Visit, payload: dict) -> ChatLog:
+    """손님이 누른 버튼을 말풍선으로 남긴다. 문구는 가설에 딸린 라벨에서 가져온다."""
+    pending = profile_of(visit).vector.get("pending") or {}
+    label = _label_of(pending, payload)
+    return ChatLog.objects.create(
+        visit=visit,
+        role=Role.USER_ACTION,
+        content=label,
+        product=payload.get("product"),
+    )
+
+
+def _label_of(pending: dict, payload: dict) -> str:
+    for option in pending.get("options", []):
+        if option.get("type") != payload["type"]:
+            continue
+        if payload["option"] and option.get("option") != payload["option"]:
+            continue
+        if payload.get("product") and option.get("product_id") != payload["product"].id:
+            continue
+        return option["label"]
+    return "선택"
+
+
+def assert_pending(visit: Visit, reply_to: str) -> None:
+    """이미 답한 가설이나 다른 가설에 답하는 것을 막는다(중복 클릭·화면 복원 시차)."""
+    from rest_framework.exceptions import ValidationError
+
+    from api.exceptions import Unauthorized  # noqa: F401  (아래 ValidationError와 대비용)
+
+    pending = profile_of(visit).vector.get("pending")
+    if not pending or pending.get("message_id") != reply_to:
+        raise ValidationError({"reply_to": ["이미 답했거나 유효하지 않은 가설입니다."]})
+
+
+def messages_after(visit: Visit, message: ChatLog) -> list[ChatLog]:
+    """그 메시지 이후에 서버가 덧붙인 것까지 함께 돌려준다(프리셋 답변 등)."""
+    return list(visit.chat_logs.filter(created_at__gte=message.created_at).order_by("created_at"))
+
+
+def completion(visit: Visit) -> float:
+    from apps.analysis import taste as taste_module
+
+    return taste_module.read(visit).confidence

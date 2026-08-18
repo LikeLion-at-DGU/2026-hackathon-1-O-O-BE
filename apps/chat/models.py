@@ -15,6 +15,9 @@ class ActionType(models.TextChoices):
     SCENE_CLICK = "scene_click", "진열대 클릭"
     PRODUCT_CLICK = "product_click", "상품 클릭"
     PRESET_VIEW = "preset_view", "프리셋 열람"
+    HYPOTHESIS_YES = "hypothesis_yes", "가설에 맞아요"
+    HYPOTHESIS_NO = "hypothesis_no", "가설에 아니에요"
+    CHOICE = "choice", "2택 선택"
 
 
 class Role(models.TextChoices):
