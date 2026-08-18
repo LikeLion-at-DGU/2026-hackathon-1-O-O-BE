@@ -1,0 +1,228 @@
+{
+  "info": {
+    "name": "O&O — 화보 상품 후보 조회 (P01)",
+    "description": "GET /api/v1/reports/{slug}/lookbook/candidates 검증용.\n\n실행 순서: ① → ② → (리포트 준비) → ③ → ④~⑦\n\n리포트 준비: /finish가 아직 라우팅에 없어서 리포트 행은 셸로 만든다. ② 실행 후 콘솔에 찍힌 visit_id를 넣고 아래를 실행한 뒤, 출력된 slug를 컬렉션 변수 slug에 붙여넣는다.\n\nvenv/Scripts/python.exe -c \"import os,django;os.environ.setdefault('DJANGO_SETTINGS_MODULE','config.settings');django.setup();from apps.analysis.models import Report;r,_=Report.objects.get_or_create(visit_id='VISIT_ID');r.status='ready';r.payload={'preference_tags':['black','smooth_leather'],'avoid_tags':['nylon']};r.save();print(r.slug)\"",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://127.0.0.1:8000/api/v1" },
+    { "key": "visitToken", "value": "" },
+    { "key": "visitId", "value": "" },
+    { "key": "anonUuid", "value": "" },
+    { "key": "otherToken", "value": "" },
+    { "key": "slug", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "① 입장 — POST /enter",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": { "raw": "{{baseUrl}}/enter", "host": ["{{baseUrl}}"], "path": ["enter"] },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"age_band\": \"20s\",\n  \"gender\": \"female\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200으로 입장', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.collectionVariables.set('visitToken', body.visit_token);",
+              "pm.collectionVariables.set('visitId', body.visit_id);",
+              "pm.collectionVariables.set('anonUuid', body.anonymous_uuid);",
+              "console.log('visit_id =', body.visit_id, '— 리포트 준비 셸에 이 값을 넣는다');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "② 행동 이벤트 — POST /events",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "X-Visit-Token", "value": "{{visitToken}}" },
+          { "key": "X-Anonymous-UUID", "value": "{{anonUuid}}" }
+        ],
+        "url": { "raw": "{{baseUrl}}/events", "host": ["{{baseUrl}}"], "path": ["events"] },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"visit_id\": \"{{visitId}}\",\n  \"events\": [\n    { \"event_id\": \"{{$guid}}\", \"event_type\": \"product_view\",  \"product_id\": \"p_101\", \"client_timestamp\": \"2026-08-18T06:01:10Z\" },\n    { \"event_id\": \"{{$guid}}\", \"event_type\": \"product_dwell\", \"product_id\": \"p_101\", \"client_timestamp\": \"2026-08-18T06:01:40Z\", \"metadata\": { \"dwell_ms\": 90000 } },\n    { \"event_id\": \"{{$guid}}\", \"event_type\": \"product_view\",  \"product_id\": \"p_202\", \"client_timestamp\": \"2026-08-18T06:02:10Z\" },\n    { \"event_id\": \"{{$guid}}\", \"event_type\": \"product_view\",  \"product_id\": \"p_202\", \"client_timestamp\": \"2026-08-18T06:02:30Z\" }\n  ]\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('202로 적립', () => pm.response.to.have.status(202));",
+              "pm.test('4건 저장', () => pm.expect(pm.response.json().accepted).to.eql(4));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "③ 후보 조회 — GET candidates",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "X-Visit-Token", "value": "{{visitToken}}" }],
+        "url": {
+          "raw": "{{baseUrl}}/reports/{{slug}}/lookbook/candidates",
+          "host": ["{{baseUrl}}"],
+          "path": ["reports", "{{slug}}", "lookbook", "candidates"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('items는 정확히 6개', () => pm.expect(body.items).to.have.lengthOf(6));",
+              "pm.test('max_select = 1', () => pm.expect(body.max_select).to.eql(1));",
+              "pm.test('1순위가 미리 선택돼 있다', () => pm.expect(body.preselected[0]).to.eql(body.items[0].product_id));",
+              "pm.test('가장 오래 본 p_101이 1위', () => pm.expect(body.items[0].product_id).to.eql('p_101'));",
+              "pm.test('근거가 most_dwelled', () => pm.expect(body.items[0].reason_code).to.eql('most_dwelled'));",
+              "pm.test('점수 내림차순', () => {",
+              "  const scores = body.items.map(i => i.score);",
+              "  pm.expect(scores).to.eql([...scores].sort((a,b) => b-a));",
+              "});",
+              "pm.test('카드에 필요한 필드가 다 있다', () => {",
+              "  pm.expect(body.items[0]).to.have.all.keys('product_id','name','category','thumbnail','cutout_url','score','reason_code','reason');",
+              "});",
+              "console.table(body.items.map(i => ({ id: i.product_id, score: i.score, why: i.reason_code })));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "④ 실패 — 토큰 없음 (401)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/reports/{{slug}}/lookbook/candidates",
+          "host": ["{{baseUrl}}"],
+          "path": ["reports", "{{slug}}", "lookbook", "candidates"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('401', () => pm.response.to.have.status(401));",
+              "pm.test('code = INVALID_VISIT_TOKEN', () => pm.expect(pm.response.json().error.code).to.eql('INVALID_VISIT_TOKEN'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "⑤ 실패 — 없는 slug (404)",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "X-Visit-Token", "value": "{{visitToken}}" }],
+        "url": {
+          "raw": "{{baseUrl}}/reports/r_nope/lookbook/candidates",
+          "host": ["{{baseUrl}}"],
+          "path": ["reports", "r_nope", "lookbook", "candidates"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('404', () => pm.response.to.have.status(404));",
+              "pm.test('code = NOT_FOUND', () => pm.expect(pm.response.json().error.code).to.eql('NOT_FOUND'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "⑥-1 다른 방문 입장 (403 준비)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": { "raw": "{{baseUrl}}/enter", "host": ["{{baseUrl}}"], "path": ["enter"] },
+        "body": { "mode": "raw", "raw": "{}" }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200', () => pm.response.to.have.status(200));",
+              "pm.collectionVariables.set('otherToken', pm.response.json().visit_token);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "⑥-2 실패 — 남의 리포트 (403)",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "X-Visit-Token", "value": "{{otherToken}}" }],
+        "url": {
+          "raw": "{{baseUrl}}/reports/{{slug}}/lookbook/candidates",
+          "host": ["{{baseUrl}}"],
+          "path": ["reports", "{{slug}}", "lookbook", "candidates"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('403', () => pm.response.to.have.status(403));",
+              "pm.test('code = FORBIDDEN', () => pm.expect(pm.response.json().error.code).to.eql('FORBIDDEN'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "⑦ 실패 — 분석 중 (409) · 리포트를 pending으로 바꾼 뒤 실행",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "X-Visit-Token", "value": "{{visitToken}}" }],
+        "url": {
+          "raw": "{{baseUrl}}/reports/{{slug}}/lookbook/candidates",
+          "host": ["{{baseUrl}}"],
+          "path": ["reports", "{{slug}}", "lookbook", "candidates"]
+        },
+        "description": "리포트 준비 셸에서 r.status='pending'으로 바꾼 뒤 실행한다."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('409', () => pm.response.to.have.status(409));",
+              "pm.test('detail = report_pending', () => pm.expect(pm.response.json().error.message).to.eql('report_pending'));"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

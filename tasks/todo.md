@@ -1,37 +1,43 @@
-# 백엔드 초기 세팅 (tasks/결정사항.md 기준)
+# F8. `POST /api/v1/visits/{visit_id}/finish` + AI② 워커
 
-## 1. 프로젝트 골격
-- [x] `oando/` 디렉토리 + venv + 패키지 설치
-- [x] `requirements.txt` · `.env.example` · `.gitignore` · `README.md`
-- [x] `config/` — settings(SQLite WAL) · urls · asgi · wsgi
-- [x] 앱 6개 생성: `visits` `catalog` `events` `chat` `analysis` `dashboard`
-- [x] `api/` — authentication · exceptions · v1/urls
-- [x] `common/ids.py` (privacy·llm은 실제로 쓰는 시점에 만든다)
+기준: Notion `관람 종료 & 리포트 생성 (AI ②)`(2026-08-12 최신본) · `tasks/결정사항.md`
+범위: **이 페이지만.** `GET /reports/{slug}`(F10)는 별도 페이지라 제외.
 
-## 2. 모델 (마이그레이션 전에 확정)
-- [x] `visits`: Visitor, Visit(token, last_seen_at, ended_at)
-- [x] `catalog`: Store, Scene, Product(8축 컬럼 + TextChoices)
-- [x] `events`: Event(append-only, event_id unique)
-- [x] `chat`: ChatLog(role choices)
-- [x] `analysis`: TasteProfile, Report(status pending/ready/failed)
-- [x] `dashboard`: 모델 없음 (기본 User 사용)
+## 로컬 export(v0.4)와 달라진 계약 4건
 
-## 3. 기반 설정
-- [x] `AUTH_USER_MODEL` 건드리지 않음 · simplejwt는 `/admin/*`만
-- [x] DRF 기본 권한 잠그고 공개 엔드포인트만 열기
-- [x] 공통 에러 포맷 핸들러 `{"error":{code,message,detail}}`
-- [x] drf-spectacular `/api/schema/swagger-ui/`
-- [x] SQLite WAL + timeout + 짧은 트랜잭션 원칙
+- [x] 바디에 `events[]` 선택 수용 — 종료 직전 버퍼가 `/events`로 가면 401을 맞고 사라진다
+- [x] 응답 202에 `events: {accepted, duplicated}` 포함
+- [x] path `visit_id`가 토큰의 방문과 다르면 `403`
+- [x] LLM은 **1회만** 호출 (취향 추출 + 문장 생성을 한 JSON으로). 대화 없으면 아예 건너뜀
+- [x] ⑦단계에서 `characters` 조회로 캐릭터 이미지 매핑 (사전 제작 16장)
 
-## 4. 검증 (완료 정의)
-- [x] `makemigrations --check --dry-run` 통과
-- [x] `migrate` 성공
-- [x] `runserver` 에러 없이 기동
-- [x] `/api/schema/` · `/api/schema/swagger-ui/` 실제 호출 확인
-- [x] `POST /admin/auth` 성공 200 · 인증 실패 401 · 검증 실패 400 · 없는 경로 404 실제 호출 확인
+## 모듈 분리
 
-## 다음 단계 (이번 세팅 범위 밖)
-- [ ] `POST /enter` + 이어하기 + 시드 데이터 30개
-- [ ] `GET /products/{id}` · `POST /events` · `/chat/messages` · `/chat`(SSE)
-- [ ] `/finish` → 워커(threading) → `/reports/{slug}`
-- [ ] `/admin/funnel` · `/admin/products` (`/admin/auth`는 완료)
+- [x] `common/llm.py` — `complete_json()` 게이트웨이 (모델명·타임아웃·재시도 한 곳)
+- [x] `analysis/collect.py` — ① DB → 순수 자료구조
+- [x] `analysis/pipeline.py` — ②③④⑤ 순수 함수 (DB 접근 없음)
+- [x] `analysis/character.py` — ⑥ 4축 결정론적 매핑
+- [x] `analysis/scoring.py` — 가중치 상수
+- [x] `analysis/insight.py` — LLM 1회 호출 + 실패 시 폴백
+- [x] `analysis/report.py` — ⑦ payload 조립 (상품 스냅샷 박제)
+- [x] `analysis/services.py` — 한 트랜잭션(이벤트→종료→큐) + 스레드 워커
+- [x] `analysis/models.py` — `Character` 추가, `TasteProfile.insight` 추가
+- [x] `analysis/{serializers,views,urls,admin}.py`
+- [x] `analysis/management/commands/seed_characters.py` — 16유형 임시 문구 시드
+- [x] `analysis/tests.py` — 순수 함수 테스트
+
+## 검증
+
+- [x] `makemigrations --check` 통과 · `migrate` 성공 · `runserver` 기동
+- [x] 성공: `/finish` 202 + slug + events 집계, 100ms 이내 응답
+- [x] 멱등: 같은 visit 재호출 → 같은 slug
+- [x] 실패: 토큰 없음 401 · 다른 visit_id 403 · 없는 visit_id 404
+- [x] 워커: `status=ready` + payload에 hero·recommendations 8개·상품 스냅샷
+- [x] 이벤트 0건 방문에서도 죽지 않음 (`confidence≈0`)
+- [x] `ruff check` · `ruff format` 통과
+
+## 보류 (확인 필요)
+
+- [ ] 이탈자 24시간 배치(`is_auto_closed`) — 명세에 있으나 `구조_피드백.md` B-4의 "배치 스케줄러 안 쓴다"와 충돌. `/enter`의 30분 만료가 이미 미종료 Visit을 닫고 있어 중복이다
+</content>
+</invoke>
