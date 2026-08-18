@@ -6,7 +6,7 @@
 
 from django.test import SimpleTestCase
 
-from apps.lookbook import jobs, progress, scoring
+from apps.lookbook import jobs, progress, scoring, storage
 from apps.lookbook.jobs import JobState
 from apps.lookbook.scoring import ProductSignals, ReasonCode, ScoredCandidate
 
@@ -152,3 +152,29 @@ class RetryableTest(SimpleTestCase):
 
     def test_에러가_없으면_재시도_대상이_아니다(self):
         self.assertFalse(JobState(job_id="job_1", share_slug="look-1").is_retryable)
+
+
+class UploadKeyTest(SimpleTestCase):
+    def test_확장자는_선언된_타입에서_뽑는다(self):
+        self.assertTrue(storage.new_photo_key("image/jpeg").endswith(".jpg"))
+        self.assertTrue(storage.new_photo_key("image/png").endswith(".png"))
+        self.assertTrue(storage.new_photo_key("image/webp").endswith(".webp"))
+
+    def test_키는_날짜_경로_아래_무작위_이름이다(self):
+        key = storage.new_photo_key("image/jpeg")
+
+        self.assertTrue(key.startswith(f"{storage.PHOTO_PREFIX}/"))
+        self.assertEqual(len(key.split("/")), 5)  # photos/YYYY/MM/DD/name.jpg
+
+    def test_매번_다른_키가_나온다(self):
+        keys = {storage.new_photo_key("image/jpeg") for _ in range(50)}
+
+        self.assertEqual(len(keys), 50)
+
+    def test_마스크는_사진과_짝이_되는_키를_쓴다(self):
+        photo = "photos/2026/08/17/9c1f4a2b.jpg"
+
+        self.assertEqual(storage.mask_key_for(photo), "photos/2026/08/17/9c1f4a2b_mask.png")
+
+    def test_마스크는_원본_확장자와_무관하게_png다(self):
+        self.assertTrue(storage.mask_key_for("photos/2026/08/17/a.webp").endswith("_mask.png"))
