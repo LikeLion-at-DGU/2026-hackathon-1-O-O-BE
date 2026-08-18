@@ -114,10 +114,9 @@ def _describe(product: Product) -> str:
 
 def _describe_visitor(visit: Visit) -> str:
     """연령대·성별은 말투를 고르는 참고값이다. 단정적인 추측 근거로 쓰지 않는다."""
-    visitor = visit.visitor
-    if not visitor.age_band and not visitor.gender:
+    if not visit.age_band and not visit.gender:
         return "손님 정보: 밝히지 않았습니다. 중립적인 말투를 씁니다."
-    parts = [visitor.get_age_band_display() or "연령대 미상", visitor.get_gender_display() or "성별 미상"]
+    parts = [visit.get_age_band_display() or "연령대 미상", visit.get_gender_display() or "성별 미상"]
     return f"손님 정보: {' · '.join(parts)}. 말투를 맞추는 참고만 하고 취향을 단정하지 않습니다."
 
 

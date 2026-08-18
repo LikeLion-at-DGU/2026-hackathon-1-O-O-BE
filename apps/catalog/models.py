@@ -116,6 +116,8 @@ def axis_label(axis: str, value: str) -> str:
 class Store(models.Model):
     id = models.CharField(primary_key=True, max_length=32, default=new_store_id, editable=False)
     name = models.CharField(max_length=100)
+    # 뮤즈 번호(N.014) 발급용 카운터. 마지막으로 나간 번호를 들고 있다.
+    muse_counter = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

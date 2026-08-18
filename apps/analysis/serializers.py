@@ -19,4 +19,8 @@ class FinishRequestSerializer(serializers.Serializer):
 class FinishResponseSerializer(serializers.Serializer):
     slug = serializers.CharField(help_text="리포트 주소. 추측하기 어려운 값이다")
     status = serializers.CharField(help_text="pending / ready / failed")
-    events = serializers.DictField(help_text="동봉한 이벤트의 accepted · duplicated · ignored")
+    events = serializers.DictField(
+        help_text="동봉한 이벤트의 accepted · duplicated · ignored · rejected. "
+        "rejected가 0이 아니면 버퍼가 한 번에 저장하는 수를 넘긴 것이므로, "
+        "다음부터는 /finish 전에 /events로 미리 비워야 한다"
+    )

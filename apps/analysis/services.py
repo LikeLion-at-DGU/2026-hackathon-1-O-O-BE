@@ -20,7 +20,7 @@ from apps.visits.models import Visit
 
 logger = logging.getLogger(__name__)
 
-EMPTY_EVENT_RESULT = {"accepted": 0, "duplicated": 0, "ignored": 0}
+EMPTY_EVENT_RESULT = {"accepted": 0, "duplicated": 0, "ignored": 0, "rejected": 0}
 
 
 @transaction.atomic

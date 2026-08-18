@@ -12,8 +12,31 @@ from apps.visits.models import Visit
 
 DWELL_KEY = "dwell_ms"
 
+# 한 번에 저장하는 수. 초과분은 버리지 않고 rejected로 알려서 다음 배치에 다시 받는다.
+# 매장 와이파이가 끊겼다 복구되면 밀린 버퍼가 한 번에 몰리는데, 그때 버려지는 기록은
+# 클라이언트에도 서버에도 남지 않는다.
+EVENT_BATCH_MAX = 200
+
 # 관람의 시작·끝은 서버가 판단한다. 프론트가 같이 보내면 퍼널의 분모가 두 배가 된다.
 SERVER_OWNED_TYPES = frozenset({EventType.STORE_ENTER, EventType.VISIT_START, EventType.VISIT_END})
+
+# 관람이 끝난 뒤에도 받는 타입. 화보는 /finish 이후에 일어나므로 이 문이 열려 있어야 한다.
+# 반대로 관람 이벤트는 여기서 막는다 — 리포트는 /finish 시점에 박제되므로 뒤늦게 들어온
+# 상품 조회는 반영될 수 없고, 그대로 저장하면 원본과 리포트가 어긋난다.
+POST_VISIT_TYPES = frozenset(
+    {
+        EventType.LOOKBOOK_CANDIDATES_VIEW,
+        EventType.LOOKBOOK_PRODUCT_SELECT,
+        EventType.PHOTO_CONSENT,
+        EventType.PHOTO_CAPTURE,
+        EventType.PHOTO_RETAKE,
+        EventType.LOOKBOOK_GENERATE_REQUEST,
+        EventType.LOOKBOOK_REGENERATE,
+        EventType.LOOKBOOK_COMPLETE,
+        EventType.LOOKBOOK_SHARE,
+        EventType.LOOKBOOK_SAVE,
+    }
+)
 
 
 def record(
@@ -42,7 +65,9 @@ def append_batch(visit: Visit, items: list[dict]) -> dict:
     같은 배치를 두 번 보내도 결과가 같아야 한다(멱등). 그래서 실패 시 클라이언트는
     그냥 재전송하면 되고, 브라우저가 닫혀도 직전 기록이 날아가지 않는다.
     """
-    accepted_items, ignored_count = _drop_server_owned(items)
+    batch, rejected_count = items[:EVENT_BATCH_MAX], max(0, len(items) - EVENT_BATCH_MAX)
+
+    accepted_items, ignored_count = _drop_unaccepted(visit, batch)
     _assert_references_exist(accepted_items)
 
     unique_items = _dedupe_within_batch(accepted_items)
@@ -55,12 +80,21 @@ def append_batch(visit: Visit, items: list[dict]) -> dict:
         "accepted": len(fresh_items),
         "duplicated": len(accepted_items) - len(fresh_items),
         "ignored": ignored_count,
+        "rejected": rejected_count,
     }
 
 
-def _drop_server_owned(items: list[dict]) -> tuple[list[dict], int]:
-    kept = [item for item in items if item["event_type"] not in SERVER_OWNED_TYPES]
+def _drop_unaccepted(visit: Visit, items: list[dict]) -> tuple[list[dict], int]:
+    """서버 소유 타입과, 관람이 끝난 뒤에 온 관람 이벤트를 걸러낸다."""
+    allowed = _allowed_types(visit)
+    kept = [item for item in items if item["event_type"] in allowed]
     return kept, len(items) - len(kept)
+
+
+def _allowed_types(visit: Visit) -> frozenset[str]:
+    if visit.is_open:
+        return frozenset(EventType.values) - SERVER_OWNED_TYPES
+    return POST_VISIT_TYPES
 
 
 def _assert_references_exist(items: list[dict]) -> None:
