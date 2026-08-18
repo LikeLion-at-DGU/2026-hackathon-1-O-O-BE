@@ -65,3 +65,31 @@ class PresignResponseSerializer(serializers.Serializer):
     mask_upload_url = serializers.CharField()
     headers = serializers.DictField(help_text="각 PUT에 그대로 실어야 하는 헤더")
     expires_in = serializers.IntegerField()
+
+
+class PhotoMetaSerializer(serializers.Serializer):
+    """브라우저에서 얼굴 검출로 얻은 값. 검출이 실패해도 서비스는 정상 동작해야 한다."""
+
+    face_count = serializers.IntegerField(required=False, min_value=0)
+    face_ratio = serializers.FloatField(required=False, min_value=0.0, max_value=1.0)
+    face_center = serializers.ListField(child=serializers.FloatField(), required=False)
+
+
+class LookbookCreateSerializer(serializers.Serializer):
+    """생성·재생성 공용. 재생성은 같은 값을 그대로 다시 보내면 된다."""
+
+    product_ids = serializers.ListField(child=serializers.CharField(), allow_empty=False)
+    photo_key = serializers.CharField()
+    # 인물 실루엣. 없으면 체형 보존이 약해질 뿐 생성 자체는 된다.
+    mask_key = serializers.CharField(required=False, allow_blank=True, default="")
+    consent = serializers.BooleanField()
+    photo_meta = PhotoMetaSerializer(required=False, default=dict)
+
+
+class LookbookCreateResponseSerializer(serializers.Serializer):
+    job_id = serializers.CharField()
+    # 로딩 중 앱을 닫았다 켜도 복구되도록 프론트가 미리 URL을 바꿔둘 수 있게 준다.
+    share_slug = serializers.CharField()
+    attempt = serializers.IntegerField()
+    remaining_regenerations = serializers.IntegerField()
+    poll_after_ms = serializers.IntegerField()

@@ -1,7 +1,7 @@
 from django.conf import settings
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
-from rest_framework.exceptions import APIException, NotFound, PermissionDenied
+from rest_framework.exceptions import NotFound, PermissionDenied
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
@@ -9,21 +9,16 @@ from rest_framework.views import APIView
 
 from api.permissions import IsVisitAuthenticated
 from apps.analysis.models import Report, ReportStatus
-from apps.lookbook import candidates, jobs, mocks, storage
+from apps.lookbook import candidates, generate, jobs, mocks, progress, storage, worker
+from apps.lookbook.errors import ReportPending
 from apps.lookbook.serializers import (
     CandidateListSerializer,
     JobStatusSerializer,
+    LookbookCreateResponseSerializer,
+    LookbookCreateSerializer,
     PresignRequestSerializer,
     PresignResponseSerializer,
 )
-
-
-class ReportPending(APIException):
-    """분석이 아직 안 끝났다. 잠시 뒤 다시 부르면 되는 상태라 409로 구분한다."""
-
-    status_code = status.HTTP_409_CONFLICT
-    default_code = "CONFLICT"
-    default_detail = "report_pending"
 
 
 class LookbookCandidateView(APIView):
@@ -111,4 +106,39 @@ class UploadPresignView(APIView):
                 "expires_in": settings.UPLOAD_URL_TTL_SEC,
             },
             status=status.HTTP_200_OK,
+        )
+
+
+class LookbookCreateView(APIView):
+    """POST /api/v1/reports/{slug}/lookbook — 화보 생성·재생성.
+
+    큐에 넣고 즉시 202를 돌려준다. [다시 돌리기]도 같은 엔드포인트를 같은 값으로
+    재호출하면 되고, 매번 새 share_slug를 발급한다 — 이미 공유한 링크의 이미지가
+    바뀌면 남이 열었을 때 다른 화보가 보이기 때문이다.
+    """
+
+    permission_classes = [IsVisitAuthenticated]
+
+    @extend_schema(
+        request=LookbookCreateSerializer,
+        responses={202: LookbookCreateResponseSerializer},
+        tags=["Lookbook"],
+    )
+    def post(self, request, slug: str):
+        serializer = LookbookCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        report = get_object_or_404(Report.objects.select_related("visit"), pk=slug)
+        lookbook = generate.accept(report, request.auth, serializer.validated_data)
+        worker.enqueue(lookbook)
+
+        return Response(
+            {
+                "job_id": lookbook.job_id,
+                "share_slug": lookbook.share_slug,
+                "attempt": lookbook.attempt,
+                "remaining_regenerations": generate.remaining_regenerations(lookbook.attempt),
+                "poll_after_ms": progress.POLL_SLOW_MS,
+            },
+            status=status.HTTP_202_ACCEPTED,
         )

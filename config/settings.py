@@ -182,6 +182,11 @@ LOOKBOOK_JOB_TTL_SEC = 300  # 폴링이 끝나고도 잠깐 남을 만큼만
 # 진행률 보간의 분모. ⚠️ 이미지 생성 벤더 실측 p50으로 교체해야 한다.
 # 25초로 가정했는데 실제가 40초면 90%에서 오래 멈춰 있는 화면이 된다.
 LOOKBOOK_EXPECTED_SEC = env.int("LOOKBOOK_EXPECTED_SEC", default=25)
+LOOKBOOK_MAX_SELECT = 1  # 화보에 담을 상품 수. 서버가 강제하고 응답으로도 내려준다
+LOOKBOOK_MAX_ATTEMPT = 3  # 재생성 횟수. 이미지 생성은 호출당 비용이 붙는다
+# 벤더가 붙기 전까지 가짜 결과로 워커·폴링·완료 화면을 실제 경로로 돌린다.
+LOOKBOOK_FAKE_AI = env.bool("LOOKBOOK_FAKE_AI", default=True)
+LOOKBOOK_FAKE_DELAY_SEC = env.int("LOOKBOOK_FAKE_DELAY_SEC", default=8)
 
 # 업로드 — 사진 바이트는 Django를 지나가지 않는다. 서버는 presign URL만 발급한다.
 PHOTO_MAX_BYTES = 5 * 1024 * 1024
