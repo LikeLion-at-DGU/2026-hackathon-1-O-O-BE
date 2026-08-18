@@ -30,6 +30,10 @@ class VisitTokenAuthentication(BaseAuthentication):
         visit = Visit.objects.select_related("visitor", "store").filter(token=token).first()
         if visit is None:
             raise InvalidVisitToken()
+        # 만료는 인증 시점에 즉시 판정한다. 야간 배치가 늦게 돌아도 사용자 입장에선
+        # 정확히 3시간이고, 종료된 방문의 토큰은 화보를 위해 살아 있어야 한다.
+        if visit.is_expired:
+            raise InvalidVisitToken()
 
         return (None, visit)
 

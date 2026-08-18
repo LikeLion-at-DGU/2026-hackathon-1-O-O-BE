@@ -21,6 +21,17 @@ class EventType(models.TextChoices):
     QUESTION_SUBMIT = "question_submit", "질문 전송"
     RECOMMENDATION_IMPRESSION = "recommendation_impression", "추천 노출"
     RECOMMENDATION_CLICK = "recommendation_click", "추천 클릭"
+    # 화보 — 관람이 끝난 뒤(ended_at 이후)에 일어나는 유일한 이벤트군
+    LOOKBOOK_CANDIDATES_VIEW = "lookbook_candidates_view", "화보 후보 조회"
+    LOOKBOOK_PRODUCT_SELECT = "lookbook_product_select", "화보 상품 선택"
+    PHOTO_CONSENT = "photo_consent", "사진 촬영 동의"
+    PHOTO_CAPTURE = "photo_capture", "사진 촬영"
+    PHOTO_RETAKE = "photo_retake", "사진 재촬영"
+    LOOKBOOK_GENERATE_REQUEST = "lookbook_generate_request", "화보 생성 요청"
+    LOOKBOOK_REGENERATE = "lookbook_regenerate", "화보 재생성"
+    LOOKBOOK_COMPLETE = "lookbook_complete", "화보 완성"
+    LOOKBOOK_SHARE = "lookbook_share", "화보 공유"
+    LOOKBOOK_SAVE = "lookbook_save", "화보 저장"
 
 
 class Event(models.Model):

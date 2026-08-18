@@ -155,7 +155,10 @@ OPENAI_API_KEY = env("OPENAI_API_KEY")
 OPENAI_MODEL = env("OPENAI_MODEL")  # 모델 교체는 .env에서만 한다
 
 # 도메인 규칙 (매직 넘버 방지)
-RESUME_WINDOW = timedelta(minutes=30)  # 미종료 Visit을 이어받아 주는 시간
+# visit_token의 유일한 만료 조건. 진입 시각 기준이며 마지막 활동 기준이 아니다.
+# 화보와 재생성이 /finish 이후에 일어나므로 "퇴장 시 즉시 만료"는 폐기했다.
+# 3시간이면 관람(20분~1시간) + 화보 + 재생성 3회가 들어가고, 다음날 이어붙기는 막는다.
+VISIT_STALE_AFTER = timedelta(hours=3)
 DWELL_MAX_MS = 300_000  # 클라이언트가 보낸 체류시간 상한 (탭 백그라운드 방어)
 CHAT_TIMELINE_LIMIT = 200  # GET /chat/messages가 한 번에 주는 최대 메시지 수
 
