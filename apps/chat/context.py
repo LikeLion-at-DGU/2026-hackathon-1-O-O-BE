@@ -134,6 +134,10 @@ def _describe(product: Product) -> str:
         f"{product.get_pattern_display()} / {product.get_silhouette_display()} / "
         f"{product.get_mood_display()} / {product.get_use_case_display()}",
     ]
+    # attributes는 브랜드가 적어 준 표기값이다(색상·소재·치수·사이즈). 분석 축은
+    # "그레인 레더"처럼 뭉뚱그린 분류라, 실제 소재명과 치수는 여기에만 있다.
+    # 이게 빠지면 "크기 얼마예요?"에 DB를 두고도 직원에게 물어보라고 답한다.
+    lines += [f"- {key}: {value}" for key, value in product.attributes.items() if value]
     lines += [
         f"- {PresetKey(key).label}: {answer}"
         for key, answer in product.preset_answers.items()
