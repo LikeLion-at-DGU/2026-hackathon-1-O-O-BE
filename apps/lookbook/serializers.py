@@ -1,6 +1,9 @@
 """문서용 응답 스키마. 실제 조립은 candidates.build()가 한다."""
 
+from django.conf import settings
 from rest_framework import serializers
+
+from apps.lookbook.storage import ALLOWED_CONTENT_TYPES
 
 
 class CandidateItemSerializer(serializers.Serializer):
@@ -35,3 +38,30 @@ class JobStatusSerializer(serializers.Serializer):
     error_code = serializers.CharField(allow_null=True)
     retryable = serializers.BooleanField(help_text="true면 재생성 횟수를 깎지 않고 다시 시도한다")
     poll_after_ms = serializers.IntegerField(help_text="다음 폴링까지 기다릴 시간. 서버가 정한다")
+
+
+class PresignRequestSerializer(serializers.Serializer):
+    """촬영 직후 한 번 호출한다. 파일명은 받지 않는다 — 키는 서버가 만든다."""
+
+    content_type = serializers.CharField()
+    byte_size = serializers.IntegerField(min_value=1)
+
+    def validate_content_type(self, value: str) -> str:
+        if value not in ALLOWED_CONTENT_TYPES:
+            raise serializers.ValidationError("unsupported_type")
+        return value
+
+    def validate_byte_size(self, value: int) -> int:
+        """얼굴 사진 한 장에 5MB를 넘길 이유가 없다. 넘으면 업로드도 생성도 느려진다."""
+        if value > settings.PHOTO_MAX_BYTES:
+            raise serializers.ValidationError("file_too_large")
+        return value
+
+
+class PresignResponseSerializer(serializers.Serializer):
+    photo_key = serializers.CharField()
+    photo_upload_url = serializers.CharField()
+    mask_key = serializers.CharField()
+    mask_upload_url = serializers.CharField()
+    headers = serializers.DictField(help_text="각 PUT에 그대로 실어야 하는 헤더")
+    expires_in = serializers.IntegerField()

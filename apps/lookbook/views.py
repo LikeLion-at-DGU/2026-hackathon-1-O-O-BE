@@ -1,3 +1,4 @@
+from django.conf import settings
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.exceptions import APIException, NotFound, PermissionDenied
@@ -8,8 +9,13 @@ from rest_framework.views import APIView
 
 from api.permissions import IsVisitAuthenticated
 from apps.analysis.models import Report, ReportStatus
-from apps.lookbook import candidates, jobs, mocks
-from apps.lookbook.serializers import CandidateListSerializer, JobStatusSerializer
+from apps.lookbook import candidates, jobs, mocks, storage
+from apps.lookbook.serializers import (
+    CandidateListSerializer,
+    JobStatusSerializer,
+    PresignRequestSerializer,
+    PresignResponseSerializer,
+)
 
 
 class ReportPending(APIException):
@@ -68,3 +74,41 @@ class LookbookJobView(APIView):
         if state is None:
             raise NotFound("진행 상태를 찾을 수 없습니다. 만료되었거나 없는 작업입니다.")
         return Response(jobs.as_response(state), status=status.HTTP_200_OK)
+
+
+class UploadPresignView(APIView):
+    """POST /api/v1/uploads/presign — 사진·마스크 업로드 URL 2개를 한 번에 발급한다.
+
+    마스크는 인물 실루엣이다. 화보 생성 때 그 영역을 건드리지 않아야 체형과 얼굴이
+    보존되므로, 사진과 짝으로 올릴 자리를 함께 내준다.
+    """
+
+    permission_classes = [IsVisitAuthenticated]
+
+    @extend_schema(
+        request=PresignRequestSerializer,
+        responses={200: PresignResponseSerializer},
+        tags=["Lookbook"],
+    )
+    def post(self, request):
+        serializer = PresignRequestSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        content_type = serializer.validated_data["content_type"]
+
+        photo = storage.presign_put(storage.new_photo_key(content_type), content_type)
+        mask = storage.presign_put(storage.mask_key_for(photo.key), storage.MASK_CONTENT_TYPE)
+
+        return Response(
+            {
+                "photo_key": photo.key,
+                "photo_upload_url": photo.upload_url,
+                "mask_key": mask.key,
+                "mask_upload_url": mask.upload_url,
+                "headers": {
+                    "photo": {"Content-Type": photo.content_type},
+                    "mask": {"Content-Type": mask.content_type},
+                },
+                "expires_in": settings.UPLOAD_URL_TTL_SEC,
+            },
+            status=status.HTTP_200_OK,
+        )
