@@ -11,7 +11,7 @@ from pathlib import Path
 from django.test import SimpleTestCase, override_settings
 from rest_framework.test import APIClient
 
-from apps.lookbook import composition, jobs, progress, scoring, snapshot, storage
+from apps.lookbook import composition, jobs, progress, prompts, scoring, snapshot, storage
 from apps.lookbook.jobs import JobState
 from apps.lookbook.scoring import ProductSignals, ReasonCode, ScoredCandidate
 
@@ -388,3 +388,59 @@ class LocalUploadTest(SimpleTestCase):
         response = self.client.put(f"/api/v1/uploads/{key}", JPEG_BYTES, content_type="image/jpeg")
 
         self.assertEqual(response.status_code, 404)
+
+
+class PromptTest(SimpleTestCase):
+    """프롬프트는 순수 함수라 벤더를 안 부르고 검증할 수 있다.
+
+    여기가 틀려도 이미지는 그럴듯하게 나온다. 무드가 빠졌는지 레퍼런스 문장이 헛돌고
+    있는지는 결과만 봐서는 아무도 모른다.
+    """
+
+    def build(self, **overrides):
+        payload = {
+            "mood": {"name": "차분한 도시", "palette": ["#111", "#eee"]},
+            "composition_prompt": "Half body shot.",
+            "product_names": ["Milla 토트백"],
+            "venue": "MCM HAUS SEOUL",
+            "season": "2026 F/W",
+            "seed": 7,
+            "attempt": 1,
+            "has_reference": False,
+        }
+        payload.update(overrides)
+        return prompts.build(**payload)
+
+    def test_레퍼런스가_없으면_레퍼런스를_말하지_않는다(self):
+        """없는 그림을 따르라고 하면 모델이 상상해서 구도가 튄다."""
+        self.assertNotIn("reference", self.build(has_reference=False))
+
+    def test_레퍼런스가_있으면_구도만_따르게_한다(self):
+        text = self.build(has_reference=True)
+
+        self.assertIn("reference", text)
+        self.assertIn("composition only", text)
+
+    def test_첫_컷은_자세를_흔들지_않는다(self):
+        self.assertNotIn("Vary the framing", self.build(attempt=1))
+
+    def test_재생성은_자세를_흔든다(self):
+        self.assertIn("Vary the framing", self.build(attempt=2))
+
+    def test_무드는_회차와_무관하게_유지된다(self):
+        """재생성마다 다른 세계관이 나오면 '다시 돌리기'가 아니라 '다른 서비스'다."""
+        for attempt in (1, 2, 3):
+            self.assertIn("차분한 도시", self.build(attempt=attempt))
+
+    def test_같은_seed는_같은_문구를_준다(self):
+        self.assertEqual(self.build(seed=7, attempt=2), self.build(seed=7, attempt=2))
+
+    def test_상품_이름을_그대로_넣는다(self):
+        """id만 주면 벤더가 가방 모양을 지어낸다."""
+        self.assertIn("Milla 토트백", self.build())
+
+    def test_얼굴_보존_규칙은_항상_붙는다(self):
+        self.assertIn("Preserve the person", self.build())
+
+    def test_무드가_비어도_죽지_않는다(self):
+        self.assertTrue(self.build(mood={}, product_names=[]))

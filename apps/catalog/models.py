@@ -156,7 +156,9 @@ class Product(models.Model):
     images = models.JSONField(default=list)
     # 배경을 제거한 상품 PNG. 화보 합성에 쓴다. 생성 시점에 배경 제거를 돌리면
     # 대기시간이 몇 배가 되므로 상품 데이터 준비 단계에서 미리 만들어 둔다.
-    cutout_url = models.URLField(blank=True)
+    # external_url과 같은 이유로 2048이다. CDN 컷아웃 주소는 200자를 쉽게 넘고,
+    # 넘치면 seed_demo 전체가 DataError로 롤백된다.
+    cutout_url = models.URLField(max_length=2048, blank=True)
 
     category = models.CharField(max_length=20, choices=Category.choices)
     color = models.CharField(max_length=20, choices=Color.choices)
