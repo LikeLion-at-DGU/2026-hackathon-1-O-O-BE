@@ -52,16 +52,21 @@ class EventItemSerializer(serializers.Serializer):
             )
 
 
+def validate_batch_size(value: list[dict]) -> list[dict]:
+    """배치 상한. /events와 /finish(버퍼 동봉) 양쪽이 같은 한도를 써야 한다."""
+    if len(value) > EVENT_BATCH_MAX:
+        raise serializers.ValidationError(
+            f"한 번에 {EVENT_BATCH_MAX}건까지 보낼 수 있습니다. (받은 수: {len(value)})"
+        )
+    return value
+
+
 class EventBatchSerializer(serializers.Serializer):
     visit_id = serializers.CharField()
     events = EventItemSerializer(many=True, allow_empty=False)
 
     def validate_events(self, value: list[dict]) -> list[dict]:
-        if len(value) > EVENT_BATCH_MAX:
-            raise serializers.ValidationError(
-                f"한 번에 {EVENT_BATCH_MAX}건까지 보낼 수 있습니다. (받은 수: {len(value)})"
-            )
-        return value
+        return validate_batch_size(value)
 
 
 class EventBatchResultSerializer(serializers.Serializer):
