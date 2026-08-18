@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "apps.chat",
     "apps.analysis",
     "apps.dashboard",
+    "apps.lookbook",
 ]
 
 MIDDLEWARE = [
@@ -161,6 +162,21 @@ OPENAI_MODEL = env("OPENAI_MODEL")  # 모델 교체는 .env에서만 한다
 VISIT_STALE_AFTER = timedelta(hours=3)
 DWELL_MAX_MS = 300_000  # 클라이언트가 보낸 체류시간 상한 (탭 백그라운드 방어)
 CHAT_TIMELINE_LIMIT = 200  # GET /chat/messages가 한 번에 주는 최대 메시지 수
+
+# 화보 생성 진행 상태는 휘발성이라 DB가 아니라 캐시에 둔다. 폴링이 화보당 8~9번이라
+# 그대로 DB에 붙이면 전부 같은 답을 가져오는 조회가 초당 수십 번 발생한다.
+# ⚠️ LocMem은 프로세스마다 따로 논다. uvicorn을 --workers 2 이상으로 띄우면
+#    폴링이 다른 프로세스에 붙어 404가 나므로, 그때는 Redis 백엔드로 바꿔야 한다.
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "lookbook-jobs",
+    }
+}
+LOOKBOOK_JOB_TTL_SEC = 300  # 폴링이 끝나고도 잠깐 남을 만큼만
+# 진행률 보간의 분모. ⚠️ 이미지 생성 벤더 실측 p50으로 교체해야 한다.
+# 25초로 가정했는데 실제가 40초면 90%에서 오래 멈춰 있는 화면이 된다.
+LOOKBOOK_EXPECTED_SEC = env.int("LOOKBOOK_EXPECTED_SEC", default=25)
 
 LOGGING = {
     "version": 1,

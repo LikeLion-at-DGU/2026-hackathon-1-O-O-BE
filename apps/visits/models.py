@@ -62,7 +62,9 @@ class Visit(models.Model):
     ended_at = models.DateTimeField(null=True, blank=True)
     # 퇴장을 누르지 않고 방치돼 서버가 닫은 방문. 평균 체류시간과 리포트 완료율의 분모에서 뺀다.
     is_auto_closed = models.BooleanField(default=False)
-    # created_at을 따로 두지 않는다. started_at과 값이 항상 같고, 명세가 쓰는 이름이 started_at이다.
+    created_at = models.DateTimeField(auto_now_add=True)
+    # updated_at은 last_seen_at과 다르다 — 저장이 일어난 시각(ended_at 기록 등)이고,
+    # last_seen_at은 "손님이 아직 관람 중"인지 판정하려고 /events·/chat에서만 갱신하는 값이다.
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:

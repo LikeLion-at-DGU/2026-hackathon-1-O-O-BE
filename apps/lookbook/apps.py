@@ -1,0 +1,7 @@
+from django.apps import AppConfig
+
+
+class LookbookConfig(AppConfig):
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "apps.lookbook"
+    verbose_name = "화보"

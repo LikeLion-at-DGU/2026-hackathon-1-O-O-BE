@@ -94,6 +94,25 @@ class PresetKey(models.TextChoices):
     DESIGN_INTENT = "design_intent", "디자인 의도"
 
 
+# 취향 분석의 축 8개. 값 목록의 진실은 위 TextChoices이고, 이 표가 그것을 가리킨다.
+# 분석·시드·리포트 키워드가 모두 이 표를 통해 축을 돈다.
+ANALYSIS_AXES: dict[str, type[models.TextChoices]] = {
+    "category": Category,
+    "color": Color,
+    "material": Material,
+    "pattern": Pattern,
+    "silhouette": Silhouette,
+    "mood": Mood,
+    "price_band": PriceBand,
+    "use_case": UseCase,
+}
+
+
+def axis_label(axis: str, value: str) -> str:
+    """축 값의 한국어 라벨. 리포트의 취향 키워드가 "black"이 아니라 "블랙"이어야 한다."""
+    return dict(ANALYSIS_AXES[axis].choices).get(value, value)
+
+
 class Store(models.Model):
     id = models.CharField(primary_key=True, max_length=32, default=new_store_id, editable=False)
     name = models.CharField(max_length=100)
@@ -133,6 +152,9 @@ class Product(models.Model):
     external_url = models.URLField()  # 리포트의 '구매하기' → 본사 사이트
     story = models.TextField()
     images = models.JSONField(default=list)
+    # 배경을 제거한 상품 PNG. 화보 합성에 쓴다. 생성 시점에 배경 제거를 돌리면
+    # 대기시간이 몇 배가 되므로 상품 데이터 준비 단계에서 미리 만들어 둔다.
+    cutout_url = models.URLField(blank=True)
 
     category = models.CharField(max_length=20, choices=Category.choices)
     color = models.CharField(max_length=20, choices=Color.choices)
