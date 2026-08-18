@@ -18,3 +18,11 @@ class RegenerationLimit(APIException):
     status_code = status.HTTP_429_TOO_MANY_REQUESTS
     default_code = "RATE_LIMITED"
     default_detail = "regeneration_limit"
+
+
+class LookbookNotReady(APIException):
+    """생성이 아직 안 끝났다. 프론트가 "없음"과 "아직"을 구분해야 하므로 404가 아니다."""
+
+    status_code = status.HTTP_409_CONFLICT
+    default_code = "CONFLICT"
+    default_detail = "not_ready"

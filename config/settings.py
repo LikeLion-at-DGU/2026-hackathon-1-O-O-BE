@@ -187,6 +187,10 @@ LOOKBOOK_MAX_ATTEMPT = 3  # 재생성 횟수. 이미지 생성은 호출당 비�
 # 벤더가 붙기 전까지 가짜 결과로 워커·폴링·완료 화면을 실제 경로로 돌린다.
 LOOKBOOK_FAKE_AI = env.bool("LOOKBOOK_FAKE_AI", default=True)
 LOOKBOOK_FAKE_DELAY_SEC = env.int("LOOKBOOK_FAKE_DELAY_SEC", default=8)
+# 화보에 찍히는 고정 문구. 생성 시점에 스냅샷으로 복사되므로 나중에 바꿔도 옛 화보는 그대로다.
+LOOKBOOK_VENUE = env("LOOKBOOK_VENUE", default="MCM HAUS SEOUL")
+LOOKBOOK_SEASON = env("LOOKBOOK_SEASON", default="2026 F/W")
+LOOKBOOK_IMAGE_SIZE = (1080, 1350)  # 인스타그램 세로 비율
 
 # 업로드 — 사진 바이트는 Django를 지나가지 않는다. 서버는 presign URL만 발급한다.
 PHOTO_MAX_BYTES = 5 * 1024 * 1024

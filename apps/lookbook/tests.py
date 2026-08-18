@@ -6,7 +6,7 @@
 
 from django.test import SimpleTestCase
 
-from apps.lookbook import composition, jobs, progress, scoring, storage
+from apps.lookbook import composition, jobs, progress, scoring, snapshot, storage
 from apps.lookbook.jobs import JobState
 from apps.lookbook.scoring import ProductSignals, ReasonCode, ScoredCandidate
 
@@ -255,3 +255,45 @@ class MagicByteTest(SimpleTestCase):
     def test_이미지가_아니면_거른다(self):
         """content_type은 클라이언트 선언값이라 image/jpeg라 해놓고 아무거나 올릴 수 있다."""
         self.assertFalse(storage.is_image(b"<!DOCTYPE ht"))
+
+
+class SnapshotTest(SimpleTestCase):
+    class FakeReport:
+        def __init__(self, payload):
+            self.payload = payload
+
+    class FakeVisit:
+        muse_no = 14
+        muse_label = "N.014"
+        id = "v_abc"
+
+    def test_리포트의_무드와_지표를_그대로_옮긴다(self):
+        report = self.FakeReport({"mood": {"code": "cognac_noir"}, "stats": [{"key": "cuts", "value": 32}]})
+
+        stored = snapshot.build(report, self.FakeVisit(), seed=7)
+
+        self.assertEqual(snapshot.mood_of(stored)["code"], "cognac_noir")
+        self.assertEqual(snapshot.stats_of(stored)[0]["value"], 32)
+
+    def test_뮤즈_번호가_함께_박제된다(self):
+        stored = snapshot.build(self.FakeReport({}), self.FakeVisit(), seed=7)
+
+        self.assertEqual(stored["muse_no"], 14)
+        self.assertEqual(stored["muse_label"], "N.014")
+
+    def test_seed를_남긴다(self):
+        """안 남기면 나온 결과를 되짚을 수 없다."""
+        stored = snapshot.build(self.FakeReport({}), self.FakeVisit(), seed=99)
+
+        self.assertEqual(stored[snapshot.META_KEY]["seed"], 99)
+
+    def test_리포트에_무드가_없어도_죽지_않는다(self):
+        stored = snapshot.build(self.FakeReport({}), self.FakeVisit(), seed=1)
+
+        self.assertEqual(snapshot.mood_of(stored), {})
+        self.assertEqual(snapshot.stats_of(stored), [])
+
+    def test_지표가_배열이_아니면_빈_배열로_본다(self):
+        stored = snapshot.build(self.FakeReport({"stats": "깨진값"}), self.FakeVisit(), seed=1)
+
+        self.assertEqual(snapshot.stats_of(stored), [])
