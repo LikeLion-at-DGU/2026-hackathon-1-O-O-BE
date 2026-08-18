@@ -151,7 +151,7 @@ class Product(models.Model):
     no = models.PositiveSmallIntegerField()  # 전시존 안에서의 번호
     name = models.CharField(max_length=200)
     price = models.PositiveIntegerField()
-    external_url = models.URLField()  # 리포트의 '구매하기' → 본사 사이트
+    external_url = models.URLField(max_length=2048)  # 리포트의 '구매하기' → 본사 사이트
     story = models.TextField()
     images = models.JSONField(default=list)
     # 배경을 제거한 상품 PNG. 화보 합성에 쓴다. 생성 시점에 배경 제거를 돌리면
