@@ -25,7 +25,10 @@ STATUS_FAILED = "failed"
 # 재시도해도 되는 실패와 아닌 실패를 가른다.
 # GEN_CONTENT_BLOCKED는 얼굴 사진이 벤더 정책에 걸린 경우라 다시 눌러도 계속 막힌다.
 # 이걸 retryable로 두면 사용자가 재생성 3회를 헛되이 쓰고 비용도 그만큼 나간다.
-RETRYABLE_ERRORS = frozenset({"GEN_TIMEOUT", "GEN_RATE_LIMITED", "GEN_UPSTREAM"})
+TIMEOUT_ERROR = "GEN_TIMEOUT"
+RATE_LIMITED_ERROR = "GEN_RATE_LIMITED"
+UPSTREAM_ERROR = "GEN_UPSTREAM"
+RETRYABLE_ERRORS = frozenset({TIMEOUT_ERROR, RATE_LIMITED_ERROR, UPSTREAM_ERROR})
 BLOCKED_ERROR = "GEN_CONTENT_BLOCKED"
 
 

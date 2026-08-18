@@ -80,3 +80,54 @@ def _presign_s3(key: str, content_type: str) -> str:
         Params={"Bucket": settings.STORAGE_BUCKET, "Key": key, "ContentType": content_type},
         ExpiresIn=settings.UPLOAD_URL_TTL_SEC,
     )
+
+
+# 파일 앞부분 시그니처. presign의 content_type은 클라이언트가 선언한 값이라 실제 내용과
+# 무관하다. image/jpeg라고 해놓고 아무거나 올릴 수 있어서 바이트로 확인한다.
+MAGIC_BYTES = 12
+_SIGNATURES = (
+    (b"\xff\xd8\xff", 0),  # JPEG
+    (b"\x89PNG\r\n\x1a\n", 0),  # PNG
+    (b"WEBP", 8),  # RIFF....WEBP
+)
+
+
+class UploadNotFound(LookupError):
+    """presign만 받고 실제로 올리지 않았다."""
+
+
+class NotAnImage(ValueError):
+    """올라온 바이트가 이미지가 아니다."""
+
+
+def verify_upload(key: str) -> None:
+    """실제로 올라왔는지, 진짜 이미지인지 확인한다.
+
+    dev 백엔드는 확인할 대상이 없으므로 건너뛴다. 없는 것을 있다고 답하면 안 되고,
+    없다고 400을 내면 버킷이 생기기 전까지 생성 자체를 못 하게 된다.
+    """
+    if settings.STORAGE_BACKEND != BACKEND_S3:
+        return
+
+    import boto3
+    from botocore.exceptions import ClientError
+
+    client = boto3.client(
+        "s3",
+        endpoint_url=settings.STORAGE_ENDPOINT_URL or None,
+        aws_access_key_id=settings.STORAGE_ACCESS_KEY,
+        aws_secret_access_key=settings.STORAGE_SECRET_KEY,
+        region_name=settings.STORAGE_REGION,
+    )
+    try:
+        head = client.get_object(Bucket=settings.STORAGE_BUCKET, Key=key, Range=f"bytes=0-{MAGIC_BYTES - 1}")
+    except ClientError as error:
+        raise UploadNotFound(key) from error
+
+    if not is_image(head["Body"].read(MAGIC_BYTES)):
+        raise NotAnImage(key)
+
+
+def is_image(head: bytes) -> bool:
+    """앞 12바이트로 판정한다. 순수 함수라 테스트가 쉽다."""
+    return any(head[offset : offset + len(sig)] == sig for sig, offset in _SIGNATURES)

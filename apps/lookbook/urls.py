@@ -1,6 +1,11 @@
 from django.urls import path
 
-from apps.lookbook.views import LookbookCandidateView, LookbookJobView, UploadPresignView
+from apps.lookbook.views import (
+    LookbookCandidateView,
+    LookbookCreateView,
+    LookbookJobView,
+    UploadPresignView,
+)
 
 urlpatterns = [
     path(
@@ -9,5 +14,6 @@ urlpatterns = [
         name="lookbook-candidates",
     ),
     path("lookbooks/jobs/<str:job_id>", LookbookJobView.as_view(), name="lookbook-job"),
+    path("reports/<str:slug>/lookbook", LookbookCreateView.as_view(), name="lookbook-create"),
     path("uploads/presign", UploadPresignView.as_view(), name="upload-presign"),
 ]
