@@ -201,3 +201,58 @@ def _verify_local(key: str) -> None:
 def is_image(head: bytes) -> bool:
     """앞 12바이트로 판정한다. 순수 함수라 테스트가 쉽다."""
     return any(head[offset : offset + len(sig)] == sig for sig, offset in _SIGNATURES)
+
+
+LOOKBOOK_PREFIX = "lookbooks"
+
+
+def read_bytes(key: str) -> bytes:
+    """올라온 사진을 통째로 읽는다. 워커가 벤더에 넘길 재료다."""
+    if settings.STORAGE_BACKEND == BACKEND_LOCAL:
+        try:
+            return local_path(key).read_bytes()
+        except (OSError, InvalidKey) as error:
+            raise UploadNotFound(key) from error
+
+    if settings.STORAGE_BACKEND != BACKEND_S3:
+        raise UploadNotFound(key)
+
+    from botocore.exceptions import ClientError
+
+    try:
+        obj = _s3_client().get_object(Bucket=settings.STORAGE_BUCKET, Key=key)
+    except ClientError as error:
+        raise UploadNotFound(key) from error
+    return obj["Body"].read()
+
+
+def save_public(key: str, data: bytes, content_type: str = "image/png") -> str:
+    """완성 화보를 공개 위치에 저장하고 URL을 돌려준다.
+
+    사진(photos/)과 반대다. 화보는 공유 링크로 남이 열어야 하므로 공개여야 하고,
+    그래서 local에서는 nginx가 서빙하는 MEDIA_ROOT에 쓴다.
+    """
+    if settings.STORAGE_BACKEND == BACKEND_S3:
+        _s3_client().put_object(
+            Bucket=settings.STORAGE_BUCKET, Key=key, Body=data, ContentType=content_type
+        )
+        base = (settings.STORAGE_PUBLIC_BASE_URL or "").rstrip("/")
+        return f"{base}/{key}" if base else key
+
+    path = Path(settings.MEDIA_ROOT) / key
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(data)
+    return f"{settings.MEDIA_URL}{key}"
+
+
+def _s3_client():
+    """s3 호출 3곳이 같은 설정을 쓴다. 한 군데만 고쳐도 되게 모았다."""
+    import boto3
+
+    return boto3.client(
+        "s3",
+        endpoint_url=settings.STORAGE_ENDPOINT_URL or None,
+        aws_access_key_id=settings.STORAGE_ACCESS_KEY,
+        aws_secret_access_key=settings.STORAGE_SECRET_KEY,
+        region_name=settings.STORAGE_REGION,
+    )

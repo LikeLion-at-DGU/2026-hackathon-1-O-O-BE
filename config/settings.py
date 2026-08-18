@@ -192,7 +192,18 @@ LOOKBOOK_FAKE_DELAY_SEC = env.int("LOOKBOOK_FAKE_DELAY_SEC", default=8)
 # 화보에 찍히는 고정 문구. 생성 시점에 스냅샷으로 복사되므로 나중에 바꿔도 옛 화보는 그대로다.
 LOOKBOOK_VENUE = env("LOOKBOOK_VENUE", default="MCM HAUS SEOUL")
 LOOKBOOK_SEASON = env("LOOKBOOK_SEASON", default="2026 F/W")
-LOOKBOOK_IMAGE_SIZE = (1080, 1350)  # 인스타그램 세로 비율
+LOOKBOOK_IMAGE_SIZE = (1080, 1350)  # 인스타그램 세로 비율. FAKE 결과에만 쓴다
+
+# --- 이미지 생성 벤더 ---
+LOOKBOOK_IMAGE_MODEL = env("LOOKBOOK_IMAGE_MODEL", default="gpt-image-2")
+# 벤더가 받는 값은 변의 길이가 16의 배수여야 한다. 1080x1350은 조건에 안 맞아서
+# 같은 4:5 비율인 1024x1280을 쓴다. 실제 크기는 결과 이미지에서 다시 읽는다.
+LOOKBOOK_GEN_SIZE = env("LOOKBOOK_GEN_SIZE", default="1024x1280")
+# 25초 걸리는 호출이다. common/llm.py의 20초를 그대로 쓰면 매번 타임아웃이 난다.
+LOOKBOOK_GEN_TIMEOUT_SEC = env.int("LOOKBOOK_GEN_TIMEOUT_SEC", default=120)
+# 마스크 극성 뒤집기. 인물이 지워지고 배경만 남으면 이 값을 True로 바꾼다.
+# 프론트 실루엣의 흑백이 반대로 올 수 있어서 배포 없이 되돌릴 손잡이를 남긴다.
+LOOKBOOK_MASK_INVERT = env.bool("LOOKBOOK_MASK_INVERT", default=False)
 
 # 업로드 — 사진 바이트는 Django를 지나가지 않는다. 서버는 presign URL만 발급한다.
 PHOTO_MAX_BYTES = 5 * 1024 * 1024
@@ -218,6 +229,8 @@ UPLOAD_LOCAL_ROOT = env("UPLOAD_LOCAL_ROOT", default=str(BASE_DIR / "uploads"))
 # presign URL의 host. 평소에는 요청의 scheme+host를 그대로 쓰므로 비워둔다.
 # 요청 컨텍스트가 없는 곳(관리 명령 등)에서만 이 값이 쓰인다.
 UPLOAD_LOCAL_BASE_URL = env("UPLOAD_LOCAL_BASE_URL", default="http://localhost:8000")
+# s3에서 완성 화보를 공개 서빙할 주소(R2 public bucket · CDN). 비우면 키만 돌려준다.
+STORAGE_PUBLIC_BASE_URL = env("STORAGE_PUBLIC_BASE_URL", default="")
 # 얼굴 사진 보존 기간. 명세대로 파일 나이만 보고 지운다 — presign만 받고 이탈한 사진은
 # DB에 행이 없어서 배치가 못 찾기 때문이다. `manage.py purge_uploads`를 하루 한 번 돌린다.
 UPLOAD_RETENTION_HOURS = 24
