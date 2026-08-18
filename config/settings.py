@@ -13,6 +13,8 @@ env = environ.Env(
     ALLOWED_HOSTS=(list, ["localhost", "127.0.0.1"]),
     CORS_ALLOWED_ORIGINS=(list, ["http://localhost:3000", "http://localhost:5173"]),
     CORS_ALLOW_ALL_ORIGINS=(bool, False),
+    CORS_ALLOWED_ORIGIN_REGEXES=(list, []),
+    CSRF_TRUSTED_ORIGINS=(list, []),
     OPENAI_API_KEY=(str, ""),
     OPENAI_MODEL=(str, "gpt-4o-mini"),
 )
@@ -100,7 +102,8 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = "static/"
-# 배포에서 관리자·Swagger 화면이 깨지지 않게 whitenoise가 정적 파일을 직접 서빙한다.
+# collectstatic이 모아둘 위치. DEBUG=False에서 django-admin·Swagger의 CSS가 여기서 나간다.
+# 앞에 nginx가 있으면 nginx가 서빙하고, 없으면 whitenoise가 대신 서빙한다.
 # Manifest 방식은 collectstatic을 빠뜨리면 500이 나므로 데모 안전을 택했다.
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STORAGES = {
@@ -137,6 +140,19 @@ CORS_ALLOWED_ORIGINS = env("CORS_ALLOWED_ORIGINS")
 CORS_ALLOW_ALL_ORIGINS = env("CORS_ALLOW_ALL_ORIGINS")  # 로컬 전용. prod에서 켜지 말 것
 # 기본 목록(accept·origin·x-requested-with 등)을 덮어쓰면 브라우저 preflight가 깨진다.
 CORS_ALLOW_HEADERS = (*default_headers, "x-anonymous-uuid", "x-visit-token")
+# Netlify의 PR 미리보기·브랜치 배포는 도메인이 매번 달라진다
+# (deploy-preview-3--사이트.netlify.app). 고정 목록으로는 커버가 안 돼서 정규식을 쓴다.
+CORS_ALLOWED_ORIGIN_REGEXES = env("CORS_ALLOWED_ORIGIN_REGEXES")
+
+# nginx가 TLS를 끊고 평문으로 넘겨주므로, 이 헤더가 없으면 Django는 자기가 http로
+# 서비스된다고 착각한다. Swagger의 서버 주소와 미디어 URL이 http로 나가 mixed content가 된다.
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+# https로 열린 django-admin에서 로그인하려면 Origin이 신뢰 목록에 있어야 한다.
+CSRF_TRUSTED_ORIGINS = env("CSRF_TRUSTED_ORIGINS")
+# 배포는 https이므로 관리자 세션 쿠키를 평문으로 흘리지 않는다.
+# 로컬은 http라서 True로 두면 admin 로그인이 아예 안 된다.
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
 
 # 매장은 하나로 고정한다. 클라이언트가 매장을 지정하지 않고 서버가 이 값을 붙인다.
 DEFAULT_STORE_ID = env("DEFAULT_STORE_ID", default="s_mcm")
@@ -145,7 +161,10 @@ OPENAI_API_KEY = env("OPENAI_API_KEY")
 OPENAI_MODEL = env("OPENAI_MODEL")  # 모델 교체는 .env에서만 한다
 
 # 도메인 규칙 (매직 넘버 방지)
-RESUME_WINDOW = timedelta(minutes=30)  # 미종료 Visit을 이어받아 주는 시간
+# visit_token의 유일한 만료 조건. 진입 시각 기준이며 마지막 활동 기준이 아니다.
+# 화보와 재생성이 /finish 이후에 일어나므로 "퇴장 시 즉시 만료"는 폐기했다.
+# 3시간이면 관람(20분~1시간) + 화보 + 재생성 3회가 들어가고, 다음날 이어붙기는 막는다.
+VISIT_STALE_AFTER = timedelta(hours=3)
 DWELL_MAX_MS = 300_000  # 클라이언트가 보낸 체류시간 상한 (탭 백그라운드 방어)
 CHAT_TIMELINE_LIMIT = 200  # GET /chat/messages가 한 번에 주는 최대 메시지 수
 

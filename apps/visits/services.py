@@ -8,8 +8,7 @@
 
 from uuid import UUID
 
-from django.conf import settings
-from django.db.models import Count
+from django.db.models import Count, F
 from django.utils import timezone
 
 from apps.catalog.models import Store
@@ -42,16 +41,15 @@ def resolve_or_issue(anonymous_uuid: UUID | None) -> tuple[Visitor, bool]:
 
 
 def find_resumable(visitor: Visitor) -> Visit | None:
-    """이어받을 Visit을 찾고, 그 과정에서 오래된 미종료 Visit을 정리한다.
+    """이어받을 Visit을 찾고, 그 과정에서 만료된 미종료 Visit을 정리한다.
 
     만료를 배치 스케줄러로 돌리지 않고 여기서 계산한다. 판정 시점이 입장 시점
     하나뿐이라 스케줄러를 띄울 이유가 없다.
     """
-    threshold = timezone.now() - settings.RESUME_WINDOW
     resumable = None
 
-    for visit in visitor.visits.filter(ended_at__isnull=True).order_by("-last_seen_at"):
-        if resumable is None and visit.last_seen_at >= threshold:
+    for visit in visitor.visits.filter(ended_at__isnull=True).order_by("-started_at"):
+        if resumable is None and not visit.is_expired:
             resumable = visit
         else:
             expire(visit)
@@ -59,15 +57,37 @@ def find_resumable(visitor: Visitor) -> Visit | None:
     return resumable
 
 
-def expire(visit: Visit) -> None:
-    """퇴장을 누르지 않고 방치된 Visit을 닫는다. 리포트는 만들지 않는다."""
+def expire(visit: Visit, *, auto_closed: bool = True) -> None:
+    """퇴장을 누르지 않고 방치된 Visit을 닫는다. 리포트는 만들지 않는다.
+
+    auto_closed는 평균 체류시간·리포트 완료율 집계에서 이 방문을 빼기 위한 표시다.
+    사용자가 이어하기 모달에서 "새로 시작"을 고른 경우는 방치가 아니므로 False로 닫는다.
+    """
     visit.ended_at = timezone.now()
-    visit.save(update_fields=["ended_at", "updated_at"])
+    visit.is_auto_closed = auto_closed
+    visit.save(update_fields=["ended_at", "is_auto_closed", "updated_at"])
 
 
-def start(visitor: Visitor, store: Store) -> Visit:
-    """새 Visit + 토큰 발급. 관람의 시작점 이벤트도 서버가 남긴다."""
-    visit = Visit.objects.create(visitor=visitor, store=store)
+def issue_muse_no(store: Store) -> int:
+    """매장 카운터를 올려 뮤즈 번호를 발급한다. 호출자가 트랜잭션 안이어야 한다.
+
+    SQLite에는 select_for_update가 없어서 F() 갱신에 기댄다. 연결이
+    transaction_mode=IMMEDIATE라 트랜잭션 시작 시점에 쓰기 락을 잡으므로,
+    동시에 입장해도 같은 번호가 두 번 나가지 않는다.
+    """
+    Store.objects.filter(pk=store.pk).update(muse_counter=F("muse_counter") + 1)
+    return Store.objects.values_list("muse_counter", flat=True).get(pk=store.pk)
+
+
+def start(visitor: Visitor, store: Store, *, age_band: str = "", gender: str = "") -> Visit:
+    """새 Visit + 토큰 + 뮤즈 번호 발급. 관람의 시작점 이벤트도 서버가 남긴다."""
+    visit = Visit.objects.create(
+        visitor=visitor,
+        store=store,
+        muse_no=issue_muse_no(store),
+        age_band=age_band,
+        gender=gender,
+    )
     record(visit, EventType.STORE_ENTER)
     record(visit, EventType.VISIT_START)
     append_greeting(visit)
@@ -78,23 +98,6 @@ def touch(visit: Visit) -> None:
     """이어하기 판정 기준 시각을 갱신한다."""
     visit.last_seen_at = timezone.now()
     visit.save(update_fields=["last_seen_at", "updated_at"])
-
-
-def apply_demographics(visitor: Visitor, age_band: str, gender: str) -> None:
-    """연령대·성별은 새로 시작할 때만 반영한다.
-
-    이어하기에서 덮어쓰지 않는 이유는, 이미 답한 사람에게 다시 묻지 않기로 했기 때문이다.
-    건너뛰기도 허용하므로 값이 없으면 그대로 둔다.
-    """
-    updated = []
-    if age_band:
-        visitor.age_band = age_band
-        updated.append("age_band")
-    if gender:
-        visitor.gender = gender
-        updated.append("gender")
-    if updated:
-        visitor.save(update_fields=[*updated, "updated_at"])
 
 
 def summarize(visit: Visit) -> dict:

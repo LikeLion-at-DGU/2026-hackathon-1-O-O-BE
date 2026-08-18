@@ -46,14 +46,19 @@ class EnterView(APIView):
         visit, resumed = self._resolve_visit(visitor, store, payload)
 
         body = {
+            # 신규 발급이 아닐 때도 항상 내려준다. 클라이언트가 보낸 uuid가 만료·위조라
+            # 서버가 새로 발급한 경우, 응답에 없으면 클라이언트는 자기 uuid가 여전히
+            # 유효하다고 오해하고 죽은 값을 계속 보낸다.
+            "anonymous_uuid": str(visitor.pk),
             "visit_id": visit.id,
             "visit_token": visit.token,
+            "muse_no": visit.muse_no,
+            "muse_label": visit.muse_label,
             "store": StoreBriefSerializer(store).data,
             "scenes": SceneSerializer(scenes_with_products(store), many=True).data,
-            "resumed": resumed,
+            "is_new": is_new_visitor,
+            "is_resumed": resumed,
         }
-        if is_new_visitor:
-            body["anonymous_uuid"] = str(visitor.pk)
         if resumed:
             body["resumed_visit"] = services.summarize(visit)
 
@@ -72,7 +77,13 @@ class EnterView(APIView):
             return resumable, True
 
         if resumable is not None:
-            services.expire(resumable)  # "새로 시작"을 눌렀다
+            # "새로 시작"을 눌렀다. 방치가 아니라 사용자의 선택이므로 자동 종료로 세지 않는다.
+            services.expire(resumable, auto_closed=False)
 
-        services.apply_demographics(visitor, payload.get("age_band", ""), payload.get("gender", ""))
-        return services.start(visitor, store), False
+        visit = services.start(
+            visitor,
+            store,
+            age_band=payload.get("age_band", ""),
+            gender=payload.get("gender", ""),
+        )
+        return visit, False
