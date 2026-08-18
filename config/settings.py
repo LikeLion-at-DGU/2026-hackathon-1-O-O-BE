@@ -197,16 +197,30 @@ LOOKBOOK_IMAGE_SIZE = (1080, 1350)  # 인스타그램 세로 비율
 # 업로드 — 사진 바이트는 Django를 지나가지 않는다. 서버는 presign URL만 발급한다.
 PHOTO_MAX_BYTES = 5 * 1024 * 1024
 UPLOAD_URL_TTL_SEC = 600
-# 버킷이 정해지기 전까지는 dev. 계약(키·URL·만료)은 그대로 확인되지만 실제 PUT은 받지 않는다.
-# 버킷이 생기면 STORAGE_BACKEND=s3 + 아래 4개를 .env에 넣으면 된다 (R2는 S3 호환 API).
-# ⚠️ 그때 버킷 CORS(PUT·GET)를 반드시 열 것. 로컬은 same-origin이라 안 걸리고 배포 후에 터진다.
-STORAGE_BACKEND = env("STORAGE_BACKEND", default="dev")
+# local  버킷이 없을 때. Django가 PUT을 직접 받아 UPLOAD_LOCAL_ROOT에 쓴다.
+#        presign 응답 형식은 s3와 완전히 같다 — 프론트는 이 셋 중 뭘 쓰는지 알 필요가 없다.
+# s3     R2·S3. 버킷이 생기면 이 값만 바꾸면 되고 코드는 안 고친다.
+# dev    URL만 발급하고 실제로는 아무것도 받지 않는다(uploads.invalid). 계약 확인 전용.
+# ⚠️ s3로 넘어갈 때 버킷 CORS(PUT·GET)를 반드시 열 것. 로컬은 same-origin이라 안 걸리고
+#    배포하고 나서야 터진다.
+STORAGE_BACKEND = env("STORAGE_BACKEND", default="local")
 STORAGE_ENDPOINT_URL = env("STORAGE_ENDPOINT_URL", default="")
 STORAGE_BUCKET = env("STORAGE_BUCKET", default="")
 STORAGE_REGION = env("STORAGE_REGION", default="auto")
 STORAGE_ACCESS_KEY = env("STORAGE_ACCESS_KEY", default="")
 STORAGE_SECRET_KEY = env("STORAGE_SECRET_KEY", default="")
 UPLOAD_DEV_BASE_URL = env("UPLOAD_DEV_BASE_URL", default="https://uploads.invalid/dev")
+
+# local 백엔드가 사진을 쓰는 곳. **MEDIA_ROOT 아래가 아니다.**
+# nginx가 /media/를 통째로 공개 서빙하므로(deploy/nginx.conf) 거기 두면 얼굴 사진이
+# 키만 알면 열린다. 명세의 `photos/ 비공개, 워커만 접근`을 지키려고 밖으로 뺐다.
+UPLOAD_LOCAL_ROOT = env("UPLOAD_LOCAL_ROOT", default=str(BASE_DIR / "uploads"))
+# presign URL의 host. 평소에는 요청의 scheme+host를 그대로 쓰므로 비워둔다.
+# 요청 컨텍스트가 없는 곳(관리 명령 등)에서만 이 값이 쓰인다.
+UPLOAD_LOCAL_BASE_URL = env("UPLOAD_LOCAL_BASE_URL", default="http://localhost:8000")
+# 얼굴 사진 보존 기간. 명세대로 파일 나이만 보고 지운다 — presign만 받고 이탈한 사진은
+# DB에 행이 없어서 배치가 못 찾기 때문이다. `manage.py purge_uploads`를 하루 한 번 돌린다.
+UPLOAD_RETENTION_HOURS = 24
 
 LOGGING = {
     "version": 1,
