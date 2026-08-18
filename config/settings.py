@@ -172,7 +172,7 @@ CHAT_TIMELINE_LIMIT = 200  # GET /chat/messages가 한 번에 주는 최대 메�
 
 # 화보 생성 진행 상태는 휘발성이라 DB가 아니라 캐시에 둔다. 폴링이 화보당 8~9번이라
 # 그대로 DB에 붙이면 전부 같은 답을 가져오는 조회가 초당 수십 번 발생한다.
-# ⚠️ LocMem은 프로세스마다 따로 논다. uvicorn을 --workers 2 이상으로 띄우면 폴링이
+# ⚠️ LocMem은 프로세스마다 따로 논다. gunicorn을 --workers 2 이상으로 띄우면 폴링이
 #    다른 프로세스에 붙어 404가 나므로, 배포에서는 REDIS_URL을 반드시 채운다.
 REDIS_URL = env("REDIS_URL", default="")
 CACHES = {
