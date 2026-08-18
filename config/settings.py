@@ -20,7 +20,9 @@ env = environ.Env(
 )
 environ.Env.read_env(BASE_DIR / ".env")
 
-SECRET_KEY = env("DJANGO_SECRET_KEY", default="dev-only-insecure-key-change-me")
+# 이름을 둘 다 받는다. 배포 문서·튜토리얼마다 SECRET_KEY와 DJANGO_SECRET_KEY가 섞여 있는데,
+# 한쪽만 읽으면 값을 넘겨도 조용히 개발용 기본키로 떠서 알아채기 어렵다.
+SECRET_KEY = env("DJANGO_SECRET_KEY", default=env("SECRET_KEY", default="dev-only-insecure-key-change-me"))
 DEBUG = env("DEBUG")
 ALLOWED_HOSTS = env("ALLOWED_HOSTS")
 

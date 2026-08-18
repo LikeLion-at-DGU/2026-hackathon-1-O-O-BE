@@ -14,4 +14,6 @@ RUN pip install -r requirements.txt
 COPY . .
 RUN python manage.py collectstatic --noinput
 
-CMD ["uvicorn", "config.asgi:application", "--host", "0.0.0.0", "--port", "8000", "--workers", "2"]
+# 워커 1개인 이유: SQLite는 쓰기가 DB 전체를 잠그고, 화보 폴링 상태를 LocMem 캐시에
+# 두면 프로세스마다 캐시가 따로 논다(= 폴링 404). Postgres + Redis를 붙인 뒤에만 늘린다.
+CMD ["uvicorn", "config.asgi:application", "--host", "0.0.0.0", "--port", "8000", "--workers", "1"]
