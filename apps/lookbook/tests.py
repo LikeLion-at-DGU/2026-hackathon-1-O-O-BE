@@ -407,6 +407,7 @@ class PromptTest(SimpleTestCase):
             "seed": 7,
             "attempt": 1,
             "has_reference": False,
+            "has_product_image": False,
         }
         payload.update(overrides)
         return prompts.build(**payload)
@@ -416,10 +417,11 @@ class PromptTest(SimpleTestCase):
         self.assertNotIn("reference", self.build(has_reference=False))
 
     def test_레퍼런스가_있으면_구도만_따르게_한다(self):
+        """시안에는 MCM 타이포가 가득하다. 그걸 따라 그리면 명세 위반이다."""
         text = self.build(has_reference=True)
 
-        self.assertIn("reference", text)
-        self.assertIn("composition only", text)
+        self.assertIn("style reference", text)
+        self.assertIn("Do not copy its text", text)
 
     def test_첫_컷은_자세를_흔들지_않는다(self):
         self.assertNotIn("Vary the framing", self.build(attempt=1))
@@ -440,7 +442,35 @@ class PromptTest(SimpleTestCase):
         self.assertIn("Milla 토트백", self.build())
 
     def test_얼굴_보존_규칙은_항상_붙는다(self):
-        self.assertIn("Preserve the person", self.build())
+        self.assertIn("same identifiable person", self.build())
+
+    def test_글자를_그리지_말라고_항상_말한다(self):
+        """텍스트·프레임은 프론트 캔버스가 얹는다. AI가 그리면 글자가 뭉개진다."""
+        self.assertIn("no text", self.build())
+
+    def test_이미지_번호가_넣는_순서와_맞는다(self):
+        """번호가 밀리면 모델이 상품 사진을 보존 대상으로 오해한다."""
+        both = self.build(has_reference=True, has_product_image=True)
+
+        self.assertIn("Image 1 is the person", both)
+        self.assertIn("Image 2 is a style reference", both)
+        self.assertIn("Image 3 is the product", both)
+
+    def test_레퍼런스가_없으면_상품이_2번이_된다(self):
+        text = self.build(has_reference=False, has_product_image=True)
+
+        self.assertIn("Image 2 is the product", text)
+        self.assertNotIn("Image 3", text)
+
+    def test_무드가_없으면_seed로_팔레트를_고른다(self):
+        """리포트에 무드가 없어도 배경 지시가 통째로 빠지면 안 된다."""
+        text = self.build(mood={})
+
+        self.assertIn("Color palette:", text)
+
+    def test_같은_seed면_팔레트도_같다(self):
+        """재생성해도 무드는 유지된다 — 매번 다른 세계관이 나오면 안 된다."""
+        self.assertEqual(self.build(mood={}, attempt=1), self.build(mood={}, attempt=1))
 
     def test_무드가_비어도_죽지_않는다(self):
         self.assertTrue(self.build(mood={}, product_names=[]))
