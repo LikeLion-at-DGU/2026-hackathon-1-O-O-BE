@@ -8,14 +8,17 @@ EVENT_BATCH_HARD_MAX = 1000
 
 # 이벤트마다 대상이 있어야 의미가 생긴다. product_id 없는 product_view는
 # 저장돼도 분석에서 조용히 사라지므로, 받는 쪽에서 막는다.
-SCENE_REQUIRED_TYPES = frozenset({EventType.SCENE_VIEW, EventType.SCENE_DWELL, EventType.HOTSPOT_CLICK})
+SCENE_REQUIRED_TYPES = frozenset({EventType.SCENE_VIEW, EventType.SCENE_DWELL})
 PRODUCT_REQUIRED_TYPES = frozenset(
     {
         EventType.PRODUCT_VIEW,
         EventType.PRODUCT_DWELL,
-        EventType.PRODUCT_SAVE,
         EventType.RECOMMENDATION_CLICK,
         EventType.LOOKBOOK_PRODUCT_SELECT,
+        # 핫스팟은 "이 상품을 눌렀다"는 뜻이라 대상은 상품이다. 진열대는 서버가
+        # 상품에서 역추적한다 — 프론트가 scene_id를 못 구해 sc_01을 하드코딩해
+        # 넣고 있었고, 그러면 4번 진열대를 눌러도 1번으로 기록된다.
+        EventType.HOTSPOT_CLICK,
     }
 )
 DWELL_KEY = "dwell_ms"
@@ -69,7 +72,8 @@ def validate_batch_size(value: list[dict]) -> list[dict]:
 
 
 class EventBatchSerializer(serializers.Serializer):
-    visit_id = serializers.CharField()
+    # 선택이다. 방문을 확정하는 것은 X-Visit-Token이고, 이 값은 보냈을 때만 대조한다.
+    visit_id = serializers.CharField(required=False, allow_blank=True, default="")
     events = EventItemSerializer(many=True, allow_empty=False)
 
     def validate_events(self, value: list[dict]) -> list[dict]:

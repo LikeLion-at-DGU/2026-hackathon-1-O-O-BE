@@ -1,15 +1,8 @@
-"""16유형 문구·이미지는 기획이 채운다. 그 입력 화면이 이 파일의 목적이다."""
+"""리포트 확인용 관리 화면."""
 
 from django.contrib import admin
 
-from apps.analysis.models import Character, Report
-
-
-@admin.register(Character)
-class CharacterAdmin(admin.ModelAdmin):
-    list_display = ("type_code", "name", "one_liner")
-    list_editable = ("name", "one_liner")
-    ordering = ("type_code",)
+from apps.analysis.models import Report
 
 
 @admin.register(Report)

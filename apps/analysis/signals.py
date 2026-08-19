@@ -16,7 +16,6 @@ class ProductSignal:
     product_id: str
     views: int = 0  # 재조회 횟수를 겸한다 (같은 상품을 다시 볼 때마다 쌓인다)
     dwell_ms: int = 0
-    saves: int = 0
     chat_mentions: int = 0
 
 
@@ -31,10 +30,6 @@ class VisitSignals:
     @property
     def total_dwell_ms(self) -> int:
         return sum(signal.dwell_ms for signal in self.products)
-
-    @property
-    def total_saves(self) -> int:
-        return sum(signal.saves for signal in self.products)
 
     @property
     def viewed_product_ids(self) -> frozenset[str]:

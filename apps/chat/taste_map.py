@@ -5,7 +5,10 @@ LLM보다 먼저 훑는다. 흔한 표현은 항상 같은 결과가 나오고 �
 주면 틀린 추천이 나가므로, 그런 표현은 LLM 폴백이 문맥을 보고 판단하게 한다.
 """
 
+import logging
+
 from apps.catalog.models import (
+    ANALYSIS_AXES,
     Category,
     Color,
     Material,
@@ -14,6 +17,9 @@ from apps.catalog.models import (
     Silhouette,
     UseCase,
 )
+from common.llm import LLMUnavailable, complete_json
+
+logger = logging.getLogger(__name__)
 
 # 어휘 → [(축, 값)]. 한 표현이 여러 축을 짚을 수 있다.
 VOCABULARY: dict[str, list[tuple[str, str]]] = {
@@ -21,10 +27,12 @@ VOCABULARY: dict[str, list[tuple[str, str]]] = {
     "조용한": [("mood", Mood.MINIMAL)],
     "과하지 않": [("mood", Mood.MINIMAL)],
     "심플": [("mood", Mood.MINIMAL)],
-    "화려한": [("mood", Mood.BOLD_STATEMENT)],
-    "튀는": [("mood", Mood.BOLD_STATEMENT)],
-    "눈에 띄": [("mood", Mood.BOLD_STATEMENT)],
-    "포인트": [("mood", Mood.BOLD_STATEMENT)],
+    # bold_statement는 이 매장에 한 건도 없다. 재고가 없는 값이 lock되면 추천 점수가
+    # 전부 0이 되어 챗봇이 상품 없이 답한다. 결이 가장 가까운 y2k_street로 보낸다.
+    "화려한": [("mood", Mood.Y2K_STREET)],
+    "튀는": [("mood", Mood.Y2K_STREET)],
+    "눈에 띄": [("mood", Mood.Y2K_STREET)],
+    "포인트": [("mood", Mood.Y2K_STREET)],
     "클래식": [("mood", Mood.CLASSIC_HERITAGE)],
     "정통": [("mood", Mood.CLASSIC_HERITAGE)],
     "힙한": [("mood", Mood.Y2K_STREET)],
@@ -40,7 +48,8 @@ VOCABULARY: dict[str, list[tuple[str, str]]] = {
     "노트북": [("use_case", UseCase.WORK)],
     "데일리": [("use_case", UseCase.DAILY)],
     "매일": [("use_case", UseCase.DAILY)],
-    "여행": [("use_case", UseCase.TRAVEL)],
+    # use_case=travel 상품이 없다. 여행 얘기는 큰 가방(백팩·토트)으로 받는다.
+    "여행": [("category", Category.BACKPACK), ("category", Category.TOTE)],
     "모임": [("use_case", UseCase.GOING_OUT)],
     "나들이": [("use_case", UseCase.GOING_OUT)],
     "선물": [("price_band", PriceBand.ENTRY)],
@@ -48,7 +57,10 @@ VOCABULARY: dict[str, list[tuple[str, str]]] = {
     "입문": [("price_band", PriceBand.ENTRY)],
     "큰 거": [("category", Category.BACKPACK), ("category", Category.TOTE)],
     "많이 들어가": [("category", Category.BACKPACK), ("category", Category.TOTE)],
-    "작은 거": [("category", Category.CROSSBODY), ("category", Category.WALLET)],
+    # wallet은 취급하지 않는다. 이 매장에서 작은 것은 참·스카프(액세서리)이고,
+    # lock은 축당 한 값이라 목록의 첫 값이 잡힌다(services._absorb). 재고가 많은
+    # 쪽을 앞에 둬야 crossbody 1건에 갇히지 않는다.
+    "작은 거": [("category", Category.ACCESSORY), ("category", Category.CROSSBODY)],
 }
 
 # 색 동의어. label("블랙")만 매칭하면 "검정"·"검은색"을 놓친다 — 손님은 셋을 섞어 쓴다.
@@ -74,7 +86,6 @@ COLOR_WORDS: dict[str, str] = {
     "메탈": Color.METALLIC,
     "은색": Color.METALLIC,
     "금색": Color.METALLIC,
-    "배색": Color.VISETOS_MIX,
 }
 NEGATIONS = ("싫", "빼고", "말고", "아니")
 # 절 분리는 두 단계다.
@@ -130,3 +141,71 @@ def _match(clause: str) -> list[tuple[str, str]]:
     found = [pair for word, pairs in VOCABULARY.items() if word in clause for pair in pairs]
     found += [("color", value) for word, value in COLOR_WORDS.items() if word in clause]
     return found
+
+
+# ─────────────────────────── 2차 · LLM 폴백 ───────────────────────────
+# 사전이 아무것도 못 잡았을 때만 부른다. "검은색"처럼 흔한 말은 1차에서 끝나고,
+# "무해한"·"레트로한"처럼 사전에 넣기 애매한 표현만 여기로 온다.
+# 부를지 말지를 LLM에게 물어보지 않는 이유: 그 판단을 위한 호출이 아끼려는 호출보다
+# 비싸다. 사전이 빈손이라는 건 서버가 이미 아는 사실이다.
+
+LLM_SYSTEM_PROMPT = """너는 명품 매장 손님의 한마디를 상품 분류 축으로 옮기는 도구다.
+
+규칙:
+- 반드시 아래 "허용 값"에 있는 값만 쓴다. 없는 값을 만들지 않는다.
+- 근거가 약하면 비운다. 억지로 채우면 손님이 말하지 않은 취향이 확정된다.
+- "~는 싫어", "~말고"처럼 부정하는 대상은 avoided에 넣는다.
+- 한 축에 값 하나면 충분하다."""
+
+
+def llm_extract(text: str) -> tuple[dict[str, list[str]], dict[str, list[str]]]:
+    """사전이 못 읽은 발화를 축으로 옮긴다. 실패하면 빈손을 돌려준다.
+
+    축 하나 못 잡는 것과 챗봇이 죽는 것은 무게가 다르다. 폴백이 실패해도 답변은
+    나가야 하므로 여기서 예외를 삼키고 로그만 남긴다.
+    """
+    try:
+        raw = complete_json(LLM_SYSTEM_PROMPT, _llm_user_prompt(text), schema=_llm_schema())
+    except LLMUnavailable:
+        logger.info("축 추출 폴백 실패. 사전 결과만 쓴다: %s", text[:40])
+        return {}, {}
+    return _resolve(raw.get("preferred")), _resolve(raw.get("avoided"))
+
+
+def _llm_user_prompt(text: str) -> str:
+    allowed = "\n".join(f"- {axis}: {', '.join(choices.values)}" for axis, choices in ANALYSIS_AXES.items())
+    return f"허용 값:\n{allowed}\n\n손님의 말: {text}"
+
+
+def _llm_schema() -> dict:
+    """축마다 enum을 박는다. 프롬프트 지시와 달리 모델이 벗어날 수 없다."""
+    axis_property = {
+        "type": "object",
+        "properties": {
+            axis: {"type": ["string", "null"], "enum": [*choices.values, None]}
+            for axis, choices in ANALYSIS_AXES.items()
+        },
+        "required": list(ANALYSIS_AXES),
+        "additionalProperties": False,
+    }
+    return {
+        "type": "object",
+        "properties": {"preferred": axis_property, "avoided": axis_property},
+        "required": ["preferred", "avoided"],
+        "additionalProperties": False,
+    }
+
+
+def _resolve(raw: object) -> dict[str, list[str]]:
+    """스키마를 통과했어도 한 번 더 본다. 모델·스키마가 바뀌면 조용히 새기 때문이다."""
+    if not isinstance(raw, dict):
+        return {}
+    out: dict[str, list[str]] = {}
+    for axis, value in raw.items():
+        if axis not in ANALYSIS_AXES or not value:
+            continue
+        if value not in ANALYSIS_AXES[axis].values:
+            logger.info("허용 목록에 없는 값을 버렸다: %s=%s", axis, value)
+            continue
+        out[axis] = [value]
+    return out

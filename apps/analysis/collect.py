@@ -11,7 +11,7 @@ from django.db.models import Count
 from apps.analysis.signals import ProductFacts, ProductSignal, VisitSignals
 from apps.catalog.models import ANALYSIS_AXES, Product
 from apps.events.models import Event, EventType
-from apps.events.services import DWELL_KEY
+from apps.events.services import DWELL_KEY, exposed_scene_ids
 from apps.visits.models import Visit
 
 
@@ -19,25 +19,19 @@ def collect_signals(visit: Visit) -> VisitSignals:
     """이번 방문의 행동을 상품 단위로 압축한다."""
     views: dict[str, int] = defaultdict(int)
     dwell: dict[str, int] = defaultdict(int)
-    saves: dict[str, int] = defaultdict(int)
-    scene_ids: set[str] = set()
     questions = 0
 
-    rows = visit.events.values_list("event_type", "scene_id", "product_id", "metadata")
-    for event_type, scene_id, product_id, metadata in rows:
-        if event_type == EventType.SCENE_VIEW and scene_id:
-            scene_ids.add(scene_id)
-        elif event_type == EventType.QUESTION_SUBMIT:
+    rows = visit.events.values_list("event_type", "product_id", "metadata")
+    for event_type, product_id, metadata in rows:
+        if event_type == EventType.QUESTION_SUBMIT:
             questions += 1
         elif product_id and event_type == EventType.PRODUCT_VIEW:
             views[product_id] += 1
         elif product_id and event_type == EventType.PRODUCT_DWELL:
             dwell[product_id] += _dwell_of(metadata)
-        elif product_id and event_type == EventType.PRODUCT_SAVE:
-            saves[product_id] += 1
 
     mentions = _chat_mentions(visit)
-    product_ids = set(views) | set(dwell) | set(saves) | set(mentions)
+    product_ids = set(views) | set(dwell) | set(mentions)
 
     return VisitSignals(
         products=tuple(
@@ -45,12 +39,11 @@ def collect_signals(visit: Visit) -> VisitSignals:
                 product_id=product_id,
                 views=views[product_id],
                 dwell_ms=dwell[product_id],
-                saves=saves[product_id],
                 chat_mentions=mentions.get(product_id, 0),
             )
             for product_id in sorted(product_ids)
         ),
-        scenes_viewed=len(scene_ids),
+        scenes_viewed=len(exposed_scene_ids(visit)),
         questions=questions,
     )
 

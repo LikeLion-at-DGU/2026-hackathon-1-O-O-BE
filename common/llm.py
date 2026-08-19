@@ -48,12 +48,21 @@ def stream(messages: list[dict]) -> Iterator[str]:
         raise LLMUnavailable() from error
 
 
-def complete_json(system_prompt: str, user_prompt: str) -> dict:
-    """JSON 하나를 받아온다. 리포트 워커가 쓴다.
+def complete_json(system_prompt: str, user_prompt: str, schema: dict | None = None) -> dict:
+    """JSON 하나를 받아온다. 리포트 워커와 챗봇 축 추출이 쓴다.
 
-    챗봇은 첫 글자가 빨리 떠야 해서 stream()을 쓰지만, 워커는 사용자가 화면을
-    보고 있지 않으므로 완성된 결과만 있으면 된다. 조각을 모아 붙일 이유가 없다.
+    챗봇 답변은 첫 글자가 빨리 떠야 해서 stream()을 쓰지만, 이쪽은 완성된 결과만
+    있으면 된다. 조각을 모아 붙일 이유가 없다.
+
+    schema를 주면 구조화 출력으로 값을 **강제**한다. 프롬프트에 "이 값만 쓰라"고
+    적는 것은 확률적으로 새지만, enum이 박힌 스키마는 모델이 벗어날 수 없다.
+    안 주면 예전처럼 "JSON이기만 하면 되는" 모드로 동작한다(기존 호출부 보호).
     """
+    response_format = (
+        {"type": "json_schema", "json_schema": {"name": "result", "strict": True, "schema": schema}}
+        if schema
+        else {"type": "json_object"}
+    )
     try:
         response = _client().chat.completions.create(
             model=settings.OPENAI_MODEL,
@@ -62,7 +71,7 @@ def complete_json(system_prompt: str, user_prompt: str) -> dict:
                 {"role": "user", "content": user_prompt},
             ],
             max_tokens=MAX_OUTPUT_TOKENS,
-            response_format={"type": "json_object"},
+            response_format=response_format,
         )
         return json.loads(response.choices[0].message.content)
     except (OpenAIError, ValueError) as error:

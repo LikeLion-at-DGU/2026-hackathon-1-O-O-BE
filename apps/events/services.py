@@ -74,7 +74,10 @@ def append_batch(visit: Visit, items: list[dict]) -> dict:
     known_ids = _existing_event_ids(visit, [item["event_id"] for item in unique_items])
     fresh_items = [item for item in unique_items if item["event_id"] not in known_ids]
 
-    Event.objects.bulk_create([_build_event(visit, item) for item in fresh_items], ignore_conflicts=True)
+    scene_by_product = _scene_of_products(fresh_items)
+    Event.objects.bulk_create(
+        [_build_event(visit, item, scene_by_product) for item in fresh_items], ignore_conflicts=True
+    )
 
     return {
         "accepted": len(fresh_items),
@@ -130,12 +133,28 @@ def _existing_event_ids(visit: Visit, event_ids: list[UUID]) -> set[UUID]:
     return set(Event.objects.filter(visit=visit, event_id__in=event_ids).values_list("event_id", flat=True))
 
 
-def _build_event(visit: Visit, item: dict) -> Event:
+def _scene_of_products(items: list[dict]) -> dict[str, str]:
+    """핫스팟이 가리키는 상품의 진열대를 한 번에 조회한다.
+
+    프론트는 상품을 누른 시점에 어느 진열대인지 모를 수 있어 sc_01을 채워 보냈다.
+    그 값을 그대로 믿으면 4번 진열대를 눌러도 1번으로 집계된다. 서버가 상품에서
+    역추적하면 프론트가 틀린 값을 만들 여지 자체가 사라진다.
+    """
+    ids = {item["product_id"] for item in items if item["event_type"] == EventType.HOTSPOT_CLICK}
+    if not ids:
+        return {}
+    return dict(Product.objects.filter(id__in=ids).values_list("id", "scene_id"))
+
+
+def _build_event(visit: Visit, item: dict, scene_by_product: dict[str, str]) -> Event:
+    scene_id = item["scene_id"] or None
+    if item["event_type"] == EventType.HOTSPOT_CLICK:
+        scene_id = scene_by_product.get(item["product_id"], scene_id)
     return Event(
         event_id=item["event_id"],
         visit=visit,
         event_type=item["event_type"],
-        scene_id=item["scene_id"] or None,
+        scene_id=scene_id,
         product_id=item["product_id"] or None,
         client_timestamp=item["client_timestamp"],
         metadata=_clamp_dwell(item["metadata"]),
@@ -151,3 +170,28 @@ def _clamp_dwell(metadata: dict) -> dict:
     if DWELL_KEY not in metadata:
         return metadata
     return {**metadata, DWELL_KEY: min(metadata[DWELL_KEY], settings.DWELL_MAX_MS)}
+
+
+# 진열대 이벤트로 인정하는 타입. scene_view는 프론트가 보내지 않지만 명세에 있고
+# 나중에 들어올 수 있으므로 남긴다 — 빼는 게 아니라 넓히는 쪽이다.
+SCENE_EVENT_TYPES = frozenset({EventType.SCENE_VIEW, EventType.SCENE_DWELL})
+
+
+def exposed_scene_ids(visit: Visit) -> set[str]:
+    """이 방문이 노출된 진열대.
+
+    `scene_view`만 보면 항상 빈 집합이 나온다 — 프론트가 그 타입을 보내지 않는다.
+    그 탓에 리포트의 scenes_viewed가 늘 0이었고 회피 트리거는 발동조차 못 했다.
+
+    상품을 봤으면 그 상품이 놓인 진열대에 노출된 것이므로, 상품 이벤트에서
+    역추적한다. 서버가 이미 아는 사실이라 프론트 수정을 기다릴 이유가 없다.
+    (진열대만 훑고 아무것도 안 누른 경우는 scene_dwell이 잡는다)
+    """
+    rows = visit.events.values_list("event_type", "scene_id", "product__scene_id")
+    scene_ids = set()
+    for event_type, scene_id, product_scene_id in rows:
+        if event_type in SCENE_EVENT_TYPES and scene_id:
+            scene_ids.add(scene_id)
+        elif product_scene_id:
+            scene_ids.add(product_scene_id)
+    return scene_ids

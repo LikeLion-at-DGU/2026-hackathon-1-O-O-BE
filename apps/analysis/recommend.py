@@ -12,6 +12,12 @@ from apps.events.models import EventType
 from apps.visits.models import Visit
 
 SUGGESTION_LIMIT = 3
+# 같은 모델(이름이 같고 색만 다른 상품)을 한 번에 몇 개까지 보여줄지.
+# 이름이 겹치는 상품이 60개 중 33개고 한 모델이 6색까지 간다. 걸러내지 않으면
+# 추천 세 칸이 한 가방의 색 나열이 된다.
+# 1이 아니라 2인 이유: 같은 가방을 여러 번 본 것 자체가 신호라 색 선택지를 함께
+# 보여주는 게 맞다. 다만 3이면 한 모델이 세 칸을 다 먹어 원래 문제로 돌아간다.
+MAX_PER_MODEL = 2
 # 추천 이유로 밝힐 축. price_band는 예산을 근거로 대는 셈이고(축 확인에서 뺀 이유와 같다),
 # category는 "백팩 쪽과 맞아요"처럼 자명해서 이유가 되지 못한다. 스코어링에는 남긴다.
 REASON_AXES = ("mood", "color", "material", "pattern", "silhouette", "use_case")
@@ -68,8 +74,20 @@ def suggest(visit: Visit, taste: Taste, limit: int = SUGGESTION_LIMIT) -> list[S
 
     return [
         Suggestion(product=product, score=round(score, 2), reason=_reason(product, taste))
-        for product, score in scored[:limit]
+        for product, score in _cap_per_model(scored)[:limit]
     ]
+
+
+def _cap_per_model(scored: list[tuple[Product, float]]) -> list[tuple[Product, float]]:
+    """모델당 MAX_PER_MODEL개까지만 남긴다. 점수순으로 들어오므로 상위 색이 살아남는다."""
+    counts: dict[str, int] = {}
+    kept = []
+    for product, score in scored:
+        if counts.get(product.name, 0) >= MAX_PER_MODEL:
+            continue
+        counts[product.name] = counts.get(product.name, 0) + 1
+        kept.append((product, score))
+    return kept
 
 
 def _reason(product: Product, taste: Taste) -> str:

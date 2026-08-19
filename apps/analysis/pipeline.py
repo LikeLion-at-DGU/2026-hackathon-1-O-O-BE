@@ -28,13 +28,12 @@ def compute_interest(signals: VisitSignals) -> dict[str, float]:
 def compute_confidence(signals: VisitSignals) -> float:
     """③ 신호 총량. 데이터가 적을 때 틀린 개인화를 하지 않기 위한 억제 장치.
 
-    약한 신호(단순 조회)에 낮은 상한을, 의도가 분명한 행동(질문·찜)에 비중을 준다.
+    약한 신호(단순 조회)에 낮은 상한을, 의도가 분명한 행동(질문)에 비중을 준다.
     """
     parts = (
         (scoring.CONFIDENCE_VIEW_WEIGHT, len(signals.products), scoring.CONFIDENCE_VIEW_TARGET),
         (scoring.CONFIDENCE_DWELL_WEIGHT, signals.total_dwell_ms, scoring.CONFIDENCE_DWELL_TARGET_MS),
         (scoring.CONFIDENCE_QUESTION_WEIGHT, signals.questions, scoring.CONFIDENCE_QUESTION_TARGET),
-        (scoring.CONFIDENCE_SAVE_WEIGHT, signals.total_saves, scoring.CONFIDENCE_SAVE_TARGET),
     )
     total = sum(weight * min(1.0, actual / target) for weight, actual, target in parts)
     return round(min(1.0, total), 4)
@@ -90,7 +89,6 @@ def _raw_interest(signal) -> float:
     return (
         scoring.WEIGHT_VIEW * math.log1p(signal.views)
         + scoring.WEIGHT_DWELL * math.log1p(signal.dwell_ms / scoring.DWELL_UNIT_MS)
-        + scoring.WEIGHT_SAVE * math.log1p(signal.saves)
         + scoring.WEIGHT_CHAT * math.log1p(signal.chat_mentions)
     )
 

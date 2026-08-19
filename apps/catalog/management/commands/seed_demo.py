@@ -66,6 +66,7 @@ class Command(BaseCommand):
         for label, ids in (
             ("분류 축이 빈 상품", self._products_missing_axes()),
             ("프리셋 답변이 빠진 상품", self._products_missing_presets()),
+            ("재고가 없는 값을 가리키는 챗봇 어휘", self._vocabulary_without_stock()),
         ):
             if ids:
                 self.stdout.write(self.style.WARNING(f"{label} {len(ids)}개: {ids}"))
@@ -87,6 +88,24 @@ class Command(BaseCommand):
                 Product.objects.update_or_create(id=product_payload["id"], defaults=defaults)
                 product_count += 1
         return len(scenes), product_count
+
+    def _vocabulary_without_stock(self) -> list[str]:
+        """손님 발화를 축으로 바꾸는 사전이 매장에 없는 값을 가리키는지 본다.
+
+        재고가 0인 값이 lock되면 추천 점수가 전부 0이 되어 챗봇이 상품 없이 답한다.
+        상품 데이터를 갈아끼울 때 사전만 그대로 남는 일이 실제로 있었다.
+        """
+        from apps.chat.taste_map import COLOR_WORDS, VOCABULARY
+
+        targets: dict[str, list[tuple[str, str]]] = {
+            **{word: list(pairs) for word, pairs in VOCABULARY.items()},
+            **{word: [("color", value)] for word, value in COLOR_WORDS.items()},
+        }
+        return sorted(
+            word
+            for word, pairs in targets.items()
+            if not any(Product.objects.filter(**{axis: value}).exists() for axis, value in pairs)
+        )
 
     def _products_missing_presets(self) -> list[str]:
         """프리셋 3종이 없으면 상품 클릭 시 버튼이 비어 보인다."""

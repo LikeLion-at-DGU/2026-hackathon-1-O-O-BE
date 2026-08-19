@@ -80,13 +80,29 @@ AXIS_WORDS = {
 }
 
 
+def _has_final(word: str) -> bool:
+    """마지막 글자에 받침이 있는가. 조사 두 종류가 같은 규칙을 봐야 한쪽만 틀리지 않는다.
+
+    한글이 아닌 글자(ECONYL® 같은 외래어·기호)로 끝나면 받침 없음으로 본다 —
+    대개 그렇게 읽히고, 둘 중 하나는 골라야 한다.
+    """
+    last = word[-1]
+    if not ("가" <= last <= "힣"):
+        return False
+    return (ord(last) - 0xAC00) % 28 != 0
+
+
 def with_subject(word: str) -> str:
     """받침에 따라 이/가를 붙인다. "용도이"처럼 나가면 손님이 바로 알아챈다."""
-    last = word[-1]
-    if "가" <= last <= "힣":
-        has_final = (ord(last) - 0xAC00) % 28 != 0
-        return f"{word}{'이' if has_final else '가'}"
-    return f"{word}가"
+    return f"{word}{'이' if _has_final(word) else '가'}"
+
+
+def with_object(word: str) -> str:
+    """받침에 따라 을/를을 붙인다.
+
+    상품명 60개 중 37개가 받침이 없어 "토트을 오래 보고 계세요"가 나가고 있었다.
+    """
+    return f"{word}{'을' if _has_final(word) else '를'}"
 
 
 def say(value: str) -> str:

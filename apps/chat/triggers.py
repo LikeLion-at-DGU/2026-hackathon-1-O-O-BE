@@ -11,8 +11,9 @@ from django.utils import timezone
 
 from apps.analysis.taste import CAMPS, CORE_AXES, profile_of
 from apps.catalog.models import Product
-from apps.chat.wording import say, say_axis, say_camp, with_subject
+from apps.chat.wording import say, say_axis, say_camp, with_object, with_subject
 from apps.events.models import EventType
+from apps.events.services import exposed_scene_ids
 from apps.visits.models import Visit
 
 CONFIRM_BUDGET = 3  # 확인형 총량
@@ -109,7 +110,7 @@ def _product_confirm(visit: Visit, stored: dict) -> Hypothesis | None:
         message = (
             f"{product.name}에 다시 돌아오셨네요. 마음에 남으셨어요?"
             if revisited
-            else f"{product.name}을 오래 보고 계세요. 이런 쪽이 끌리시나요?"
+            else f"{with_object(product.name)} 오래 보고 계세요. 이런 쪽이 끌리시나요?"
         )
         return Hypothesis(
             kind="product_confirm",
@@ -264,11 +265,7 @@ def _avoidance(visit: Visit, stored: dict) -> Hypothesis | None:
     """안 본 것도 정보다. 같은 존에서 A는 열고 B는 안 열었을 때만 성립한다."""
     asked = set(stored.get("asked", []))
     opened = {product.id for product in _viewed_products(visit)}
-    scene_ids = set(
-        visit.events.filter(event_type=EventType.SCENE_VIEW, scene__isnull=False).values_list(
-            "scene_id", flat=True
-        )
-    )
+    scene_ids = exposed_scene_ids(visit)
     if not scene_ids or not opened:
         return None
 
@@ -326,11 +323,10 @@ def _shift(visit: Visit, stored: dict) -> Hypothesis | None:
     if not locks or stored.get("shift_asked"):
         return None
     viewed = _viewed_products(visit)
-    saved = set(
-        visit.events.filter(event_type=EventType.PRODUCT_SAVE, product__isnull=False).values_list(
-            "product_id", flat=True
-        )
-    )
+    # 원래는 찜한 상품을 봤다. 찜 기능이 빠지면서 이 조건이 영원히 거짓이 되어
+    # 트리거가 통째로 죽어 있었다. confirmed는 손님이 "맞아요"로 직접 고른 상품이라
+    # 찜보다 강한 신호이고, 이미 vector에 들어 있어 쿼리도 늘지 않는다.
+    confirmed = set(stored.get("confirmed", []))
     for axis, value in locks.items():
         camp = _camp_of_value(axis, value)
         other = _other_camp(axis, camp) if camp else None
@@ -338,7 +334,7 @@ def _shift(visit: Visit, stored: dict) -> Hypothesis | None:
             continue
         members = CAMPS[axis][other]
         opposite = [p for p in viewed if getattr(p, axis) in members]
-        if len(opposite) >= SHIFT_VIEWS and any(p.id in saved for p in opposite):
+        if len(opposite) >= SHIFT_VIEWS and any(p.id in confirmed for p in opposite):
             return Hypothesis(
                 kind="shift",
                 message=(

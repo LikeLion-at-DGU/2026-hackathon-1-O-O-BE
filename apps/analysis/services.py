@@ -11,7 +11,7 @@ import threading
 from django.db import connection, transaction
 from django.utils import timezone
 
-from apps.analysis import character, collect, insight, pipeline
+from apps.analysis import collect, insight, pipeline
 from apps.analysis import report as report_builder
 from apps.analysis.models import Report, ReportStatus, TasteProfile
 from apps.events.models import EventType
@@ -76,8 +76,6 @@ def _analyze(visit: Visit) -> tuple[dict, dict]:
     interest = pipeline.compute_interest(signals)
     confidence = pipeline.compute_confidence(signals)
     vector = pipeline.build_vector(interest, {facts.product_id: facts for facts in catalog}, extracted)
-    axis_scores = character.score_axes(vector)
-    type_code = character.map_type_code(axis_scores)
     scored = pipeline.score_products(vector, catalog, signals.viewed_product_ids)
 
     payload = report_builder.build_payload(
@@ -85,14 +83,11 @@ def _analyze(visit: Visit) -> tuple[dict, dict]:
         interest=interest,
         vector=vector,
         confidence=confidence,
-        type_code=type_code,
         scored=scored,
         insight=extracted,
     )
     profile = {
         "vector": vector,
-        "axis_scores": axis_scores,
-        "character_type": type_code,
         "confidence": confidence,
         "insight": extracted.as_dict() if extracted else {},
     }
