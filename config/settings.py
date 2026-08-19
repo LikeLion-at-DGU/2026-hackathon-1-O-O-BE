@@ -201,9 +201,17 @@ LOOKBOOK_IMAGE_MODEL = env("LOOKBOOK_IMAGE_MODEL", default="gpt-image-2")
 LOOKBOOK_GEN_SIZE = env("LOOKBOOK_GEN_SIZE", default="1024x1280")
 # 25초 걸리는 호출이다. common/llm.py의 20초를 그대로 쓰면 매번 타임아웃이 난다.
 LOOKBOOK_GEN_TIMEOUT_SEC = env.int("LOOKBOOK_GEN_TIMEOUT_SEC", default=120)
+# 비용이 여기서 갈린다. low $0.005 / medium $0.041 / high $0.165 (장당).
+# 벤더 기본값에 맡기면 high로 잡혀 재생성 3회 × 관람객 수만큼 곱해진다.
+LOOKBOOK_GEN_QUALITY = env("LOOKBOOK_GEN_QUALITY", default="medium")
+# gpt-image-2는 input_fidelity를 받지 않는다 — 입력 이미지를 항상 고품질로 처리한다.
+# 넘기면 400 invalid_input_fidelity_model로 죽으므로 아예 보내지 않는다.
 # 마스크 극성 뒤집기. 인물이 지워지고 배경만 남으면 이 값을 True로 바꾼다.
 # 프론트 실루엣의 흑백이 반대로 올 수 있어서 배포 없이 되돌릴 손잡이를 남긴다.
 LOOKBOOK_MASK_INVERT = env.bool("LOOKBOOK_MASK_INVERT", default=False)
+# cutout : 마스크로 인물만 오려 배경판에 얹는다. 벤더 호출이 없어 공짜·즉시·왜곡 없음.
+# ai     : 벤더가 배경까지 새로 그린다. 느리고 비싸고 한도에 걸린다.
+LOOKBOOK_COMPOSE_MODE = env("LOOKBOOK_COMPOSE_MODE", default="cutout")
 
 # 업로드 — 사진 바이트는 Django를 지나가지 않는다. 서버는 presign URL만 발급한다.
 PHOTO_MAX_BYTES = 5 * 1024 * 1024

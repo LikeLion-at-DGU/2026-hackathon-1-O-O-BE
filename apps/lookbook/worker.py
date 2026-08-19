@@ -15,7 +15,7 @@ from pathlib import Path
 from django.conf import settings
 from django.db import connection
 
-from apps.lookbook import jobs, prompts, snapshot, storage
+from apps.lookbook import compose, jobs, prompts, snapshot, storage
 from apps.lookbook.models import Lookbook, LookbookStatus
 from common import imagegen
 
@@ -23,6 +23,7 @@ logger = logging.getLogger(__name__)
 
 FAKE_IMAGE_URL = "/media/lookbooks/placeholder.png"
 REFERENCE_TIMEOUT_SEC = 5
+COMPOSE_CUTOUT = "cutout"
 
 
 def enqueue(lookbook: Lookbook) -> None:
@@ -69,12 +70,22 @@ def _generate(lookbook: Lookbook) -> tuple[str, tuple[int, int]]:
     photo = storage.read_bytes(lookbook.photo_key)
     # 마스크가 없어도 생성은 된다. 체형 보존이 약해질 뿐이다.
     mask = storage.read_bytes(lookbook.mask_key) if lookbook.mask_key else None
-    references = _references(lookbook)
+    products = _product_images(lookbook)
+
+    # 누끼 모드: 벤더를 부르지 않고 마스크로 인물만 오려 배경판에 얹는다.
+    # 얼굴이 100% 원본이고 공짜이며 즉시 끝난다. 마스크가 없으면 오릴 수가 없어
+    # 배경을 새로 그리는 AI 경로로 넘어간다.
+    if settings.LOOKBOOK_COMPOSE_MODE == COMPOSE_CUTOUT and mask:
+        return _finish(lookbook, compose.cutout(photo, mask), products)
+
+    # 순서가 계약이다. prompts._roles()가 "Image 2는 레퍼런스, Image 3은 상품"이라고
+    # 말하므로, 여기서 넣는 순서가 바뀌면 모델이 상품을 보존 대상으로 오해한다.
+    reference = _reference_image(lookbook)
 
     png = imagegen.edit(
         photo=photo,
         mask=mask,
-        references=references,
+        references=[item for item in (reference, *products) if item],
         prompt=prompts.build(
             mood=snapshot.mood_of(lookbook.mood_payload),
             composition_prompt=lookbook.composition.prompt if lookbook.composition else "",
@@ -83,28 +94,63 @@ def _generate(lookbook: Lookbook) -> tuple[str, tuple[int, int]]:
             season=settings.LOOKBOOK_SEASON,
             seed=lookbook.mood_payload.get(snapshot.META_KEY, {}).get("seed", 0),
             attempt=lookbook.attempt,
-            has_reference=bool(references),
+            has_reference=bool(reference),
+            has_product_image=bool(products),
         ),
     )
 
-    url = storage.save_public(f"{storage.LOOKBOOK_PREFIX}/{lookbook.share_slug}.png", png)
-    return url, imagegen.size_of(png)
+    # 상품을 따로 넘기지 않는다 — 벤더가 이미 인물에게 들려줬다. 또 얹으면 두 개가 된다.
+    return _finish(lookbook, png, [])
 
 
-def _references(lookbook: Lookbook) -> list[bytes]:
-    """레이아웃 참조 이미지. **없으면 빈 목록을 준다 — 대충 채우지 않는다.**
+def _finish(lookbook: Lookbook, person: bytes, products: list[bytes]) -> tuple[str, tuple[int, int]]:
+    """인물 이미지를 레이아웃에 얹고 저장한다.
+
+    타이포·프레임·캡션은 여기서 그린다 — 모델에게 글자를 그리게 하면 뭉개지고,
+    캡션의 뮤즈 번호는 방문마다 달라야 한다.
+    """
+    final = compose.build(
+        person=person,
+        product=products[0] if products else None,
+        caption=lookbook.mood_payload,
+        size=settings.LOOKBOOK_IMAGE_SIZE,
+    )
+    url = storage.save_public(f"{storage.LOOKBOOK_PREFIX}/{lookbook.share_slug}.png", final)
+    return url, imagegen.size_of(final)
+
+
+def _reference_image(lookbook: Lookbook) -> bytes | None:
+    """구도 참조 이미지. **없으면 None을 준다 — 대충 채우지 않는다.**
 
     기획이 Composition.reference_url을 비워두면 참조 없이 생성한다. 못 읽는 주소도
     마찬가지다. 여기서 예외를 던지면 레퍼런스 하나 때문에 화보 전체가 실패한다.
     """
     source = lookbook.composition.reference_url if lookbook.composition else ""
+    return _optional(source, "레퍼런스")
+
+
+def _product_images(lookbook: Lookbook) -> list[bytes]:
+    """배경을 제거한 상품 PNG. 이름만 주면 벤더가 가방 모양을 지어낸다.
+
+    파일이 없으면 조용히 건너뛴다 — 상품 사진이 없다고 화보를 못 만들 이유는 없고,
+    프롬프트의 상품 이름이 그 자리를 대신한다.
+    """
+    from apps.catalog.models import Product
+
+    sources = Product.objects.filter(id__in=lookbook.product_ids).values_list("cutout_url", flat=True)
+    images = [_optional(source, "상품 컷아웃") for source in sources]
+    return [image for image in images if image]
+
+
+def _optional(source: str, label: str) -> bytes | None:
+    """읽히면 바이트, 아니면 None. 재료 하나 때문에 생성 전체가 죽으면 안 된다."""
     if not source:
-        return []
+        return None
     try:
-        return [_fetch(source)]
+        return _fetch(source)
     except Exception:
-        logger.warning("레퍼런스를 읽지 못해 참조 없이 생성합니다: %s", source)
-        return []
+        logger.warning("%s를 읽지 못해 빼고 생성합니다: %s", label, source)
+        return None
 
 
 def _fetch(source: str) -> bytes:

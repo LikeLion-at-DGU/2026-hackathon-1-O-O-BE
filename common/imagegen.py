@@ -36,7 +36,9 @@ class ImageGenError(RuntimeError):
         self.error_code = error_code
 
 
-def edit(*, photo: bytes, mask: bytes | None, references: list[bytes], prompt: str) -> bytes:
+def edit(
+    *, photo: bytes, mask: bytes | None, references: list[bytes], prompt: str, quality: str = ""
+) -> bytes:
     """사진을 재료로 화보를 합성해 PNG 바이트를 돌려준다.
 
     references는 레이아웃 참조용이다. **비어 있으면 아무것도 넘기지 않는다** —
@@ -56,6 +58,7 @@ def edit(*, photo: bytes, mask: bytes | None, references: list[bytes], prompt: s
         "image": images,
         "prompt": prompt,
         "size": settings.LOOKBOOK_GEN_SIZE,
+        "quality": quality or settings.LOOKBOOK_GEN_QUALITY,
         "output_format": "png",
     }
     if mask:

@@ -38,7 +38,7 @@ class LookbookCandidateView(APIView):
         report = get_object_or_404(Report.objects.select_related("visit"), pk=slug)
         self._assert_owns(request.auth, report)
         self._assert_ready(report)
-        return Response(candidates.build(report), status=status.HTTP_200_OK)
+        return Response(candidates.build(report, request), status=status.HTTP_200_OK)
 
     def _assert_owns(self, visit, report: Report) -> None:
         """slug는 추측하기 어렵지만 열쇠를 두 개 요구한다. 남의 리포트로 후보를 뽑지 못한다."""
@@ -221,4 +221,4 @@ class LookbookDetailView(APIView):
         if lookbook.status != LookbookStatus.READY:
             # "없음"과 "아직"은 프론트가 다르게 처리해야 한다.
             raise LookbookNotReady()
-        return Response(detail.build(lookbook), status=status.HTTP_200_OK)
+        return Response(detail.build(lookbook, request), status=status.HTTP_200_OK)
