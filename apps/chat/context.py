@@ -82,8 +82,11 @@ def _describe_taste(taste: Taste) -> str:
 
 def _describe_candidates(candidates: list[Suggestion]) -> str:
     """후보는 서버가 고른다. LLM은 이 목록 밖의 상품·번호를 말할 수 없다."""
+    # 색을 함께 준다. 이름이 겹치는 상품이 60개 중 33개라 이름만으로는 모델도 손님도
+    # 어느 것인지 구분하지 못한다.
     lines = [
-        f"- {item.product.name} ({item.product.scene.no}번 진열대 {item.product.no}번) — {item.reason}"
+        f"- {item.product.name} / {item.product.get_color_display()} "
+        f"({item.product.scene.no}번 진열대 {item.product.no}번) — {item.reason}"
         for item in candidates
     ]
     return f"{CANDIDATE_HEADER}\n" + "\n".join(lines)

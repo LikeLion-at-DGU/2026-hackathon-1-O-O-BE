@@ -53,6 +53,10 @@ CORE_AXES = tuple(CAMPS)
 AXIS_WEIGHTS = {
     "mood": 3,
     "color": 3,
+    # category가 빠져 있었다. 사전이 "큰 거"·"작은 거"·"옷"을 category로 보내는데
+    # 여기 없으면 그 값이 lock돼도 모든 상품이 0점이라 추천이 통째로 비었다.
+    # 손님이 직접 말했을 때만 잡히는 신호라 무드·색(3)보다는 낮게 둔다.
+    "category": 2,
     "material": 2,
     "use_case": 2,
     "pattern": 1,
@@ -122,9 +126,9 @@ def interest_products(visit: Visit, stored: dict | None = None) -> list[Product]
 
 
 def _behaviour_ids(visit: Visit) -> set[str]:
+    """행동만으로 읽는 관심. 손님이 말로 준 답(confirmed)은 호출부에서 합친다."""
     events = visit.events.filter(product__isnull=False)
-    ids = set(events.filter(event_type=EventType.PRODUCT_SAVE).values_list("product_id", flat=True))
-    ids |= {
+    ids = {
         row["product_id"]
         for row in events.filter(event_type=EventType.PRODUCT_VIEW)
         .values("product_id")

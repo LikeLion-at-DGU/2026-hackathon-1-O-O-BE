@@ -33,7 +33,6 @@ class ReportDetailSerializer(serializers.Serializer):
     """
 
     status = serializers.CharField(help_text="pending / ready / failed")
-    character = serializers.DictField(required=False, help_text="type_code · name · one_liner")
     top_keywords = serializers.ListField(required=False)
     summary = serializers.CharField(required=False)
     hero = serializers.DictField(required=False, allow_null=True, help_text="가장 잘 맞는 상품 1개")

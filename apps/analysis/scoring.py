@@ -7,7 +7,6 @@
 # ② 관심도 — log 가중합. 한 상품을 30번 본 사람이 프로필을 지배하지 않게 한다.
 WEIGHT_VIEW = 1.0  # 가장 약한 신호
 WEIGHT_DWELL = 1.5  # 가장 중요한 신호 (오래 볼수록 관심이 크다)
-WEIGHT_SAVE = 3.0  # 찜은 의도가 명확하다
 WEIGHT_CHAT = 2.0  # 대화에서 언급된 상품
 DWELL_UNIT_MS = 1000  # 체류시간을 초 단위로 환산해 log에 넣는다
 
@@ -16,10 +15,11 @@ CONFIDENCE_VIEW_WEIGHT = 0.40
 CONFIDENCE_VIEW_TARGET = 8  # 상품 8개를 보면 만점
 CONFIDENCE_DWELL_WEIGHT = 0.30
 CONFIDENCE_DWELL_TARGET_MS = 240_000  # 4분
-CONFIDENCE_QUESTION_WEIGHT = 0.20
+# 찜이 가져가던 0.10을 질문이 받았다. 셋의 합이 1.0이 아니면 confidence 상한이
+# 그만큼 내려가 아무리 오래 관람해도 만점이 안 나온다. 의도가 분명한 행동이라는
+# 성격이 가장 가까운 것이 질문이라 그쪽으로 옮겼다.
+CONFIDENCE_QUESTION_WEIGHT = 0.30
 CONFIDENCE_QUESTION_TARGET = 3
-CONFIDENCE_SAVE_WEIGHT = 0.10
-CONFIDENCE_SAVE_TARGET = 2
 CONFIDENCE_EXPLORING = 0.35  # 미만이면 "탐색 중"으로 표시한다
 
 # ④ 취향 벡터 — 대화에서 뽑은 선호/비선호를 행동 위에 얹는다

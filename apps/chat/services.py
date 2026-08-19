@@ -64,6 +64,11 @@ def _absorb(visit: Visit, question: str) -> dict:
     """
     preferred, rejected = taste_map.extract(question)
     if not preferred and not rejected:
+        # 사전이 못 읽은 표현("무해한", "레트로한")만 LLM에 넘긴다. 흔한 말은 1차에서
+        # 끝나므로 대부분의 발화에는 호출이 붙지 않는다. 답변 스트리밍 전에 부르는
+        # 이유는 추출 결과가 이번 답변의 프롬프트에 들어가야 하기 때문이다.
+        preferred, rejected = taste_map.llm_extract(question)
+    if not preferred and not rejected:
         return {"axes": {}, "needs_confirm": False}
 
     profile = profile_of(visit)

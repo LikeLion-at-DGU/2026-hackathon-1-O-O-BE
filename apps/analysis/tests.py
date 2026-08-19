@@ -6,7 +6,7 @@
 
 from django.test import SimpleTestCase
 
-from apps.analysis import character, pipeline, scoring
+from apps.analysis import pipeline, scoring
 from apps.analysis.insight import Insight
 from apps.analysis.signals import ProductFacts, ProductSignal, VisitSignals
 
@@ -64,7 +64,7 @@ class ConfidenceTest(SimpleTestCase):
     def test_신호가_충분하면_1로_수렴한다(self):
         signals = VisitSignals(
             products=tuple(
-                ProductSignal(f"p_{index}", views=2, dwell_ms=60_000, saves=1) for index in range(8)
+                ProductSignal(f"p_{index}", views=2, dwell_ms=60_000) for index in range(8)
             ),
             questions=3,
         )
@@ -121,32 +121,3 @@ class ScoringTest(SimpleTestCase):
         scored = pipeline.score_products({}, catalog, frozenset())
 
         self.assertEqual(len(scored), 2)
-
-
-class CharacterTest(SimpleTestCase):
-    def test_같은_벡터는_항상_같은_코드를_준다(self):
-        vector = pipeline.build_vector({"p_1": 1.0}, {"p_1": make_facts("p_1")}, None)
-
-        first = character.map_type_code(character.score_axes(vector))
-        second = character.map_type_code(character.score_axes(vector))
-
-        self.assertEqual(first, second)
-        self.assertEqual(first, "CNPD")  # 미니멀·블랙·솔리드·데일리
-
-    def test_신호가_없으면_모든_축이_양극으로_간다(self):
-        self.assertEqual(character.map_type_code(character.score_axes({})), "CNPD")
-
-    def test_반대_취향은_반대_코드가_된다(self):
-        facts = make_facts(
-            "p_1",
-            axes={
-                "color": "pink",
-                "mood": "y2k_street",
-                "pattern": "studded",
-                "use_case": "going_out",
-            },
-        )
-
-        vector = pipeline.build_vector({"p_1": 1.0}, {"p_1": facts}, None)
-
-        self.assertEqual(character.map_type_code(character.score_axes(vector)), "TVOS")

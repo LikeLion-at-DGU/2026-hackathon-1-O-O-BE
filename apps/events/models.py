@@ -15,7 +15,6 @@ class EventType(models.TextChoices):
     # 상품 — 취향 분석의 핵심 재료
     PRODUCT_VIEW = "product_view", "상품 조회"
     PRODUCT_DWELL = "product_dwell", "상품 체류"
-    PRODUCT_SAVE = "product_save", "상품 찜"
     # 챗봇
     CHATBOT_OPEN = "chatbot_open", "챗봇 열기"
     QUESTION_SUBMIT = "question_submit", "질문 전송"
