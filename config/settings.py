@@ -180,7 +180,9 @@ CACHES = {
     if REDIS_URL
     else {"BACKEND": "django.core.cache.backends.locmem.LocMemCache", "LOCATION": "lookbook-jobs"}
 }
-LOOKBOOK_JOB_TTL_SEC = 300  # 폴링이 끝나고도 잠깐 남을 만큼만
+# 폴링이 끝나고도 잠깐 남을 만큼만. 생성이 길어지면 이 값을 넘겨 상태가 사라지고
+# 폴링이 404를 받으므로, 실측 생성 시간보다 넉넉히 잡는다.
+LOOKBOOK_JOB_TTL_SEC = env.int("LOOKBOOK_JOB_TTL_SEC", default=300)
 # 진행률 보간의 분모. ⚠️ 이미지 생성 벤더 실측 p50으로 교체해야 한다.
 # 25초로 가정했는데 실제가 40초면 90%에서 오래 멈춰 있는 화면이 된다.
 LOOKBOOK_EXPECTED_SEC = env.int("LOOKBOOK_EXPECTED_SEC", default=25)

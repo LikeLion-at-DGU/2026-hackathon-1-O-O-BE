@@ -154,15 +154,29 @@ def _optional(source: str, label: str) -> bytes | None:
 
 
 def _fetch(source: str) -> bytes:
-    """레퍼런스는 미디어 경로(/media/...)나 외부 URL 둘 다 올 수 있다."""
+    """레퍼런스·컷아웃은 미디어 경로(/media/...)나 외부 URL 둘 다 올 수 있다.
+
+    접두사를 슬래시 없이 비교하는 이유는 MEDIA_URL이 "media/"로 적혀 있어도 Django가
+    "/media/"로 정규화하기 때문이다. 어느 쪽으로 적히든 같게 동작해야 한다.
+
+    **MEDIA_ROOT 밖은 읽지 않는다.** 이 값은 DB(Composition.reference_url,
+    Product.cutout_url)에서 오고 admin에서 사람이 고칠 수 있다. `../`가 섞이면
+    서버의 아무 파일이나 벤더에 업로드될 수 있으므로 경로를 풀어 확인한다.
+    """
     if source.startswith(("http://", "https://")):
         import urllib.request
 
         with urllib.request.urlopen(source, timeout=REFERENCE_TIMEOUT_SEC) as response:
             return response.read()
 
-    relative = source.removeprefix(settings.MEDIA_URL).removeprefix("/")
-    return (Path(settings.MEDIA_ROOT) / relative).read_bytes()
+    media_prefix = settings.MEDIA_URL.strip("/") + "/"
+    relative = source.lstrip("/").removeprefix(media_prefix)
+
+    media_root = Path(settings.MEDIA_ROOT).resolve()
+    file_path = (media_root / relative).resolve()
+    file_path.relative_to(media_root)  # 벗어나면 ValueError → 호출부가 걸러낸다
+
+    return file_path.read_bytes()
 
 
 def _product_names(lookbook: Lookbook) -> list[str]:
