@@ -164,6 +164,17 @@ sudo systemctl status oando --no-pager
 sudo journalctl -u oando -n 50 --no-pager
 ```
 
+### 얼굴 사진 자동 삭제 타이머
+
+업로드 원본은 24시간 보존이 약속이다. `purge_uploads` 명령을 매시간 불러줄 타이머를 함께 등록한다 — 등록하지 않으면 얼굴 사진이 서버에 계속 쌓인다.
+
+```bash
+sudo cp /srv/oando/deploy/oando-purge-uploads.service /etc/systemd/system/
+sudo cp /srv/oando/deploy/oando-purge-uploads.timer /etc/systemd/system/
+sudo systemctl daemon-reload && sudo systemctl enable --now oando-purge-uploads.timer
+systemctl list-timers --all | grep oando-purge
+```
+
 ## 8. nginx
 
 ```bash

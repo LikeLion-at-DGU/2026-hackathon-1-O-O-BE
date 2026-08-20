@@ -1,0 +1,25 @@
+# 얼굴 사진 자동 삭제 (oando-purge-uploads.timer가 주기적으로 실행)
+#
+# 업로드된 원본 사진·마스크는 화보 생성 재료일 뿐이라 24시간이 지나면 지운다.
+# manage.py purge_uploads 명령은 있지만 아무도 불러주지 않으면 안 지워진다 —
+# 실제로 서버에 파일이 계속 쌓이고 있었다. 이 유닛 쌍이 그 호출자다.
+#
+# 배치: /etc/systemd/system/oando-purge-uploads.service (+ .timer)
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now oando-purge-uploads.timer
+# 확인:
+#   systemctl list-timers --all | grep oando-purge
+#   sudo journalctl -u oando-purge-uploads --since "1 day ago"
+
+[Unit]
+Description=O&O uploaded face photo purge (retention 24h)
+After=network.target
+
+[Service]
+Type=oneshot
+User=oando
+Group=oando
+WorkingDirectory=/srv/oando
+ExecStart=/srv/oando/venv/bin/python /srv/oando/manage.py purge_uploads
+StandardOutput=journal
+StandardError=journal
