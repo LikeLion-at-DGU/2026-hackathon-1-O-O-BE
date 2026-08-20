@@ -25,6 +25,15 @@ CUTOUT_FEATHER_PX = 2
 TYPOGRAPHY_NAME = "typography.png"
 BRAND_TEXT = "MCM"
 SIDE_TEXT = "50 YEARS OF MCM: THE F/W 2026 COLLECTION"
+TYPO_COLOR = (238, 236, 230, 255)
+
+# 폴백 레터링 배치. 전부 왼쪽 띠 안에 들어가야 인물과 겹치지 않는다.
+TYPO_BRAND_RATIO = 0.26  # 글자 크기 — 가로폭 기준이라 세워도 화면을 안 넘는다
+TYPO_BRAND_LEFT = 0.01
+TYPO_BRAND_TOP = 0.04
+TYPO_SIDE_RATIO = 0.018
+TYPO_SIDE_LEFT = 0.30
+TYPO_SIDE_TOP = 0.05
 
 CAPTION_LEFT = 0.06
 CAPTION_BOTTOM = 0.055
@@ -117,21 +126,28 @@ def _typography(width: int, height: int) -> Image.Image:
 
 
 def _drawn_typography(width: int, height: int) -> Image.Image:
-    """오려낸 타이포가 없을 때의 대체물. 찢긴 종이 질감까지는 흉내 낼 수 없다."""
-    layer = Image.new("RGBA", (width, height), (0, 0, 0, 0))
-    ImageDraw.Draw(layer).text(
-        (int(width * 0.01), int(height * 0.05)),
-        BRAND_TEXT,
-        font=_font(int(height * 0.20)),
-        fill=(238, 236, 230, 255),
-    )
+    """오려낸 타이포가 없을 때의 대체물. 찢긴 종이 질감까지는 흉내 낼 수 없다.
 
-    strip = Image.new("RGBA", (int(height * 0.60), int(height * 0.04)), (0, 0, 0, 0))
-    ImageDraw.Draw(strip).text(
-        (0, 0), SIDE_TEXT, font=_font(int(height * 0.022)), fill=(238, 236, 230, 255)
-    )
-    layer.alpha_composite(strip.rotate(90, expand=True), (int(width * 0.31), int(height * 0.05)))
+    **가로로 눕히지 않는다.** 사진이 화면을 가득 채우는 구조라 가로 레터링은 인물의
+    얼굴을 그대로 덮는다. 시안처럼 세로로 세워 왼쪽 띠 안에 가두면 인물과 안 겹친다.
+    """
+    layer = Image.new("RGBA", (width, height), (0, 0, 0, 0))
+
+    # 세로쓰기는 가로로 그린 뒤 90도 돌린다. Pillow에는 세로쓰기가 없다.
+    brand = _rotated_text(BRAND_TEXT, _font(int(width * TYPO_BRAND_RATIO)))
+    layer.alpha_composite(brand, (int(width * TYPO_BRAND_LEFT), int(height * TYPO_BRAND_TOP)))
+
+    side = _rotated_text(SIDE_TEXT, _font(int(height * TYPO_SIDE_RATIO)))
+    layer.alpha_composite(side, (int(width * TYPO_SIDE_LEFT), int(height * TYPO_SIDE_TOP)))
     return layer
+
+
+def _rotated_text(text: str, font: ImageFont.FreeTypeFont) -> Image.Image:
+    """글자를 세워서 그린 투명 이미지. 아래에서 위로 읽히는 방향이다."""
+    left, top, right, bottom = font.getbbox(text)
+    strip = Image.new("RGBA", (right - left + 8, bottom - top + 8), (0, 0, 0, 0))
+    ImageDraw.Draw(strip).text((4 - left, 4 - top), text, font=font, fill=TYPO_COLOR)
+    return strip.rotate(90, expand=True)
 
 
 def _draw_scrim(canvas: Image.Image, width: int, height: int) -> None:
