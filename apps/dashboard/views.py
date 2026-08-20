@@ -2,14 +2,21 @@ from django.conf import settings
 from django.contrib.auth import authenticate
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.throttling import AnonRateThrottle
 from rest_framework.views import APIView
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.tokens import AccessToken
 
 from api.exceptions import Unauthorized
-from apps.dashboard.serializers import AdminAuthResponseSerializer, AdminAuthSerializer
+from apps.dashboard import services
+from apps.dashboard.serializers import (
+    AdminAuthResponseSerializer,
+    AdminAuthSerializer,
+    FunnelSerializer,
+    ProductStatSerializer,
+)
 
 
 class AdminAuthThrottle(AnonRateThrottle):
@@ -56,3 +63,30 @@ class AdminAuthView(APIView):
             },
             status=status.HTTP_200_OK,
         )
+
+
+class AdminMetricView(APIView):
+    """/admin/* 지표의 공통 인증. Bearer 토큰은 POST /admin/auth가 발급한다.
+
+    사용자 API와 인증 방식이 다르다 — 손님은 visit token, 브랜드는 JWT다. 같은
+    이벤트를 읽지만 보는 사람이 다르므로 문을 따로 둔다.
+    """
+
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAdminUser]
+
+
+class FunnelView(AdminMetricView):
+    """GET /api/v1/admin/funnel — 입장부터 화보까지 단계별 전환."""
+
+    @extend_schema(responses={200: FunnelSerializer}, tags=["Admin"])
+    def get(self, request):
+        return Response(services.funnel(settings.DEFAULT_STORE_ID), status=status.HTTP_200_OK)
+
+
+class ProductStatView(AdminMetricView):
+    """GET /api/v1/admin/products — 상품별 관심 지표. 체류가 긴 순서."""
+
+    @extend_schema(responses={200: ProductStatSerializer(many=True)}, tags=["Admin"])
+    def get(self, request):
+        return Response(services.product_stats(settings.DEFAULT_STORE_ID), status=status.HTTP_200_OK)
