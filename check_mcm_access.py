@@ -7,7 +7,7 @@
   C. Playwright (실제 브라우저)
 
 사용법:
-    python test_access.py
+    python check_mcm_access.py
 """
 
 import io

@@ -65,15 +65,18 @@ COLOR_MAP = {
 
 WALLET_WORDS = ("지갑", "카드홀더", "카드 홀더", "카드케이스", "카드 케이스")
 
+# 첫 매치가 이긴다. 판정 대상이 `소재 + 상품명`이라 순서가 곧 우선순위다.
+# "비세토스"를 앞에 두면 소재가 나파 레더인 상품도 이름에 비세토스가 들어 있어
+# 코팅 캔버스가 된다(참 6건이 그랬다). 구체적인 소재 이름을 먼저 본다.
 MATERIAL_RULES = (
-    ("비세토스", "coated_canvas"),
-    ("코티드", "coated_canvas"),
     ("나파", "smooth_leather"),
     ("엠보스드", "grained_leather"),
     ("그레인", "grained_leather"),
+    ("스웨이드", "suede"),
     ("econyl", "nylon"),
     ("나일론", "nylon"),
-    ("스웨이드", "suede"),
+    ("비세토스", "coated_canvas"),
+    ("코티드", "coated_canvas"),
 )
 
 MOOD_RULES = (
@@ -196,7 +199,7 @@ class Command(BaseCommand):
         return {
             "price": f"{price:,}원입니다. {stock}",
             "material": " ".join(part for part in material_parts if part),
-            "design_intent": clean(row["summary"]) or clean(row["description"])[:120],
+            "design_intent": _design_intent(row),
         }
 
     def _context(self, row: dict, name: str) -> str:
@@ -283,3 +286,32 @@ class Command(BaseCommand):
 def clean(value: str) -> str:
     """CSV에 &reg; &lsquo; 같은 HTML 엔티티가 그대로 들어 있다."""
     return html.unescape((value or "").strip())
+
+
+def _design_intent(row: dict) -> str:
+    """「디자인 의도」 버튼의 답변. 카피 한 줄 + 설명 첫 문장.
+
+    이 문자열은 LLM을 거치지 않고 그대로 손님 말풍선이 된다. summary만 쓰면
+    "뮌헨 아이콘의 재 탄생" 일곱 글자가 답으로 나가 「가격」·「재질」 버튼과
+    무게가 안 맞고, story와도 글자까지 같아져 프롬프트에 같은 문장이 두 번 들어간다.
+
+    description을 통째로 붙이지 않는 이유는 중앙값이 139자, 최대 257자여서
+    서서 읽는 말풍선으로는 길기 때문이다. 글자 수로 자르면 문장이 중간에서
+    끊기므로 마침표를 기준으로 첫 문장까지만 가져온다.
+    """
+    summary = clean(row["summary"])
+    first = _first_sentence(clean(row["description"]))
+    if not summary or summary == first:
+        return first or summary
+    if not first:
+        return summary
+    # summary가 이미 문장으로 끝나면 줄표가 어색하다. CSV의 두 필드는 역할이
+    # 행마다 뒤집힌다 — 어떤 행은 summary가 카피고 description이 스펙인데,
+    # 다른 행은 그 반대다. 그래서 순서를 바꾸지 않고 이음새만 맞춘다.
+    joiner = " " if summary.endswith((".", "!", "?")) else " — "
+    return f"{summary}{joiner}{first}"
+
+
+def _first_sentence(text: str) -> str:
+    end = text.find(". ")
+    return text if end == -1 else text[: end + 1]

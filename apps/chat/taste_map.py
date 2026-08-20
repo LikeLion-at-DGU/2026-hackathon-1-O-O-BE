@@ -12,7 +12,6 @@ from apps.catalog.models import (
     Category,
     Color,
     Material,
-    Mood,
     PriceBand,
     Silhouette,
     UseCase,
@@ -22,23 +21,15 @@ from common.llm import LLMUnavailable, complete_json
 logger = logging.getLogger(__name__)
 
 # 어휘 → [(축, 값)]. 한 표현이 여러 축을 짚을 수 있다.
+# 무드 형용사("차분한"·"화려한"·"클래식")는 여기 없다. 그 말들이 어느 축을
+# 가리키는지는 뒤에 붙는 명사가 정하기 때문이다 — "차분한 색"은 color고 "차분한
+# 결"은 mood인데, 사전은 단어만 보므로 둘을 구분할 수 없다. 실제로 트리거가
+# 손님에게 "차분한 색 쪽이 편하세요?"라고 물어 놓고, 손님이 그대로 따라 말하면
+# mood로 받아 색을 하나도 못 걸렀다(추천 1순위가 핑크였다).
+#
+# 그래서 축이 문맥에 달린 표현은 사전에서 빼고 LLM이 읽게 한다. 축이 단어 자체로
+# 확정되는 것(색 이름·용도·물성·크기)만 남긴다 — 이쪽은 호출 없이 끝나는 게 이득이다.
 VOCABULARY: dict[str, list[tuple[str, str]]] = {
-    "차분한": [("mood", Mood.MINIMAL)],
-    "조용한": [("mood", Mood.MINIMAL)],
-    "과하지 않": [("mood", Mood.MINIMAL)],
-    "심플": [("mood", Mood.MINIMAL)],
-    # bold_statement는 이 매장에 한 건도 없다. 재고가 없는 값이 lock되면 추천 점수가
-    # 전부 0이 되어 챗봇이 상품 없이 답한다. 결이 가장 가까운 y2k_street로 보낸다.
-    "화려한": [("mood", Mood.Y2K_STREET)],
-    "튀는": [("mood", Mood.Y2K_STREET)],
-    "눈에 띄": [("mood", Mood.Y2K_STREET)],
-    "포인트": [("mood", Mood.Y2K_STREET)],
-    "클래식": [("mood", Mood.CLASSIC_HERITAGE)],
-    "정통": [("mood", Mood.CLASSIC_HERITAGE)],
-    "힙한": [("mood", Mood.Y2K_STREET)],
-    "스트리트": [("mood", Mood.Y2K_STREET)],
-    "개성": [("mood", Mood.Y2K_STREET)],
-    "꾸안꾸": [("mood", Mood.MINIMAL), ("use_case", UseCase.DAILY)],
     "오래 쓸": [("material", Material.GRAINED_LEATHER), ("silhouette", Silhouette.STRUCTURED)],
     "튼튼": [("material", Material.GRAINED_LEATHER)],
     "가벼운": [("material", Material.NYLON)],
@@ -144,8 +135,8 @@ def _match(clause: str) -> list[tuple[str, str]]:
 
 
 # ─────────────────────────── 2차 · LLM 폴백 ───────────────────────────
-# 사전이 아무것도 못 잡았을 때만 부른다. "검은색"처럼 흔한 말은 1차에서 끝나고,
-# "무해한"·"레트로한"처럼 사전에 넣기 애매한 표현만 여기로 온다.
+# 사전이 아무것도 못 잡았을 때만 부른다. "검은색"처럼 축이 단어에 박힌 말은 1차에서
+# 끝나고, "차분한 색"·"무해한"처럼 축이 문맥에 달린 표현이 여기로 온다.
 # 부를지 말지를 LLM에게 물어보지 않는 이유: 그 판단을 위한 호출이 아끼려는 호출보다
 # 비싸다. 사전이 빈손이라는 건 서버가 이미 아는 사실이다.
 
@@ -153,9 +144,13 @@ LLM_SYSTEM_PROMPT = """너는 명품 매장 손님의 한마디를 상품 분류
 
 규칙:
 - 반드시 아래 "허용 값"에 있는 값만 쓴다. 없는 값을 만들지 않는다.
-- 근거가 약하면 비운다. 억지로 채우면 손님이 말하지 않은 취향이 확정된다.
-- "~는 싫어", "~말고"처럼 부정하는 대상은 avoided에 넣는다.
-- 한 축에 값 하나면 충분하다."""
+- 어느 축인지는 형용사가 아니라 뒤에 붙는 말이 정한다.
+  ("차분한 색" → color, "차분한 결" → mood, "차분한 무늬" → pattern)
+- 손님이 축을 짚어 말했으면 그 축은 반드시 채운다. 여러 값을 아우르는 표현이어도
+  가장 대표적인 값 하나를 고른다 — 축 하나에 값 하나만 저장되기 때문이다.
+  ("차분한 색"은 블랙·화이트·베이지·네이비·코냑을 아우르지만 하나만 고른다)
+- 짚은 축이 없고 근거도 약하면 비운다. 억지로 채우면 손님이 말하지 않은 취향이 확정된다.
+- "~는 싫어", "~말고"처럼 부정하는 대상은 avoided에 넣는다."""
 
 
 def llm_extract(text: str) -> tuple[dict[str, list[str]], dict[str, list[str]]]:
