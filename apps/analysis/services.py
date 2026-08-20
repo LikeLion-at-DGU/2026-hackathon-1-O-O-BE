@@ -33,10 +33,10 @@ def finish(visit: Visit, event_items: list[dict]) -> tuple[Report, dict, bool]:
     (report, 이벤트 집계, 이번 호출이 리포트를 새로 만들었는지)를 준다. 마지막 값이
     false면 같은 visit_id로 두 번째 이상 호출된 것이라 분석을 다시 돌리지 않는다.
     """
-    result = append_batch(visit, event_items) if event_items else dict(EMPTY_EVENT_RESULT)
+    saved = append_batch(visit, event_items) if event_items else dict(EMPTY_EVENT_RESULT)
     _close(visit)
     report, is_new = Report.objects.get_or_create(visit=visit)
-    return report, result, is_new
+    return report, saved, is_new
 
 
 def enqueue(report: Report) -> None:

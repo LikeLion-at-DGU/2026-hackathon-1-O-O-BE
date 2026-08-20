@@ -5,6 +5,7 @@
 """
 
 from collections import defaultdict
+from dataclasses import dataclass, field
 
 from django.db.models import Count
 
@@ -15,47 +16,63 @@ from apps.events.services import DWELL_KEY, exposed_scene_ids
 from apps.visits.models import Visit
 
 
+@dataclass
+class _Tally:
+    """이벤트를 한 번 훑어 모은 집계. 조립은 collect_signals가 한다."""
+
+    views: dict[str, int] = field(default_factory=lambda: defaultdict(int))
+    dwell: dict[str, int] = field(default_factory=lambda: defaultdict(int))
+    scene_dwell: dict[str, int] = field(default_factory=lambda: defaultdict(int))
+    questions: int = 0
+
+
 def collect_signals(visit: Visit) -> VisitSignals:
     """이번 방문의 행동을 상품 단위로 압축한다."""
-    views: dict[str, int] = defaultdict(int)
-    dwell: dict[str, int] = defaultdict(int)
-    scene_dwell: dict[str, int] = defaultdict(int)
-    questions = 0
-
-    rows = visit.events.values_list(
-        "event_type", "product_id", "scene_id", "product__scene_id", "metadata"
-    )
-    for event_type, product_id, scene_id, product_scene_id, metadata in rows:
-        if event_type == EventType.QUESTION_SUBMIT:
-            questions += 1
-        elif product_id and event_type == EventType.PRODUCT_VIEW:
-            views[product_id] += 1
-        elif product_id and event_type == EventType.PRODUCT_DWELL:
-            dwell[product_id] += _dwell_of(metadata)
-            # 상품 상세를 본 시간도 그 진열대에서 쓴 시간이다. 진열대 화면과 상품
-            # 화면은 라우트가 달라 두 체류가 겹치지 않으므로 그대로 더한다.
-            if product_scene_id:
-                scene_dwell[product_scene_id] += _dwell_of(metadata)
-        elif scene_id and event_type == EventType.SCENE_DWELL:
-            scene_dwell[scene_id] += _dwell_of(metadata)
-
+    tally = _tally_events(visit)
     mentions = _chat_mentions(visit)
-    product_ids = set(views) | set(dwell) | set(mentions)
+    product_ids = sorted(set(tally.views) | set(tally.dwell) | set(mentions))
 
     return VisitSignals(
         products=tuple(
             ProductSignal(
                 product_id=product_id,
-                views=views[product_id],
-                dwell_ms=dwell[product_id],
+                views=tally.views[product_id],
+                dwell_ms=tally.dwell[product_id],
                 chat_mentions=mentions.get(product_id, 0),
             )
-            for product_id in sorted(product_ids)
+            for product_id in product_ids
         ),
-        scenes=_scene_signals(scene_dwell),
+        scenes=_scene_signals(tally.scene_dwell),
         scenes_viewed=len(exposed_scene_ids(visit)),
-        questions=questions,
+        questions=tally.questions,
     )
+
+
+def _tally_events(visit: Visit) -> _Tally:
+    """이벤트 한 줄씩 세어 담는다. 쿼리는 이 한 번뿐이다."""
+    tally = _Tally()
+    rows = visit.events.values_list("event_type", "product_id", "scene_id", "product__scene_id", "metadata")
+    for event_type, product_id, scene_id, product_scene_id, metadata in rows:
+        if event_type == EventType.QUESTION_SUBMIT:
+            tally.questions += 1
+        elif product_id and event_type == EventType.PRODUCT_VIEW:
+            tally.views[product_id] += 1
+        elif product_id and event_type == EventType.PRODUCT_DWELL:
+            _add_dwell(tally, product_id, product_scene_id, metadata)
+        elif scene_id and event_type == EventType.SCENE_DWELL:
+            tally.scene_dwell[scene_id] += _dwell_of(metadata)
+    return tally
+
+
+def _add_dwell(tally: _Tally, product_id: str, scene_id: str | None, metadata: dict) -> None:
+    """상품 체류는 그 진열대의 체류이기도 하다.
+
+    진열대 화면과 상품 화면은 라우트가 달라 두 체류가 겹치지 않으므로 그대로 더한다.
+    """
+    dwell_ms = _dwell_of(metadata)
+    tally.dwell[product_id] += dwell_ms
+    if scene_id:
+        tally.scene_dwell[scene_id] += dwell_ms
 
 
 def _scene_signals(dwell_by_scene: dict[str, int]) -> tuple[SceneSignal, ...]:
