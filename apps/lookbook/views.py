@@ -22,6 +22,7 @@ from apps.lookbook.serializers import (
     PresignRequestSerializer,
     PresignResponseSerializer,
 )
+from apps.lookbook.throttles import UploadPresignThrottle, UploadReceiveThrottle
 
 
 class LookbookCandidateView(APIView):
@@ -82,6 +83,7 @@ class UploadPresignView(APIView):
     """
 
     permission_classes = [IsVisitAuthenticated]
+    throttle_classes = [UploadPresignThrottle]
 
     @extend_schema(
         request=PresignRequestSerializer,
@@ -146,6 +148,7 @@ class UploadReceiveView(APIView):
     authentication_classes = []
     permission_classes = [AllowAny]
     parser_classes = [RawBodyParser]
+    throttle_classes = [UploadReceiveThrottle]
 
     @extend_schema(request=bytes, responses={200: None}, auth=[], tags=["Lookbook"])
     def put(self, request, key: str):

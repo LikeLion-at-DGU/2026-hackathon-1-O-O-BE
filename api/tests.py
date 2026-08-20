@@ -239,6 +239,25 @@ class LookbookContractTest(ContractTestBase):
         self.assertEqual(response.status_code, 429)
 
 
+class UploadThrottleContractTest(ContractTestBase):
+    """무인증 업로드 경로는 속도 제한이 유일한 방어다. 풀리면 디스크가 찬다."""
+
+    def tearDown(self):
+        from django.core.cache import cache
+
+        cache.clear()  # 스로틀 카운터가 다른 테스트로 새지 않게 비운다
+
+    def presign(self, entered: dict):
+        body = {"content_type": "image/jpeg", "byte_size": 1000}
+        return self.client.post("/api/v1/uploads/presign", body, format="json", **self.auth_headers(entered))
+
+    def test_presign은_방문당_횟수를_제한한다(self):
+        entered = self.enter()
+        for _ in range(10):
+            self.assertEqual(self.presign(entered).status_code, 200)
+        self.assertEqual(self.presign(entered).status_code, 429)
+
+
 class AdminContractTest(ContractTestBase):
     """브랜드 지표는 B2B 상품이다. 일반 계정에 열리면 그 자체가 유출 사고다."""
 

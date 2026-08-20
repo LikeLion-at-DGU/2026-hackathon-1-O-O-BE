@@ -124,7 +124,11 @@ REST_FRAMEWORK = {
     "PAGE_SIZE": 10,
     "EXCEPTION_HANDLER": "api.exceptions.oando_exception_handler",
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
-    "DEFAULT_THROTTLE_RATES": {"chat": "20/min"},  # LLM 남용 방지
+    "DEFAULT_THROTTLE_RATES": {
+        "chat": "20/min",  # LLM 남용 방지
+        "upload_presign": "10/min",  # 방문당. 정상 플로우는 촬영 1회당 1번이다
+        "upload_receive": "60/min",  # IP당. 무인증 PUT로 디스크를 채우는 것만 막는다
+    },
     "UNAUTHENTICATED_USER": None,
 }
 
