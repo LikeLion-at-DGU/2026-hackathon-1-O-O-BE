@@ -13,7 +13,6 @@ from django.db.models import Count, F
 from django.utils import timezone
 
 from apps.catalog.models import Store
-from apps.chat.messages import append_greeting
 from apps.events.models import EventType
 from apps.events.services import record
 from apps.visits.models import Visit, Visitor
@@ -91,7 +90,6 @@ def start(visitor: Visitor, store: Store, *, age_band: str = "", gender: str = "
     )
     record(visit, EventType.STORE_ENTER)
     record(visit, EventType.VISIT_START)
-    append_greeting(visit)
     return visit
 
 
