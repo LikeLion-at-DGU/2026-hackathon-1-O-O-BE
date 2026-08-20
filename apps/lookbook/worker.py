@@ -36,13 +36,37 @@ def run(share_slug: str) -> None:
     ③④ 순서를 뒤집으면 안 된다. DB가 ready인데 이미지가 아직 없으면 사용자가 404를
     본다. 반대 순서는 몇 밀리초 더 기다릴 뿐이라 안전하다.
     """
+    started = time.monotonic()
     try:
         lookbook = Lookbook.objects.get(pk=share_slug)
+        # 로그 접두사를 ASCII로 맞춘다. 서버에서 `journalctl | grep lookbook`으로
+        # 한 건의 흐름을 통째로 따라갈 수 있어야 한다.
+        logger.info(
+            "[lookbook %s] 시작 attempt=%s photo=%s mask=%s products=%s",
+            share_slug,
+            lookbook.attempt,
+            lookbook.photo_key,
+            lookbook.mask_key or "(없음)",
+            lookbook.product_ids,
+        )
         _mark_processing(lookbook)
         image_url, size = _generate(lookbook)
         _mark_ready(lookbook, image_url, size)
+        logger.info(
+            "[lookbook %s] 완료 %.1f초 %sx%s %s",
+            share_slug,
+            time.monotonic() - started,
+            size[0],
+            size[1],
+            image_url,
+        )
     except Exception as error:
-        logger.exception("화보 생성 실패: %s", share_slug)
+        logger.exception(
+            "[lookbook %s] 실패 %.1f초 code=%s",
+            share_slug,
+            time.monotonic() - started,
+            getattr(error, "error_code", "UNKNOWN"),
+        )
         _mark_failed(share_slug, error)
     finally:
         connection.close()
@@ -64,6 +88,7 @@ def _generate(lookbook: Lookbook) -> tuple[str, tuple[int, int]]:
     날에도 로딩 화면과 완료 화면 전체를 눌러볼 수 있어야 한다.
     """
     if settings.LOOKBOOK_FAKE_AI:
+        logger.info("[lookbook %s] FAKE_AI 모드 — 벤더를 부르지 않는다", lookbook.share_slug)
         time.sleep(settings.LOOKBOOK_FAKE_DELAY_SEC)
         return FAKE_IMAGE_URL, settings.LOOKBOOK_IMAGE_SIZE
 
@@ -75,12 +100,32 @@ def _generate(lookbook: Lookbook) -> tuple[str, tuple[int, int]]:
     # 누끼 모드: 벤더를 부르지 않고 마스크로 인물만 오려 배경판에 얹는다.
     # 얼굴이 100% 원본이고 공짜이며 즉시 끝난다. 마스크가 없으면 오릴 수가 없어
     # 배경을 새로 그리는 AI 경로로 넘어간다.
+    logger.info(
+        "[lookbook %s] 재료 photo=%dKB mask=%s products=%d mode=%s",
+        lookbook.share_slug,
+        len(photo) // 1024,
+        f"{len(mask) // 1024}KB" if mask else "없음",
+        len(products),
+        settings.LOOKBOOK_COMPOSE_MODE,
+    )
+
     if settings.LOOKBOOK_COMPOSE_MODE == COMPOSE_CUTOUT and mask:
+        logger.info("[lookbook %s] 누끼 경로 — 벤더 호출 없음", lookbook.share_slug)
         return _finish(lookbook, compose.cutout(photo, mask), products)
 
     # 순서가 계약이다. prompts._roles()가 "Image 2는 레퍼런스, Image 3은 상품"이라고
     # 말하므로, 여기서 넣는 순서가 바뀌면 모델이 상품을 보존 대상으로 오해한다.
     reference = _reference_image(lookbook)
+
+    logger.info(
+        "[lookbook %s] 벤더 호출 model=%s size=%s quality=%s ref=%s",
+        lookbook.share_slug,
+        settings.LOOKBOOK_IMAGE_MODEL,
+        settings.LOOKBOOK_GEN_SIZE,
+        settings.LOOKBOOK_GEN_QUALITY,
+        "있음" if reference else "없음",
+    )
+    vendor_started = time.monotonic()
 
     png = imagegen.edit(
         photo=photo,
@@ -99,6 +144,13 @@ def _generate(lookbook: Lookbook) -> tuple[str, tuple[int, int]]:
         ),
     )
 
+    logger.info(
+        "[lookbook %s] 벤더 응답 %.1f초 %dKB",
+        lookbook.share_slug,
+        time.monotonic() - vendor_started,
+        len(png) // 1024,
+    )
+
     # 상품을 따로 넘기지 않는다 — 벤더가 이미 인물에게 들려줬다. 또 얹으면 두 개가 된다.
     return _finish(lookbook, png, [])
 
@@ -115,7 +167,10 @@ def _finish(lookbook: Lookbook, person: bytes, products: list[bytes]) -> tuple[s
         caption=lookbook.mood_payload,
         size=settings.LOOKBOOK_IMAGE_SIZE,
     )
+    logger.info("[lookbook %s] 합성 완료 %dKB", lookbook.share_slug, len(final) // 1024)
+
     url = storage.save_public(f"{storage.LOOKBOOK_PREFIX}/{lookbook.share_slug}.png", final)
+    logger.info("[lookbook %s] 저장 완료 %s", lookbook.share_slug, url)
     return url, imagegen.size_of(final)
 
 
