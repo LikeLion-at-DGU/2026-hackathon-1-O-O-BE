@@ -1,14 +1,16 @@
 """이벤트 적립. 저장은 append-only이고 event_id로 멱등성을 보장한다."""
 
+import logging
 from uuid import UUID, uuid4
 
 from django.conf import settings
 from django.utils import timezone
-from rest_framework.exceptions import ValidationError
 
 from apps.catalog.models import Product, Scene
 from apps.events.models import Event, EventType
 from apps.visits.models import Visit
+
+logger = logging.getLogger(__name__)
 
 DWELL_KEY = "dwell_ms"
 
@@ -68,7 +70,8 @@ def append_batch(visit: Visit, items: list[dict]) -> dict:
     batch, rejected_count = items[:EVENT_BATCH_MAX], max(0, len(items) - EVENT_BATCH_MAX)
 
     accepted_items, ignored_count = _drop_unaccepted(visit, batch)
-    _assert_references_exist(accepted_items)
+    accepted_items, unknown_count = _drop_unknown_references(accepted_items)
+    rejected_count += unknown_count
 
     unique_items = _dedupe_within_batch(accepted_items)
     known_ids = _existing_event_ids(visit, [item["event_id"] for item in unique_items])
@@ -100,20 +103,31 @@ def _allowed_types(visit: Visit) -> frozenset[str]:
     return POST_VISIT_TYPES
 
 
-def _assert_references_exist(items: list[dict]) -> None:
-    """없는 전시존·상품을 가리키는 이벤트는 받지 않는다.
+def _drop_unknown_references(items: list[dict]) -> tuple[list[dict], int]:
+    """없는 전시존·상품을 가리키는 이벤트만 떨궈 rejected로 센다.
 
-    프론트는 /enter가 내려준 목록에서 id를 얻으므로, 모르는 id가 오면 코드 버그다.
-    조용히 버리면 분석 수치가 눈에 안 보이게 틀어진다.
+    원래는 배치 전체를 400으로 거부했다. 그런데 프론트는 400을 받으면 큐를 통째로
+    비우기 때문에, 로컬 목데이터 id(`p-1`) 하나가 섞이면 그 배치의 **정상 이벤트까지
+    전부 소실**됐다. 잘못된 참조는 응답의 rejected 수치와 로그로 드러내되, 나머지
+    기록은 살린다.
     """
+    unknown_ids: set[str] = set()
     for model, key in ((Scene, "scene_id"), (Product, "product_id")):
         requested = {item[key] for item in items if item[key]}
         if not requested:
             continue
         found = set(model.objects.filter(id__in=requested).values_list("id", flat=True))
-        unknown = requested - found
-        if unknown:
-            raise ValidationError({key: [f"존재하지 않습니다: {', '.join(sorted(unknown))}"]})
+        unknown_ids |= requested - found
+
+    if not unknown_ids:
+        return items, 0
+    logger.warning("존재하지 않는 참조를 가진 이벤트를 버립니다: %s", ", ".join(sorted(unknown_ids)))
+    kept = [
+        item
+        for item in items
+        if item["scene_id"] not in unknown_ids and item["product_id"] not in unknown_ids
+    ]
+    return kept, len(items) - len(kept)
 
 
 def _dedupe_within_batch(items: list[dict]) -> list[dict]:
