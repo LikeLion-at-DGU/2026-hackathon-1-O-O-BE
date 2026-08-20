@@ -48,10 +48,6 @@ class Hypothesis:
     asked_value: str = ""  # 축 가설이 물은 값. 응답 처리 때 문구를 다시 파싱하지 않으려고 담는다
     products: list[Product] = field(default_factory=list)
 
-    @property
-    def is_axis_confirm(self) -> bool:
-        return self.kind == "axis_confirm"
-
 
 def evaluate(visit: Visit) -> Hypothesis | None:
     """지금 던질 가설 하나. 없으면 None. 한 번에 하나만 묻는다."""

@@ -194,16 +194,6 @@ def _is_valid(taste: Taste, axis: str) -> bool:
     return len(ordered) >= 2 and (ordered[0] - ordered[1]) >= CAMP_GAP
 
 
-def character_code(taste: Taste) -> str:
-    """16유형 코드. 무효 축은 소문자로 표시해 "판정 보류"를 드러낸다."""
-    code = ""
-    for axis in CORE_AXES:
-        camps = tuple(CAMPS[axis])
-        camp = taste.camp_of(axis)
-        code += camp if camp else camps[0].lower()
-    return code
-
-
 def missing_camp_values() -> dict[str, list[str]]:
     """진영에 빠진 축 값을 찾는다.
 
