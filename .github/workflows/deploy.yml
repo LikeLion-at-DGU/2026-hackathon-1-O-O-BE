@@ -14,7 +14,35 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # 배포 앞에 게이트를 둔다. 테스트가 154개 있는데 통과 여부와 무관하게 배포되면
+  # 있으나 마나다. 여기서 막으면 깨진 코드가 서버에 올라가지 않는다.
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Lint
+        run: ruff check .
+
+      - name: Check migrations
+        # 모델만 고치고 마이그레이션을 안 만든 채 배포하면 서버에서 터진다.
+        run: python manage.py makemigrations --check --dry-run
+
+      - name: Test
+        run: python manage.py test
+
   deploy:
+    needs: test
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
