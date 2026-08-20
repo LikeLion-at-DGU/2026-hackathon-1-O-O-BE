@@ -17,22 +17,12 @@ from apps.visits.models import Visit
 
 logger = logging.getLogger(__name__)
 
-GREETING = "저와 함께 MCM을 경험해 보아요!\n각 진열대를 눌러 상품에 대해 알아보세요."
 PRESET_FALLBACK = "안내 문구가 아직 준비되지 않았습니다."
 
 # 진열대·상품 클릭은 직전과 같으면 말풍선을 새로 쌓지 않는다. 화면이 같은 말풍선으로
 # 도배되기 때문이다. 조회 횟수 같은 수치는 POST /events가 따로 남기므로 잃는 게 없다.
 # 프리셋은 제외한다 — 같은 걸 다시 물어보는 것 자체가 의미 있는 행동이다.
 DEDUPE_TYPES = frozenset({ActionType.SCENE_CLICK, ActionType.PRODUCT_CLICK})
-
-
-def append_greeting(visit: Visit) -> ChatLog:
-    """입장 직후 챗봇 인사를 타임라인 맨 위에 둔다.
-
-    프론트가 하드코딩하지 않고 서버가 쌓는 이유: GET /chat/messages 하나로 화면이
-    완전히 복원돼야 한다. 이어하기로 돌아왔을 때도 인사가 제자리에 있어야 한다.
-    """
-    return ChatLog.objects.create(visit=visit, role=Role.ASSISTANT, content=GREETING)
 
 
 def append_action(
