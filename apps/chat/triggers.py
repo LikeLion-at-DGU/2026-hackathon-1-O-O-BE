@@ -32,6 +32,7 @@ AXIS_SCENES = 2
 AXIS_RUNNER_UP = 1  # 2등 값이 이보다 많으면 쏠린 게 아니다
 AVOIDANCE_MIN = 2
 SHIFT_VIEWS = 3
+ROUND_TRIP_WINDOW = 10  # 왕복(A→B→A) 신호를 이 조회 수만큼은 기억한다
 
 # 축 확인 대상. price_band(무례) · category(자명) · silhouette(인지 어려움)은 뺀다.
 ASKABLE_AXES = ("mood", "color", "material", "pattern")
@@ -156,17 +157,29 @@ def _contrast(visit: Visit, stored: dict) -> Hypothesis | None:
 
 
 def _round_trip(visit: Visit) -> tuple[Product, Product] | None:
-    ids = list(
+    """최근 조회에서 A→B→A 패턴을 찾는다.
+
+    두 가지 함정을 피한다.
+    1) 같은 상품의 연속 중복 조회를 먼저 압축한다 — 프론트가 재마운트로 product_view를
+       두 번 보내면 [A,A,B,B,A,A]가 되어 "마지막 3건 정확 일치" 판정이 절대 성립하지
+       않았다.
+    2) 마지막 3건만 보지 않고 최근 창 전체를 훑는다 — 왕복이 성립한 순간에 워밍업·
+       쿨다운 게이트에 막히면 그 신호가 조회 1건 뒤 영영 사라졌다. 창 안에 남아 있는
+       동안은 게이트가 열렸을 때 소비할 수 있어야 한다.
+    """
+    raw = list(
         visit.events.filter(event_type=EventType.PRODUCT_VIEW, product__isnull=False)
         .order_by("server_received_at")
         .values_list("product_id", flat=True)
     )
-    if len(ids) < 3 or ids[-1] != ids[-3] or ids[-1] == ids[-2]:
-        return None
-    products = {p.id: p for p in Product.objects.filter(id__in=(ids[-1], ids[-2]))}
-    if len(products) < 2:
-        return None
-    return products[ids[-1]], products[ids[-2]]
+    ids = [pid for i, pid in enumerate(raw) if i == 0 or raw[i - 1] != pid]
+    recent = ids[-ROUND_TRIP_WINDOW:]
+    for i in range(len(recent) - 1, 1, -1):
+        if recent[i] == recent[i - 2] and recent[i] != recent[i - 1]:
+            products = {p.id: p for p in Product.objects.filter(id__in=(recent[i], recent[i - 1]))}
+            if len(products) == 2:
+                return products[recent[i]], products[recent[i - 1]]
+    return None
 
 
 # ─────────────────────────── 3군 · 축 확인 ───────────────────────────
