@@ -10,6 +10,9 @@
 버킷으로 옮기면 이미 절대 URL이 저장되는데 build_absolute_uri는 그걸 그대로 통과시킨다.
 """
 
+from django.conf import settings
+from django.db.models import Max
+
 from apps.catalog.models import Product
 from apps.lookbook import snapshot
 from apps.lookbook.models import Lookbook
@@ -22,6 +25,9 @@ def build(lookbook: Lookbook, request) -> dict:
     return {
         "share_slug": lookbook.share_slug,
         "attempt": lookbook.attempt,
+        # 생성 응답에만 있던 값인데, 프론트가 새 세션·공유 링크에서 이 화면만 열면
+        # 남은 횟수를 알 길이 없어 sessionStorage 폴백이 NaN으로 죽었다.
+        "remaining_regenerations": _remaining_regenerations(lookbook),
         "image_url": request.build_absolute_uri(lookbook.image_url) if lookbook.image_url else "",
         "width": lookbook.width,
         "height": lookbook.height,
@@ -37,6 +43,13 @@ def build(lookbook: Lookbook, request) -> dict:
         "report_slug": lookbook.report_id,
         "created_at": lookbook.created_at,
     }
+
+
+def _remaining_regenerations(lookbook: Lookbook) -> int:
+    """이 화보가 아니라 같은 리포트 전체 기준이다. 재생성마다 행이 새로 생기므로
+    최대 attempt가 곧 쓴 횟수다."""
+    used = lookbook.report.lookbooks.aggregate(top=Max("attempt"))["top"] or 0
+    return max(0, settings.LOOKBOOK_MAX_ATTEMPT - used)
 
 
 def _products(product_ids: list, request) -> list[dict]:

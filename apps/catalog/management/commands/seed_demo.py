@@ -55,10 +55,10 @@ class Command(BaseCommand):
         if not path.exists():
             raise CommandError(f"시드 파일이 없습니다: {path}")
 
-        data = json.loads(path.read_text(encoding="utf-8"))
+        fixture = json.loads(path.read_text(encoding="utf-8"))
         with transaction.atomic():
-            store = self._upsert_store(data["store"])
-            scene_count, product_count = self._upsert_scenes(store, data["scenes"])
+            store = self._upsert_store(fixture["store"])
+            scene_count, product_count = self._upsert_scenes(store, fixture["scenes"])
 
         self.stdout.write(
             self.style.SUCCESS(f"{store.name}: 전시존 {scene_count}개 · 상품 {product_count}개 적재 완료")

@@ -108,6 +108,7 @@ class LookbookDetailSerializer(serializers.Serializer):
 
     share_slug = serializers.CharField()
     attempt = serializers.IntegerField()
+    remaining_regenerations = serializers.IntegerField(help_text="리포트 전체 기준 남은 재생성 횟수")
     image_url = serializers.CharField()
     width = serializers.IntegerField()
     height = serializers.IntegerField()

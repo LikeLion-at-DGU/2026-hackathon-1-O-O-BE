@@ -21,7 +21,7 @@ from common import imagegen
 
 logger = logging.getLogger(__name__)
 
-FAKE_IMAGE_URL = "/media/lookbooks/placeholder.png"
+FAKE_PERSON_COLOR = (209, 205, 199)
 REFERENCE_TIMEOUT_SEC = 5
 COMPOSE_CUTOUT = "cutout"
 
@@ -90,7 +90,10 @@ def _generate(lookbook: Lookbook) -> tuple[str, tuple[int, int]]:
     if settings.LOOKBOOK_FAKE_AI:
         logger.info("[lookbook %s] FAKE_AI 모드 — 벤더를 부르지 않는다", lookbook.share_slug)
         time.sleep(settings.LOOKBOOK_FAKE_DELAY_SEC)
-        return FAKE_IMAGE_URL, settings.LOOKBOOK_IMAGE_SIZE
+        # 고정 placeholder 파일에 의존하지 않는다. 그 파일이 없는 새 환경(레포를 갓
+        # 클론한 리뷰어)에서 화보가 ready인데 이미지만 404가 나는 결함이 있었다.
+        # 단색 인물판을 실제 합성·저장 경로에 태워 진짜 파일을 만든다.
+        return _finish(lookbook, _fake_person_png(), [])
 
     photo = storage.read_bytes(lookbook.photo_key)
     # 마스크가 없어도 생성은 된다. 체형 보존이 약해질 뿐이다.
@@ -172,6 +175,18 @@ def _finish(lookbook: Lookbook, person: bytes, products: list[bytes]) -> tuple[s
     url = storage.save_public(f"{storage.LOOKBOOK_PREFIX}/{lookbook.share_slug}.png", final)
     logger.info("[lookbook %s] 저장 완료 %s", lookbook.share_slug, url)
     return url, imagegen.size_of(final)
+
+
+def _fake_person_png() -> bytes:
+    """FAKE 모드의 인물 대체 이미지. 타이포·캡션 합성은 실제와 동일하게 거친다."""
+    from io import BytesIO
+
+    from PIL import Image
+
+    canvas = Image.new("RGB", settings.LOOKBOOK_IMAGE_SIZE, FAKE_PERSON_COLOR)
+    buffer = BytesIO()
+    canvas.save(buffer, format="PNG")
+    return buffer.getvalue()
 
 
 def _reference_image(lookbook: Lookbook) -> bytes | None:

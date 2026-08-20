@@ -267,6 +267,26 @@ class TriggerKindTest(TriggerTestBase):
         self.assertEqual(hypothesis.kind, "contrast")
         self.assertEqual(len(hypothesis.options), 2)
 
+    def test_중복_조회가_끼어도_왕복을_알아본다(self):
+        """프론트가 재마운트로 product_view를 두 번 보내면 [A,A,B,B,A,A]가 된다.
+        연속 중복을 압축하지 않으면 왕복 판정이 영원히 성립하지 않는다."""
+        first, second = self.product(1), self.product(2)
+        for product in (first, first, second, second, first, first):
+            self.view(product)
+
+        self.assertEqual(triggers.evaluate(self.visit).kind, "contrast")
+
+    def test_왕복_신호는_조회_한_건_뒤에도_남는다(self):
+        """왕복이 성립한 순간 게이트에 막혀도, 창 안에 있는 동안은 소비할 수 있어야
+        한다. 마지막 3건만 보면 다음 조회 한 번에 신호가 영영 사라진다."""
+        first, second = self.product(1), self.product(2)
+        self.view(first)
+        self.view(second)
+        self.view(first)
+        self.view(self.product(3))
+
+        self.assertEqual(triggers.evaluate(self.visit).kind, "contrast")
+
     def test_대비가_상품_확인보다_먼저다(self):
         """왕복 조회는 재조회의 특수한 경우다.
 

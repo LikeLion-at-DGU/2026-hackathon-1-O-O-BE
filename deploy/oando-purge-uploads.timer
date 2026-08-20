@@ -1,0 +1,13 @@
+# oando-purge-uploads.service를 매시간 실행한다. 배치·확인 방법은 .service 주석 참고.
+
+[Unit]
+Description=Run O&O upload purge hourly
+
+[Timer]
+OnCalendar=hourly
+# 서버가 꺼져 있던 시간대의 실행분을 부팅 후 몰아서 1회 보전한다
+Persistent=true
+RandomizedDelaySec=5min
+
+[Install]
+WantedBy=timers.target

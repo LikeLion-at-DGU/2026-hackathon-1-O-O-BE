@@ -48,7 +48,7 @@ class EventBatchView(APIView):
         visit = assert_own_visit(request, serializer.validated_data["visit_id"])
         self._assert_visitor_matches(request, visit)
 
-        result = append_batch(visit, serializer.validated_data["events"])
+        saved = append_batch(visit, serializer.validated_data["events"])
         touch(visit)
         # 행동이 쌓인 직후가 관찰의 유일한 시점이다. 조건에 걸리면 가설 말풍선을
         # 타임라인에 넣고, 프론트는 GET /chat/messages의 pending_action에서 발견한다.
@@ -57,7 +57,7 @@ class EventBatchView(APIView):
             hypothesis = evaluate(visit)
             if hypothesis is not None:
                 append_hypothesis(visit, hypothesis)
-        return Response(result, status=status.HTTP_202_ACCEPTED)
+        return Response(saved, status=status.HTTP_202_ACCEPTED)
 
     def _assert_visitor_matches(self, request, visit: Visit) -> None:
         """명세가 이 API에 X-Anonymous-UUID를 필수로 정의했다.

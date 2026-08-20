@@ -124,7 +124,11 @@ REST_FRAMEWORK = {
     "PAGE_SIZE": 10,
     "EXCEPTION_HANDLER": "api.exceptions.oando_exception_handler",
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
-    "DEFAULT_THROTTLE_RATES": {"chat": "20/min"},  # LLM 남용 방지
+    "DEFAULT_THROTTLE_RATES": {
+        "chat": "20/min",  # LLM 남용 방지
+        "upload_presign": "10/min",  # 방문당. 정상 플로우는 촬영 1회당 1번이다
+        "upload_receive": "60/min",  # IP당. 무인증 PUT로 디스크를 채우는 것만 막는다
+    },
     "UNAUTHENTICATED_USER": None,
 }
 
@@ -155,6 +159,13 @@ CSRF_TRUSTED_ORIGINS = env("CSRF_TRUSTED_ORIGINS")
 # 로컬은 http라서 True로 두면 admin 로그인이 아예 안 된다.
 SESSION_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_SECURE = not DEBUG
+# nginx가 이미 http를 https로 돌리지만 Django도 같이 막는다. 프록시 설정이 한 번
+# 어긋나도 평문으로 서비스되지 않게 하는 이중 방어다.
+SECURE_SSL_REDIRECT = not DEBUG
+# HSTS는 기본으로 끈다. 켜면 브라우저가 그 기간 동안 이 도메인에 http로 접속하는 것을
+# 거부한다 — 인증서가 만료되거나 https가 잠깐 깨지면 되돌릴 방법이 없다. 도메인과
+# 인증서가 안정된 뒤 SECURE_HSTS_SECONDS=3600처럼 짧게 시작해서 늘리는 것이 안전하다.
+SECURE_HSTS_SECONDS = env.int("SECURE_HSTS_SECONDS", default=0)
 
 # 매장은 하나로 고정한다. 클라이언트가 매장을 지정하지 않고 서버가 이 값을 붙인다.
 DEFAULT_STORE_ID = env("DEFAULT_STORE_ID", default="s_mcm")

@@ -1,0 +1,1064 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>장고 구조</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+/* Override strong tags inside headings to maintain consistent weight */
+h1 strong,
+h2 strong,
+h3 strong {
+	font-weight: 600;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 10px;
+	padding: 1rem;
+}
+
+/* For default-background callouts, render the border outline. */
+.callout.block-color-default_background {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+/*
+ * Toggles and callouts hold arbitrary content, so they can easily be taller
+ * than a page. They must stay breakable: avoiding breaks inside them makes
+ * Chromium push the whole block onto the next page, which leaves the previous
+ * page mostly empty before every long toggle.
+ */
+details,
+aside {
+	margin: 1.25em 0;
+}
+
+/* Keep a toggle's title on the same page as the start of its content. */
+summary {
+	page-break-after: avoid;
+	break-after: avoid;
+}
+
+/*
+ * Toggle headings render as <h1/h2/h3 style="display:inline-block"> inside
+ * <summary>. Without this reset, the heading's margin-top pushes it below the
+ * ::marker (▼), so the triangle and the title appear on separate lines.
+ */
+summary h1,
+summary h2,
+summary h3,
+summary h4 {
+	margin-top: 0;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+
+	table.collection-content {
+		width: 100%;
+		table-layout: fixed;
+	}
+
+	table.collection-content th,
+	table.collection-content td {
+		overflow-wrap: anywhere;
+	}
+
+	table.collection-content td > .user,
+	table.collection-content td > time {
+		white-space: pre-wrap;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content-wrapper {
+	overflow-x: auto;
+}
+
+@media only print {
+	.collection-content-wrapper {
+		overflow-x: visible;
+	}
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.collection-content td {
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.column-list {
+	display: flex;
+	gap: 46px;
+}
+
+.column {
+	min-width: 0;
+	overflow: hidden;
+}
+
+.column > *:first-child {
+	margin-top: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding-inline: 0.125rem;
+	padding-block: 0.375rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+table {
+	border-collapse: collapse;
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol.numbered-list.numbered-list-digits-2 {
+	padding-inline-start: 2em;
+}
+
+ol.numbered-list.numbered-list-digits-3plus {
+	padding-inline-start: 2.4em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+/*
+ * Render emoji icons using a ::before pseudo-element to keep the glyph
+ * out of the DOM textContent traversal. This avoids double-rendering icons
+ * in callouts and page titles.
+ * NOTE(slim/html-export-pseudo-icons): I can't tagref this because it will
+ * flag as a duplicate tag after codegen.
+ */
+.icon[data-emoji]::before {
+	content: attr(data-emoji);
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.callout img.notion-static-icon {
+	width: 1em;
+	height: 1em;
+}
+
+.callout p {
+	margin: 0;
+}
+
+.callout h1,
+.callout h2,
+.callout h3 {
+	margin: 0 0 0.6rem;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	margin-right: 0.4em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+blockquote.quote-large {
+	font-size: 1.25em;
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.tab {
+	margin: 1.25em 0;
+	padding-inline: 1rem;
+	border: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.highlight-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.highlight-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.highlight-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.highlight-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.highlight-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.highlight-default_background {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray_background {
+	background: rgba(42, 28, 0, 0.07);
+}
+.highlight-brown_background {
+	background: rgba(139, 46, 0, 0.086);
+}
+.highlight-orange_background {
+	background: rgba(224, 101, 1, 0.129);
+}
+.highlight-yellow_background {
+	background: rgba(211, 168, 0, 0.137);
+}
+.highlight-teal_background {
+	background: rgba(0, 100, 45, 0.09);
+}
+.highlight-blue_background {
+	background: rgba(0, 124, 215, 0.094);
+}
+.highlight-purple_background {
+	background: rgba(102, 0, 178, 0.078);
+}
+.highlight-pink_background {
+	background: rgba(197, 0, 93, 0.086);
+}
+.highlight-red_background {
+	background: rgba(223, 22, 0, 0.094);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.block-color-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.block-color-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.block-color-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.block-color-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.block-color-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(240, 239, 237, 1);
+}
+.block-color-brown_background {
+	background: rgba(245, 237, 233, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 235, 222, 1);
+}
+.block-color-yellow_background {
+	background: rgba(249, 243, 220, 1);
+}
+.block-color-teal_background {
+	background: rgba(232, 241, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(229, 242, 252, 1);
+}
+.block-color-purple_background {
+	background: rgba(243, 235, 249, 1);
+}
+.block-color-pink_background {
+	background: rgba(250, 233, 241, 1);
+}
+.block-color-red_background {
+	background: rgba(252, 233, 231, 1);
+}
+.select-value-color-default { background-color: rgba(42, 28, 0, 0.07); }
+.select-value-color-gray { background-color: rgba(28, 19, 1, 0.11); }
+.select-value-color-brown { background-color: rgba(127, 51, 0, 0.156); }
+.select-value-color-orange { background-color: rgba(196, 88, 0, 0.203); }
+.select-value-color-yellow { background-color: rgba(209, 156, 0, 0.282); }
+.select-value-color-green { background-color: rgba(0, 96, 38, 0.156); }
+.select-value-color-blue { background-color: rgba(0, 118, 217, 0.203); }
+.select-value-color-purple { background-color: rgba(92, 0, 163, 0.141); }
+.select-value-color-pink { background-color: rgba(183, 0, 78, 0.152); }
+.select-value-color-red { background-color: rgba(206, 24, 0, 0.164); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style><style>@import url('https://cdn.jsdelivr.net/npm/katex@0.16.25/dist/katex-swap.min.css')</style></head><body><article id="70e3b6ae-677e-8329-b318-81df1b9ba24f" class="page sans"><header><h1 class="page-title" dir="auto">장고 구조</h1><p class="page-description" dir="auto"></p></header><div class="page-body"><h1 id="dd63b6ae-677e-830c-84f5-815c3d222a74" class="" dir="auto">Django 프로젝트 구조</h1><blockquote id="dff3b6ae-677e-832a-a649-01efe3bcb168" class="" dir="auto">모듈 지도(<code>MODULE_MAP.md</code>)를 Django app으로 옮긴 것.<br/><strong>모듈과 app이 1:1이 아니다.</strong> 매핑 규칙을 먼저 정리한다.</blockquote><hr id="b5c3b6ae-677e-8272-90f0-81e14a7ac804" dir="auto"/><h2 id="d443b6ae-677e-8317-8cc0-81590cee7e8a" class="" dir="auto">1. 모듈 → app 매핑</h2><p id="fad3b6ae-677e-82f2-9599-0101f019e1d4" class="" dir="auto">Django app의 본질은 <strong>모델을 소유하는 단위</strong>다. 우리 모듈 중 일부는 모델이 없고, 반대로 한 app에 여러 모듈이 들어간다.</p><table id="bb23b6ae-677e-834c-b86a-818022e2a7aa" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="f463b6ae-677e-82b6-95c7-017087ba7bee" dir="ltr"><th id="ljhn" class="simple-table-header-color simple-table-header">모듈</th><th id="gNdY" class="simple-table-header-color simple-table-header">app</th><th id="=mh@" class="simple-table-header-color simple-table-header">비고</th></tr></thead><tbody><tr id="3cc3b6ae-677e-839d-88ef-01feefcefe01" dir="ltr"><td id="ljhn" class=""><code>identity</code></td><td id="gNdY" class=""><code>apps.visits</code></td><td id="=mh@" class=""><code>Visitor</code>가 <code>Visit</code>과 항상 함께 쓰여 app을 합침</td></tr><tr id="0463b6ae-677e-83be-b39c-8156221e156c" dir="ltr"><td id="ljhn" class=""><code>visits</code></td><td id="gNdY" class=""><code>apps.visits</code></td><td id="=mh@" class="">1:1</td></tr><tr id="0613b6ae-677e-83bc-9986-81ae2b725ce3" dir="ltr"><td id="ljhn" class=""><code>stores.repository</code></td><td id="gNdY" class=""><code>apps.catalog</code></td><td id="=mh@" class=""><strong>3개 모듈이 한 app</strong></td></tr><tr id="8aa3b6ae-677e-8372-bf24-81da37de2dfc" dir="ltr"><td id="ljhn" class=""><code>stores.catalog</code></td><td id="gNdY" class=""><code>apps.catalog</code></td><td id="=mh@" class="">구 <code>map_query</code>. 좌표가 빠지며 축소</td></tr><tr id="6313b6ae-677e-82ca-a7e4-819db0392c80" dir="ltr"><td id="ljhn" class=""><code>stores.market_stats</code></td><td id="gNdY" class=""><code>apps.catalog</code></td><td id="=mh@" class=""></td></tr><tr id="6673b6ae-677e-8276-bb68-01be6c0fd6cf" dir="ltr"><td id="ljhn" class=""><code>events</code></td><td id="gNdY" class=""><code>apps.events</code></td><td id="=mh@" class="">1:1</td></tr><tr id="6053b6ae-677e-8379-a80f-011db505bce3" dir="ltr"><td id="ljhn" class=""><code>chat</code></td><td id="gNdY" class=""><code>apps.chat</code></td><td id="=mh@" class="">1:1</td></tr><tr id="5ed3b6ae-677e-836e-b119-0116f31353c1" dir="ltr"><td id="ljhn" class=""><code>analysis</code></td><td id="gNdY" class=""><code>apps.analysis</code></td><td id="=mh@" class="">1:1</td></tr><tr id="14a3b6ae-677e-8320-ab09-81347533a132" dir="ltr"><td id="ljhn" class=""><code>reports</code></td><td id="gNdY" class=""><code>apps.analysis</code></td><td id="=mh@" class=""><strong>모델을 소유하지 않음.</strong> <code>Report</code>는 analysis 것</td></tr><tr id="68a3b6ae-677e-83de-b2a9-01f430973cd0" dir="ltr"><td id="ljhn" class=""><code>admin</code></td><td id="gNdY" class=""><code>apps.dashboard</code></td><td id="=mh@" class="">모델 없음. 이름 충돌 회피 (아래 8장)</td></tr><tr id="a693b6ae-677e-829a-8765-810bc300a662" dir="ltr"><td id="ljhn" class=""><code>llm</code> / <code>privacy</code></td><td id="gNdY" class=""><code>common/</code></td><td id="=mh@" class="">app 아님. 순수 파이썬 패키지</td></tr></tbody></table><p id="d413b6ae-677e-830a-80de-0170b222476d" class="" dir="auto"><code>imagegen</code> 모듈은 두지 않는다. 캐릭터 이미지가 <strong>사전 제작 16장</strong>이라 런타임 생성 코드가 없다.</p><h3 id="2b93b6ae-677e-8234-a2dd-8199fa91055f" class="" dir="auto">조합 서비스는 어디에 두나</h3><p id="24c3b6ae-677e-8399-b839-0131334aa4d9" class="" dir="auto"><code>EnterService</code>는 4개 app을 조합한다. 어느 app에도 속하지 않으므로 <code><strong>api/</strong></code><strong> 패키지</strong>에 둔다.</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="67c3b6ae-677e-835c-bca7-01572dc716f5" class="code code-wrap"><code style="white-space:pre-wrap;word-break:break-all">api/v1/enter/services.py     ← identity + visits + stores 조합</code></pre><p id="0303b6ae-677e-839c-8627-01e69649bccd" class="" dir="auto">app 안에 두면 &quot;왜 <code>visits</code>가 <code>catalog</code>를 import하지?&quot;가 되어 의존 규칙이 무너진다. <code>api/</code>는 최상위라 아래 모든 층을 알아도 된다.</p><hr id="6873b6ae-677e-8372-a888-812fabbb2358" dir="auto"/><h2 id="f0e3b6ae-677e-8363-9ec9-81efd1392672" class="" dir="auto">1-1. 맵은 프론트가 그린다 — 백엔드에 미치는 영향</h2><p id="88a3b6ae-677e-829f-8f59-019daf33e9b6" class="" dir="auto">v0.4에서 평면도를 프론트가 직접 만들기로 하면서 백엔드에서 사라진 것들이다.</p><table id="2eb3b6ae-677e-83fc-88c1-81328f85157e" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="9a13b6ae-677e-8246-9ebc-01b97a99a701" dir="ltr"><th id="FeeN" class="simple-table-header-color simple-table-header">사라진 것</th><th id="deWQ" class="simple-table-header-color simple-table-header">이유</th></tr></thead><tbody><tr id="70c3b6ae-677e-83f1-b078-010a29795ddb" dir="ltr"><td id="FeeN" class=""><code>GET /stores/{key}/map</code> 엔드포인트</td><td id="deWQ" class="">폐기 확정</td></tr><tr id="8f83b6ae-677e-82cd-b409-0180c054c696" dir="ltr"><td id="FeeN" class=""><code>Store.map_width</code> / <code>map_image</code> / <code>entrance_*</code></td><td id="deWQ" class="">좌표를 서버가 갖지 않음</td></tr><tr id="7773b6ae-677e-8229-b0b5-81d3fb499800" dir="ltr"><td id="FeeN" class=""><code>Scene.shape</code> / <code>points</code> / <code>radius</code></td><td id="deWQ" class="">동일</td></tr><tr id="6163b6ae-677e-82ac-8c1d-81dfc4c051a9" dir="ltr"><td id="FeeN" class="">ETag / <code>Cache-Control: public</code> 처리</td><td id="deWQ" class="">전용 GET 엔드포인트가 없어짐</td></tr><tr id="d463b6ae-677e-820e-aa95-014f6f754e83" dir="ltr"><td id="FeeN" class="">도면 이미지 S3 업로드</td><td id="deWQ" class="">프론트 정적 자산으로 이동</td></tr></tbody></table><p id="9c03b6ae-677e-82ef-a241-016e6b9f6568" class="" dir="auto"><strong>서버는 &quot;어느 전시존에 어떤 상품이 속하는지&quot;라는 논리 구성만 갖는다.</strong> 그게 화면 어디에 그려지는지는 프론트의 몫이다.</p><p id="ab83b6ae-677e-836a-8931-01e1294d5077" class="" dir="auto"><code>Scene</code>에는 좌표 대신 <code><strong>no</strong></code><strong>(번호)</strong> 가 들어간다. 프론트가 하드코딩한 도형과 <code>scene.no</code>를 매칭하고, 챗봇도 &quot;1번 진열대&quot;로 부를 수 있다.</p><p id="37c3b6ae-677e-8238-a905-8199dcd0123a" class="" dir="auto">이 방식의 대가는 <strong>매장이 늘어날 때 프론트 배포가 필요하다</strong>는 점이다. 지금은 매장 1개 고정이라 비용이 발생하지 않는다.</p><hr id="4323b6ae-677e-8261-bdda-818134168bd4" dir="auto"/><h2 id="75b3b6ae-677e-82cf-830b-0189c85f5534" class="" dir="auto">2. 디렉터리</h2><pre id="9b23b6ae-677e-8230-bba3-01eda9a65b7d" class="code code-wrap"><code style="white-space:pre-wrap;word-break:break-all">oando/
+├── manage.py
+├── requirements.txt
+├── .env.example
+├── .gitignore
+├── README.md                      # 실행 방법 · API 명세 링크 · ERD (심사 항목)
+│
+├── config/                        # 프로젝트 설정
+│   ├── __init__.py                # celery_app import (Celery 채택 시에만)
+│   ├── settings.py                # env로 분기. 배포 확정되면 base/local/prod 분할
+│   ├── urls.py                    # api/v1/ + swagger-ui
+│   ├── celery.py                  # ⚠️ Redis 안 띄우면 파일째 삭제
+│   ├── asgi.py                    # SSE 때문에 ASGI 필요
+│   └── wsgi.py
+│
+├── apps/                          # 도메인 (모델 + HTTP 함께 소유)
+│   ├── visits/
+│   │   ├── models.py              # Visitor, Visit
+│   │   ├── services.py            # resolve_or_issue / start / authenticate / close
+│   │   ├── exceptions.py          # InvalidVisitToken
+│   │   ├── serializers.py         # EnterRequest / EnterResponse
+│   │   ├── views.py               # POST /enter
+│   │   ├── urls.py
+│   │   └── migrations/
+│   │
+│   ├── catalog/                   # stores → catalog 리네임 (Product가 주인공)
+│   │   ├── models.py              # Store, Scene, Product
+│   │   ├── repositories.py        # get_by_key()
+│   │   ├── market_stats.py        # 인기도·신상품 점수 (익명 집계)
+│   │   ├── serializers.py         # SceneSerializer / ProductDetailSerializer
+│   │   ├── views.py               # GET /products/{id}
+│   │   ├── urls.py
+│   │   ├── fixtures/
+│   │   │   └── demo.json          # 시드: 전시존·상품·preset_answers
+│   │   └── migrations/
+│   │
+│   ├── events/
+│   │   ├── models.py              # Event (append-only)
+│   │   ├── services.py            # append_batch() — bulk_create(ignore_conflicts)
+│   │   ├── serializers.py         # EventBatchSerializer
+│   │   ├── views.py               # POST /events → 202
+│   │   ├── urls.py
+│   │   └── migrations/
+│   │
+│   ├── chat/
+│   │   ├── models.py              # ChatLog
+│   │   ├── services.py            # respond() — AI ①, SSE
+│   │   ├── messages.py            # append_action() / current_context()
+│   │   ├── context.py             # 프롬프트 조립
+│   │   ├── prompts.py             # SYSTEM_PROMPT (추천 번호 제약 포함)
+│   │   ├── serializers.py         # ChatRequest / ActionMessage
+│   │   ├── views.py               # POST /chat · POST·GET /chat/messages
+│   │   ├── urls.py
+│   │   └── migrations/
+│   │
+│   ├── analysis/
+│   │   ├── models.py              # TasteProfile, Report
+│   │   ├── pipeline.py            # step1~step7 (순수 함수)
+│   │   ├── scoring.py             # WEIGHT_PERSONAL / POPULAR / NEW
+│   │   ├── character.py           # 16유형 매핑 (결정론적)
+│   │   ├── services.py            # enqueue()
+│   │   ├── tasks.py               # analyze_task
+│   │   ├── serializers.py         # ReportSerializer
+│   │   ├── views.py               # POST /visits/{id}/finish · GET /reports/{slug}
+│   │   ├── urls.py
+│   │   ├── tests.py               # pipeline 순수 함수만 (유일한 테스트)
+│   │   └── migrations/
+│   │
+│   └── dashboard/
+│       ├── models.py              # AdminUser
+│       ├── auth.py                # Admin JWT + 브랜드 격리
+│       ├── queries.py             # 집계 전용 (MIN_COHORT_SIZE)
+│       ├── serializers.py
+│       ├── views.py               # POST /admin/auth · GET /admin/{funnel,products,scenes,cohorts,chat-insights}
+│       ├── urls.py
+│       └── migrations/
+│
+├── api/                           # 공용 HTTP 관심사만 (뷰 없음)
+│   ├── authentication.py          # VisitTokenAuthentication
+│   ├── exceptions.py              # 공통 에러 포맷 {&quot;error&quot;:{code,message,detail}}
+│   └── v1/
+│       └── urls.py                # 각 앱 urls.py include
+│
+└── common/                        # 인프라 (app 아님)
+    ├── llm.py                     # stream() / complete_json()
+    ├── privacy.py                 # mask_pii()
+    └── ids.py                     # gen_id(&quot;v&quot;) / gen_id(&quot;p&quot;) / slug</code></pre><hr id="55a3b6ae-677e-821b-9463-81f5d3e31dad" dir="auto"/><h2 id="2203b6ae-677e-820b-8823-01a22657e526" class="" dir="auto">3. settings</h2><p id="d443b6ae-677e-8337-afa1-018f884bceda" class="" dir="auto">python</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js" integrity="sha512-AKaNmg8COK0zEbjTdMHJAPJ0z6VeNqvRvH4/d5M4sHJbQQUToMBtodq4HaV4fa+WV2UTfoperElm66c9/8cKmQ==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><pre id="aec3b6ae-677e-8297-a46c-81e1cc551827" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all"># config/settings/base.py
+INSTALLED_APPS = [
+    &quot;django.contrib.contenttypes&quot;,
+    &quot;django.contrib.auth&quot;,          # 비밀번호 해싱 (AdminUser)
+    # staticfiles  — 불필요. React가 자기 자산을 서빙
+    # sessions     — 불필요. 토큰 헤더 인증
+    # messages     — 불필요. 템플릿 없음
+    # admin        — 불필요 (8장 참고)
+
+    &quot;rest_framework&quot;,
+    &quot;corsheaders&quot;,
+
+    &quot;apps.visits&quot;,          # Visitor + Visit
+    &quot;apps.catalog&quot;,         # Store, Scene, Product
+    &quot;apps.events&quot;,
+    &quot;apps.chat&quot;,
+    &quot;apps.analysis&quot;,        # TasteProfile, Report, Character
+    &quot;apps.dashboard&quot;,
+]
+
+REST_FRAMEWORK = {
+    # 기본은 인증 없음. 필요한 뷰에서만 지정한다
+    &quot;DEFAULT_AUTHENTICATION_CLASSES&quot;: [],
+    &quot;DEFAULT_PERMISSION_CLASSES&quot;: [&quot;rest_framework.permissions.AllowAny&quot;],
+    &quot;EXCEPTION_HANDLER&quot;: &quot;api.exceptions.custom_exception_handler&quot;,
+    &quot;DATETIME_FORMAT&quot;: &quot;iso-8601&quot;,
+}
+
+# 도메인 상수 — 코드에 흩뿌리지 않는다
+VISIT_STALE_AFTER = timedelta(hours=24)
+EVENTS_MAX_BATCH = 100
+CHAT_RATE_PER_VISIT = 100
+MIN_COHORT_SIZE = 5
+CHAT_RETENTION_DAYS = 90
+EVENT_RETENTION_DAYS = 365</code></pre><p id="3db3b6ae-677e-8238-a3d0-01553b891e11" class="" dir="auto"><code>DEFAULT_AUTHENTICATION_CLASSES</code>를 <strong>빈 리스트로 두는 게 중요하다.</strong> 전역 기본값을 걸면 <code>/enter</code>와 <code>/reports/{slug}</code>가 인증을 요구하게 되고, 그걸 뷰마다 해제하는 실수가 생긴다. 필요한 뷰만 명시적으로 켠다.</p><hr id="42b3b6ae-677e-82f4-a5f6-814a1b117f70" dir="auto"/><h2 id="7293b6ae-677e-831f-9392-81830c14b010" class="" dir="auto">4. 인증 클래스</h2><p id="85e3b6ae-677e-8313-bf6f-812c1c727f96" class="" dir="auto">python</p><pre id="f623b6ae-677e-826c-b925-01873d1d221c" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all"># api/authentication.py
+from rest_framework.authentication import BaseAuthentication
+from apps.visits import services as visits
+
+class VisitTokenAuthentication(BaseAuthentication):
+    &quot;&quot;&quot;X-Visit-Token → Visit. DRF의 request.auth 에 Visit 객체를 넣는다.&quot;&quot;&quot;
+
+    def authenticate(self, request):
+        token = request.headers.get(&quot;X-Visit-Token&quot;)
+        if not token:
+            raise exceptions.NotAuthenticated()
+        try:
+            visit = visits.authenticate(token)
+        except visits.InvalidVisitToken:
+            raise exceptions.AuthenticationFailed(&quot;INVALID_VISIT_TOKEN&quot;)
+        return (AnonymousUser(), visit)      # request.auth == visit</code></pre><p id="1d03b6ae-677e-83fb-83a6-01da09c10f79" class="" dir="auto">뷰에서는 이렇게 쓴다.</p><p id="0a23b6ae-677e-83a2-a260-011a4bfc9d8f" class="" dir="auto">python</p><pre id="2693b6ae-677e-8313-853b-0111c42a3066" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all"># api/v1/events/views.py
+class EventView(APIView):
+    authentication_classes = [VisitTokenAuthentication]
+
+    def post(self, request):
+        visit = request.auth                 # 이미 확정된 Visit
+        result = events.append_batch(visit, request.data[&quot;events&quot;])
+        return Response({&quot;accepted&quot;: result.accepted,
+                         &quot;duplicated&quot;: result.duplicated}, status=202)</code></pre><p id="9143b6ae-677e-829a-abc7-81612406ec2f" class="" dir="auto"><code><strong>request.auth</strong></code><strong>에 </strong><code><strong>Visit</strong></code><strong>을 담는 게 핵심이다.</strong> 모든 뷰가 <code>visits.authenticate()</code>를 직접 부르지 않아도 되고, 인증을 빠뜨린 뷰는 <code>request.auth</code>가 <code>None</code>이라 즉시 터진다.</p><hr id="d4c3b6ae-677e-8374-ae9a-0111fac2b465" dir="auto"/><h2 id="9223b6ae-677e-82cd-a8ff-8107a44da8cf" class="" dir="auto">5. 에러 포맷 통일</h2><p id="29e3b6ae-677e-8318-a6fb-016a57b7c884" class="" dir="auto">명세서 규약: <code>{ &quot;error&quot;: { &quot;code&quot;, &quot;message&quot;, &quot;detail&quot; } }</code></p><p id="8673b6ae-677e-827f-8fb9-818291b9e3b9" class="" dir="auto">python</p><pre id="aec3b6ae-677e-834b-be62-81aad0f607ff" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all"># api/exceptions.py
+def custom_exception_handler(exc, context):
+    response = drf_exception_handler(exc, context)
+    if response is None:
+        return None
+
+    code = getattr(exc, &quot;error_code&quot;, DEFAULT_CODES.get(response.status_code))
+    response.data = {
+        &quot;error&quot;: {
+            &quot;code&quot;: code,
+            &quot;message&quot;: str(exc.detail) if hasattr(exc, &quot;detail&quot;) else str(exc),
+            &quot;detail&quot;: getattr(exc, &quot;detail_obj&quot;, None),
+        }
+    }
+    return response
+
+
+DEFAULT_CODES = {
+    400: &quot;VALIDATION_ERROR&quot;,
+    401: &quot;UNAUTHORIZED&quot;,
+    403: &quot;FORBIDDEN&quot;,
+    404: &quot;NOT_FOUND&quot;,
+    409: &quot;CONFLICT&quot;,
+    429: &quot;RATE_LIMITED&quot;,
+    500: &quot;INTERNAL_ERROR&quot;,
+}</code></pre><p id="2a83b6ae-677e-82ed-8c0d-01382680148e" class="" dir="auto">한 곳에서 처리하므로 뷰마다 에러 포맷을 맞출 필요가 없다.</p><hr id="1e33b6ae-677e-82e7-85b1-813c2a9c67cb" dir="auto"/><h2 id="f353b6ae-677e-82a7-969d-8169c877bf49" class="" dir="auto">6. URL</h2><p id="63f3b6ae-677e-83c7-94d1-81cca001b909" class="" dir="auto">python</p><pre id="d9b3b6ae-677e-831a-bac4-81328d17cda9" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all"># config/urls.py
+urlpatterns = [path(&quot;api/v1/&quot;, include(&quot;api.v1.urls&quot;))]
+
+# api/v1/urls.py
+urlpatterns = [
+    path(&quot;enter&quot;,                        EnterView.as_view()),
+    path(&quot;products/&lt;str:product_id&gt;&quot;,    ProductView.as_view()),
+    path(&quot;events&quot;,                       EventView.as_view()),
+    path(&quot;chat&quot;,                         ChatView.as_view()),
+    path(&quot;chat/messages&quot;,                ChatMessageView.as_view()),   # POST·GET
+    path(&quot;visits/&lt;str:visit_id&gt;/finish&quot;, FinishView.as_view()),
+    path(&quot;reports/&lt;str:slug&gt;&quot;,           ReportView.as_view()),
+    path(&quot;admin/auth&quot;,                   AdminAuthView.as_view()),
+    path(&quot;admin/&quot;, include(&quot;apps.dashboard.urls&quot;)),
+]</code></pre><p id="edb3b6ae-677e-82b1-ac5c-81dbc90a3499" class="" dir="auto"><code>&lt;str:...&gt;</code>을 쓰는 이유는 ID가 <code>v_9f8e</code>, <code>p_101</code> 같은 <strong>문자열</strong>이기 때문이다. <code>&lt;int:...&gt;</code>가 아니다.</p><p id="e353b6ae-677e-8355-82d4-012d13c027c5" class="" dir="auto"><code>GET /stores/{key}/map</code>과 <code>GET /scenes/{id}</code>가 없다. 전시존과 상품이 <code>POST /enter</code> 응답에 함께 실려 나가고, 맵은 프론트가 그린다.</p><p id="6a33b6ae-677e-82a1-a741-813ff44d3958" class="" dir="auto"><code>/visits/{visit_id}/finish</code>는 경로에 ID가 있지만 <strong>토큰과 일치하는지 서버가 검증</strong>한다. 불일치 시 <code>403</code>.</p><hr id="3af3b6ae-677e-82e2-b98d-81d8dcc8195c" dir="auto"/><h2 id="e0c3b6ae-677e-82c4-9641-01261b2600bb" class="" dir="auto">7. Celery</h2><p id="3523b6ae-677e-8368-baa2-81c97182463f" class="" dir="auto">python</p><pre id="33e3b6ae-677e-83bd-a317-81191d69fc68" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all"># config/celery.py
+app = Celery(&quot;oando&quot;)
+app.config_from_object(&quot;django.conf:settings&quot;, namespace=&quot;CELERY&quot;)
+app.autodiscover_tasks()
+
+app.conf.beat_schedule = {
+    &quot;close-stale-visits&quot;: {
+        &quot;task&quot;: &quot;apps.visits.tasks.close_stale_visits&quot;,
+        &quot;schedule&quot;: crontab(hour=4, minute=0),
+    },
+    &quot;purge-expired&quot;: {
+        &quot;task&quot;: &quot;common.privacy.purge_expired&quot;,
+        &quot;schedule&quot;: crontab(hour=4, minute=30),
+    },
+}
+
+# config/__init__.py
+from .celery import app as celery_app
+__all__ = (&quot;celery_app&quot;,)</code></pre><p id="d903b6ae-677e-8316-a227-813245fb3bbc" class="" dir="auto"><strong>큐를 분리한다.</strong> 챗봇 트래픽과 분석 워커가 서로를 막지 않게 한다.</p><p id="d2a3b6ae-677e-82b8-aa8a-011612180ab4" class="" dir="auto">python</p><pre id="e0b3b6ae-677e-83bd-b99f-819b7574f159" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">CELERY_TASK_ROUTES = {
+    &quot;apps.analysis.tasks.analyze_task&quot;: {&quot;queue&quot;: &quot;analysis&quot;},
+    &quot;apps.visits.tasks.*&quot;:              {&quot;queue&quot;: &quot;batch&quot;},
+}</code></pre><p id="4613b6ae-677e-8341-920c-01f551edcf93" class="" dir="auto"><code>image</code> 큐가 없다. 캐릭터 이미지가 사전 제작 16장이라 생성 태스크 자체가 없다.</p><hr id="84b3b6ae-677e-83da-bd21-01d009613dd6" dir="auto"/><h2 id="2a93b6ae-677e-828b-bb2a-01eed988da71" class="" dir="auto">8. Django 특유의 함정 5개</h2><h3 id="d5e3b6ae-677e-83ac-bdf5-010bc6368968" class="" dir="auto">① <code>VisitScopedManager</code>가 Django 내부를 깨뜨린다</h3><p id="f5e3b6ae-677e-8255-bb4a-816657abb8b8" class="" dir="auto"><code>get_queryset()</code>에서 예외를 던지면 역참조(<code>visit.event_set</code>), <code>dumpdata</code>, 마이그레이션이 전부 터진다. Django 내부가 기본 매니저를 쓰기 때문이다.</p><p id="9b43b6ae-677e-83c4-b2d6-81708d8a220a" class="" dir="auto"><strong>해결: 매니저 정의 순서와 </strong><code><strong>base_manager_name</strong></code></p><p id="bf03b6ae-677e-821c-8893-01e97aad6b9b" class="" dir="auto">python</p><pre id="2023b6ae-677e-822e-9d7b-81ba5668866d" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">class Event(models.Model):
+    all_objects = models.Manager()          # ① 먼저 정의 → _default_manager
+    objects = VisitScopedManager()          # ② 개발자가 실수로 쓰는 이름
+
+    class Meta:
+        base_manager_name = &quot;all_objects&quot;   # 역참조·내부용</code></pre><p id="b423b6ae-677e-823b-ae69-8140d40202e5" class="" dir="auto">첫 번째로 정의된 매니저가 <code>_default_manager</code>가 되므로 Django 내부는 <code>all_objects</code>를 쓰고, 개발자가 무심코 <code>Event.objects.all()</code>을 쓰면 예외가 난다. <strong>이 설정은 반드시 테스트로 확인해야 한다</strong> — Django 버전에 따라 동작이 미묘하게 다르다.</p><h3 id="5333b6ae-677e-8299-b1e3-01e4e5bf0a1e" class="" dir="auto">② <code>admin</code>이라는 이름을 쓰지 않는다</h3><p id="5a83b6ae-677e-8377-b18d-811f6dce6d9b" class="" dir="auto"><code>apps.admin</code>을 만들면 <code>django.contrib.admin</code>과 import 경로가 헷갈리고, <code>INSTALLED_APPS</code>에서 label 충돌이 난다. <code><strong>apps.dashboard</strong></code><strong>로 둔다.</strong></p><p id="b4f3b6ae-677e-830a-a771-01cd5c2f1cde" class="" dir="auto">우리 서비스에는 Django admin 화면이 필요 없으므로 <code>django.contrib.admin</code> 자체를 <code>INSTALLED_APPS</code>에서 빼는 것도 방법이다. 브랜드 대시보드는 우리가 만든 API를 쓰고, 데이터 수정 경로는 없는 게 맞다.</p><h3 id="fef3b6ae-677e-8225-8d55-01c186f1eca8" class="" dir="auto">③ FK는 문자열로 참조한다</h3><p id="7dc3b6ae-677e-83b1-b50a-01187f6a6c68" class="" dir="auto">python</p><pre id="10c3b6ae-677e-837a-8eef-018200b47806" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">visitor = models.ForeignKey(&quot;identity.Visitor&quot;, ...)   # ✓</code></pre><p id="4ca3b6ae-677e-829c-bbe5-816f65901e51" class="" dir="auto">클래스를 직접 import하면 app 간 순환 import가 생긴다. 우리 의존 규칙(&quot;같은 층끼리 import 금지&quot;)을 지키려면 문자열 참조가 필수다.</p><h3 id="5033b6ae-677e-83d7-b039-81d739046f1e" class="" dir="auto">④ SSE는 WSGI에서 안 된다</h3><p id="c3a3b6ae-677e-8281-a9dc-81045b0b49d5" class="" dir="auto"><code>/chat</code> 스트리밍 때문에 <strong>ASGI로 띄워야 한다.</strong></p><p id="bcc3b6ae-677e-83e9-8cd6-01778a53606b" class="" dir="auto">bash</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js" integrity="sha512-whYhDwtTmlC/NpZlCr6PSsAaLOrfjVg/iXAnC4H/dtiHawpShhT2SlIMbpIhT/IL/NrpdMm+Hq2C13+VKpHTYw==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><pre id="82f3b6ae-677e-83a0-b54c-81a0d4abfb23" class="code code-wrap" data-notion-code-syntax="bash"><code class="language-bash" style="white-space:pre-wrap;word-break:break-all">uvicorn config.asgi:application</code></pre><p id="5593b6ae-677e-83be-9c1c-01fda37ffa8d" class="" dir="auto">WSGI(gunicorn 기본)에서는 <code>StreamingHttpResponse</code>가 버퍼링되어 청크가 한 번에 나간다. 개발 서버에서는 되는데 배포하면 안 되는 대표적인 경우다.</p><h3 id="3af3b6ae-677e-8207-a2b6-012f45820b4c" class="" dir="auto">⑤ React에서 <code>EventSource</code>로는 <code>/chat</code>을 못 부른다</h3><p id="3443b6ae-677e-82b9-b2f8-01bbf15b7027" class="" dir="auto"><strong>브라우저 </strong><code><strong>EventSource</strong></code><strong> API는 커스텀 헤더를 실을 수 없다.</strong> <code>X-Visit-Token</code>을 보낼 방법이 없다.</p><p id="7303b6ae-677e-8329-95cf-0109f3fb49b0" class="" dir="auto">javascript</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-jsx.min.js" integrity="sha512-m3JYEI6gx5fh9jF10FjGoMzVKcV2N6nchcDcqPCdI1L3R2WQV7br2XVNR8iTLb2daOMRl3zldbcfT40xU2ntVw==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><pre id="d923b6ae-677e-82c3-ba44-81b1f5a109ff" class="code code-wrap" data-notion-code-syntax="jsx"><code class="language-jsx" style="white-space:pre-wrap;word-break:break-all">// ✗ 헤더를 넣을 수 없다
+new EventSource(&quot;/api/v1/chat&quot;);
+
+// ✗ 토큰이 URL·서버 로그·리퍼러에 남는다
+new EventSource(`/api/v1/chat?token=${token}`);</code></pre><p id="fd33b6ae-677e-83f1-9644-8105c90b224b" class="" dir="auto"><code>fetch</code> + <code>ReadableStream</code>으로 직접 읽어야 한다.</p><p id="73a3b6ae-677e-83a5-bf39-81d34be6a744" class="" dir="auto">javascript</p><pre id="3693b6ae-677e-83e6-90be-81acc6f81ba1" class="code code-wrap" data-notion-code-syntax="jsx"><code class="language-jsx" style="white-space:pre-wrap;word-break:break-all">const res = await fetch(&quot;/api/v1/chat&quot;, {
+  method: &quot;POST&quot;,
+  headers: {
+    &quot;Content-Type&quot;: &quot;application/json&quot;,
+    &quot;X-Visit-Token&quot;: token,          // ← 헤더로 안전하게
+  },
+  body: JSON.stringify({ visit_id, message }),
+});
+
+const reader = res.body.pipeThrough(new TextDecoderStream()).getReader();
+let buffer = &quot;&quot;;
+while (true) {
+  const { value, done } = await reader.read();
+  if (done) break;
+  buffer += value;
+
+  for (const line of buffer.split(&quot;\n\n&quot;)) {
+    if (!line.startsWith(&quot;data: &quot;)) continue;
+    const payload = JSON.parse(line.slice(6));
+    if (payload.delta) appendToUI(payload.delta);
+    if (payload.error) showError(payload.error);
+    if (payload.done)  finish(payload.message_id);
+  }
+  buffer = buffer.slice(buffer.lastIndexOf(&quot;\n\n&quot;) + 2);
+}</code></pre><p id="cdb3b6ae-677e-831c-b38f-81deb28ddf6c" class="" dir="auto"><strong>서버 구현에는 영향이 없다.</strong> SSE 포맷(<code>data: {...}\n\n</code>)을 그대로 내보내면 되고, 클라이언트가 <code>EventSource</code> 대신 수동 파싱을 할 뿐이다.</p><p id="88b3b6ae-677e-8281-950c-015d48c9a946" class="" dir="auto"><code>/chat</code>이 <code>POST</code>인 것도 이 결정과 맞물린다. <code>EventSource</code>는 <code>GET</code>만 지원하므로 애초에 쓸 수 없는 설계다.</p><hr id="8d13b6ae-677e-8208-a852-813b072591ef" dir="auto"/><h2 id="3803b6ae-677e-828c-b510-017e29130b8f" class="" dir="auto">9. 초기 세팅 순서</h2><p id="6003b6ae-677e-82af-9bd9-0194728b6b95" class="" dir="auto">bash</p><pre id="1a33b6ae-677e-839e-8a69-01d3a70e43b4" class="code code-wrap" data-notion-code-syntax="bash"><code class="language-bash" style="white-space:pre-wrap;word-break:break-all">django-admin startproject config .
+mkdir -p apps api/v1 common
+
+# 도메인 app — 의존 순서대로 만든다
+python manage.py startapp visits    apps/visits
+python manage.py startapp catalog   apps/catalog
+python manage.py startapp events    apps/events
+python manage.py startapp chat      apps/chat
+python manage.py startapp analysis  apps/analysis
+python manage.py startapp dashboard apps/dashboard</code></pre><p id="8a03b6ae-677e-838d-a5ef-0123fa199a72" class="" dir="auto"><code>catalog</code> app은 만들되 <strong>맵 관련 필드는 넣지 않는다.</strong> 프론트가 도면을 소유하므로 서버 모델에 좌표가 없다.</p><p id="6663b6ae-677e-834f-be80-0182ba011c04" class="" dir="auto">각 app의 <code>apps.py</code>에서 <code>name</code>을 고쳐야 한다.</p><p id="5723b6ae-677e-8350-a81f-018e08568552" class="" dir="auto">python</p><pre id="2ef3b6ae-677e-834f-a558-81fc5d102ad8" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">class IdentityConfig(AppConfig):
+    name = &quot;apps.identity&quot;        # &quot;identity&quot; 아님</code></pre><p id="68e3b6ae-677e-827b-a188-81f5678df0fb" class="" dir="auto">마이그레이션도 의존 순서대로 만든다.</p><p id="0b43b6ae-677e-8216-ad4d-81fa3a0282e5" class="" dir="auto">bash</p><pre id="f493b6ae-677e-825f-b88e-01e54901ec56" class="code code-wrap" data-notion-code-syntax="bash"><code class="language-bash" style="white-space:pre-wrap;word-break:break-all">python manage.py makemigrations catalog
+python manage.py makemigrations visits          # catalog 참조
+python manage.py makemigrations events chat     # visits 참조
+python manage.py makemigrations analysis        # visits 참조 + Character(16행)
+python manage.py migrate
+python manage.py loaddata demo                  # 전시존·상품·preset_answers</code></pre><hr id="e163b6ae-677e-8234-a2a5-8147f02439ba" dir="auto"/><h2 id="96f3b6ae-677e-839e-83c5-012d1d0680fb" class="" dir="auto">10. 테스트 배치</h2><pre id="f783b6ae-677e-8379-9d97-013ddc493581" class="code code-wrap"><code style="white-space:pre-wrap;word-break:break-all">apps/visits/tests/
+  test_services.py       start / authenticate / close
+  test_tasks.py          close_stale_visits
+api/v1/tests/
+  test_enter.py          엔드포인트 통합
+  test_finish_order.py   이벤트 저장 → 종료 → 큐 순서</code></pre><p id="8583b6ae-677e-821c-bd05-816341842e29" class="" dir="auto"><strong>모듈 단위 테스트는 app 안에, 엔드포인트 통합 테스트는 </strong><code><strong>api/</strong></code><strong> 안에</strong> 둔다. 모듈 테스트에 HTTP가 끼면 각 모듈을 독립적으로 자른 의미가 없어진다.</p><p id="2c83b6ae-677e-8218-97b6-81f295f255af" class="" dir="auto"><code>conftest.py</code>에 공용 픽스처를 둔다.</p><p id="4493b6ae-677e-836e-b6e1-015986cb0fee" class="" dir="auto">python</p><pre id="a693b6ae-677e-8378-8408-01bb75fa7692" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">@pytest.fixture
+def visit(visitor, store):
+    v, _ = visits.start(visitor, store)
+    return v
+
+@pytest.fixture
+def auth_headers(visit):
+    return {&quot;HTTP_X_VISIT_TOKEN&quot;: visit.token}</code></pre><hr id="5543b6ae-677e-83ac-932e-8107faa7e79c" dir="auto"/><h2 id="4fb3b6ae-677e-83bd-bf32-01a4a9e50c87" class="" dir="auto">11. 환경 변수</h2><p id="d7d3b6ae-677e-8228-8aef-01271db5e4ec" class="" dir="auto">bash</p><pre id="0883b6ae-677e-834e-a371-816cc50c97ba" class="code code-wrap" data-notion-code-syntax="bash"><code class="language-bash" style="white-space:pre-wrap;word-break:break-all"># .env.example
+DJANGO_SETTINGS_MODULE=config.settings.local
+SECRET_KEY=
+DATABASE_URL=postgres://...
+REDIS_URL=redis://localhost:6379/0
+
+OPENAI_API_KEY=              # 서버에만 존재. 클라이언트에 절대 노출 금지
+ADMIN_JWT_SECRET=            # 브랜드 관리자 인증용</code></pre><p id="2c13b6ae-677e-823a-a4ad-81ad6edd2eb5" class="" dir="auto"><code>OPENAI_API_KEY</code>가 클라이언트로 새면 과금이 폭발한다. <code>common/llm.py</code> 밖에서는 읽지 않는다.</p></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

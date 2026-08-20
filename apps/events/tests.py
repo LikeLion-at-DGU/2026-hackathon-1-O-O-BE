@@ -155,10 +155,19 @@ class AppendBatchTest(TestCase):
         event = parsed(EventType.PRODUCT_VIEW, product_id="p_401")
         self.assertEqual(append_batch(self.visit, [event, dict(event)])["accepted"], 1)
 
-    def test_없는_상품을_가리키면_거부한다(self):
-        """조용히 버리면 분석 수치가 눈에 안 보이게 틀어진다."""
-        with self.assertRaises(ValidationError):
-            append_batch(self.visit, [parsed(EventType.PRODUCT_VIEW, product_id="p_999")])
+    def test_없는_상품을_가리키면_그_건만_거부한다(self):
+        """배치 전체를 400으로 거부하면 프론트가 큐를 통째로 비워, 잘못된 id 하나가
+        정상 이벤트까지 전부 날린다. 해당 건만 rejected로 세고 나머지는 살린다."""
+        result = append_batch(
+            self.visit,
+            [
+                parsed(EventType.PRODUCT_VIEW, product_id="p_999"),
+                parsed(EventType.PRODUCT_VIEW, product_id="p_401"),
+            ],
+        )
+        self.assertEqual(result["rejected"], 1)
+        self.assertEqual(result["accepted"], 1)
+        self.assertFalse(self.visit.events.filter(product_id="p_999").exists())
 
     def test_체류시간_상한을_넘으면_자른다(self):
         """탭을 백그라운드에 두면 30분이 찍힌다. 검증 없이 믿으면 프로필이 한 상품에 끌려간다."""
