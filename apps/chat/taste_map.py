@@ -129,8 +129,35 @@ def _split(text: str) -> list[str]:
 
 
 def _match(clause: str) -> list[tuple[str, str]]:
-    found = [pair for word, pairs in VOCABULARY.items() if word in clause for pair in pairs]
-    found += [("color", value) for word, value in COLOR_WORDS.items() if word in clause]
+    """겹치는 매칭은 먼저 잡힌 쪽만 남긴다.
+
+    부분문자열로 찾으므로 손님이 쓴 한 낱말 안에서 두 어휘가 겹칠 수 있다.
+    "검은색"은 "검은"(블랙, 0~2)과 "은색"(메탈릭, 1~3)이 한 글자를 공유해 둘 다
+    잡혔고, "검은색 말고"가 메탈릭 상품까지 비선호로 밀어냈다.
+
+    사전 어휘끼리의 충돌이 아니라 손님의 말 안에서 생기므로 목록만 훑어서는 보이지
+    않는다. 어휘를 지우는 대신 규칙으로 막는 이유는, "은색"을 빼면 "은색 가방"을
+    못 알아듣고 어휘가 늘 때마다 같은 종류가 다시 생기기 때문이다.
+    """
+    spans: list[tuple[int, int, list[tuple[str, str]]]] = []
+    for word, pairs in VOCABULARY.items():
+        start = clause.find(word)
+        if start >= 0:
+            spans.append((start, start + len(word), pairs))
+    for word, value in COLOR_WORDS.items():
+        start = clause.find(word)
+        if start >= 0:
+            spans.append((start, start + len(word), [("color", value)]))
+
+    found: list[tuple[str, str]] = []
+    taken: list[tuple[int, int]] = []
+    # 이르게 시작하고 긴 것부터 본다. 한 어휘가 여러 축을 짚는 경우("오래 쓸")는
+    # 같은 구간이므로 그 축들이 함께 살아남는다.
+    for start, end, pairs in sorted(spans, key=lambda span: (span[0], -(span[1] - span[0]))):
+        if any(start < taken_end and taken_start < end for taken_start, taken_end in taken):
+            continue
+        taken.append((start, end))
+        found += pairs
     return found
 
 

@@ -43,9 +43,24 @@ Django가 `sync_to_async(list)`로 전부 소비한 뒤 내보낸다(응답은 2
 python manage.py createsuperuser   # 브랜드 관리자 계정 (username에 이메일을 넣는다)
 ```
 
-상품·전시존은 `/django-admin/`에서 입력·검수한다. 상품 1개당 8개 분류 축
-(`category` `color` `material` `pattern` `silhouette` `mood` `price_band` `use_case`)을
-반드시 채워야 취향 분석이 동작한다. 값 목록은 `apps/catalog/models.py`의 TextChoices가 진실.
+상품·전시존은 fixture로 적재한다.
+
+```bash
+python manage.py seed_demo          # apps/catalog/fixtures/demo.json → DB
+```
+
+`demo.json`은 크롤링 CSV에서 생성한다. 직접 고치지 말고 CSV를 고친 뒤 다시 돌린다.
+
+```
+tools/mcm_crawler.py  →  mcm_60.csv  →  import_products_csv  →  demo.json  →  seed_demo  →  DB
+```
+
+수집 도구는 `tools/`에 있다(`tools/README.md` 참고). **CSV는 저장소에 없다** —
+서버 실행에 필요한 것은 커밋된 `demo.json`뿐이라, 크롤링을 다시 돌릴 때만 쓴다.
+
+상품 1개당 8개 분류 축(`category` `color` `material` `pattern` `silhouette` `mood`
+`price_band` `use_case`)을 반드시 채워야 취향 분석이 동작한다. 값 목록은
+`apps/catalog/models.py`의 TextChoices가 진실.
 
 ## 구조
 

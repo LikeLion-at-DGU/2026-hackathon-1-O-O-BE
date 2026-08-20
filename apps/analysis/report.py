@@ -36,10 +36,20 @@ def build_payload(
         "recommendations": [_card(item, vector) for item in recommendations],
         "interested": _interested(signals, interest, facts_by_id),
         "confidence": confidence,
+        # 진열대별 체류. 프론트가 이 값을 못 받아 표시 문구("체류 12초")를 정규식으로
+        # 되파싱하고 product_id에서 진열대 번호를 뽑아 쓰고 있었다. 문구를 바꾸면
+        # 화면이 조용히 0이 되는 결합이라, 기계가 읽을 값을 따로 준다.
+        "scenes": [
+            {"scene_no": scene.scene_no, "scene_name": scene.scene_name, "dwell_ms": scene.dwell_ms}
+            for scene in signals.scenes
+        ],
         "visit_summary": {
             "scenes_viewed": signals.scenes_viewed,
             "products_viewed": len(signals.products),
             "questions": signals.questions,
+            # 진열대 체류 + 상품 체류의 합. signals.total_dwell_ms(상품만)와 다른 값이다 —
+            # 그쪽은 confidence 계산용이고, 이건 손님에게 보여줄 "관람 시간"이다.
+            "total_dwell_ms": sum(scene.dwell_ms for scene in signals.scenes),
         },
     }
 
@@ -108,6 +118,10 @@ def _interested(
                 "thumbnail": facts.thumbnail,
                 "price": facts.price,
                 "external_url": facts.external_url,
+                "scene_no": facts.scene_no,
+                "dwell_ms": signal.dwell_ms,
+                # reason은 사람이 읽는 문구다. 위 두 값이 있어야 화면이 문구를
+                # 파싱하지 않고도 진열대별 집계를 만들 수 있다.
                 "reason": _interest_reason(signal),
             }
         )

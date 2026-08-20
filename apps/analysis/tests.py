@@ -6,9 +6,15 @@
 
 from django.test import SimpleTestCase
 
-from apps.analysis import pipeline, scoring
+from apps.analysis import pipeline, report, scoring
 from apps.analysis.insight import Insight
-from apps.analysis.signals import ProductFacts, ProductSignal, VisitSignals
+from apps.analysis.signals import (
+    ProductFacts,
+    ProductSignal,
+    SceneSignal,
+    ScoredProduct,
+    VisitSignals,
+)
 
 AXES = {
     "category": "backpack",
@@ -63,9 +69,7 @@ class ConfidenceTest(SimpleTestCase):
 
     def test_신호가_충분하면_1로_수렴한다(self):
         signals = VisitSignals(
-            products=tuple(
-                ProductSignal(f"p_{index}", views=2, dwell_ms=60_000) for index in range(8)
-            ),
+            products=tuple(ProductSignal(f"p_{index}", views=2, dwell_ms=60_000) for index in range(8)),
             questions=3,
         )
 
@@ -121,3 +125,44 @@ class ScoringTest(SimpleTestCase):
         scored = pipeline.score_products({}, catalog, frozenset())
 
         self.assertEqual(len(scored), 2)
+
+
+class ReportPayloadTest(SimpleTestCase):
+    """화면이 표시 문구를 파싱하지 않아도 되게, 기계가 읽을 값을 함께 준다."""
+
+    def payload(self) -> dict:
+        signals = VisitSignals(
+            products=(ProductSignal("p_1", views=2, dwell_ms=40_000),),
+            scenes=(
+                SceneSignal(scene_no=1, scene_name="토트백", dwell_ms=60_000),
+                SceneSignal(scene_no=2, scene_name="백팩", dwell_ms=15_000),
+            ),
+            scenes_viewed=2,
+            questions=1,
+        )
+        facts = make_facts("p_1")
+        return report.build_payload(
+            signals=signals,
+            interest={"p_1": 1.0},
+            vector={},
+            confidence=0.5,
+            scored=[ScoredProduct(facts=facts, score=1.0, is_viewed=True)],
+            insight=None,
+        )
+
+    def test_진열대별_체류를_체류가_긴_순서로_준다(self):
+        scenes = self.payload()["scenes"]
+        self.assertEqual([scene["scene_no"] for scene in scenes], [1, 2])
+        self.assertEqual(scenes[0]["scene_name"], "토트백")
+
+    def test_총_체류는_진열대_합계와_같다(self):
+        payload = self.payload()
+        total = sum(scene["dwell_ms"] for scene in payload["scenes"])
+        self.assertEqual(payload["visit_summary"]["total_dwell_ms"], total)
+
+    def test_관심_상품에_수치를_함께_준다(self):
+        """reason은 사람이 읽는 문구다. 문구를 바꿔도 화면이 안 깨져야 한다."""
+        card = self.payload()["interested"][0]
+        self.assertEqual(card["dwell_ms"], 40_000)
+        self.assertEqual(card["scene_no"], 1)
+        self.assertIn("체류", card["reason"])
