@@ -1,0 +1,955 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>디비 정리</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+/* Override strong tags inside headings to maintain consistent weight */
+h1 strong,
+h2 strong,
+h3 strong {
+	font-weight: 600;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 10px;
+	padding: 1rem;
+}
+
+/* For default-background callouts, render the border outline. */
+.callout.block-color-default_background {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+/*
+ * Toggles and callouts hold arbitrary content, so they can easily be taller
+ * than a page. They must stay breakable: avoiding breaks inside them makes
+ * Chromium push the whole block onto the next page, which leaves the previous
+ * page mostly empty before every long toggle.
+ */
+details,
+aside {
+	margin: 1.25em 0;
+}
+
+/* Keep a toggle's title on the same page as the start of its content. */
+summary {
+	page-break-after: avoid;
+	break-after: avoid;
+}
+
+/*
+ * Toggle headings render as <h1/h2/h3 style="display:inline-block"> inside
+ * <summary>. Without this reset, the heading's margin-top pushes it below the
+ * ::marker (▼), so the triangle and the title appear on separate lines.
+ */
+summary h1,
+summary h2,
+summary h3,
+summary h4 {
+	margin-top: 0;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+
+	table.collection-content {
+		width: 100%;
+		table-layout: fixed;
+	}
+
+	table.collection-content th,
+	table.collection-content td {
+		overflow-wrap: anywhere;
+	}
+
+	table.collection-content td > .user,
+	table.collection-content td > time {
+		white-space: pre-wrap;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content-wrapper {
+	overflow-x: auto;
+}
+
+@media only print {
+	.collection-content-wrapper {
+		overflow-x: visible;
+	}
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.collection-content td {
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.column-list {
+	display: flex;
+	gap: 46px;
+}
+
+.column {
+	min-width: 0;
+	overflow: hidden;
+}
+
+.column > *:first-child {
+	margin-top: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding-inline: 0.125rem;
+	padding-block: 0.375rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+table {
+	border-collapse: collapse;
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol.numbered-list.numbered-list-digits-2 {
+	padding-inline-start: 2em;
+}
+
+ol.numbered-list.numbered-list-digits-3plus {
+	padding-inline-start: 2.4em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+/*
+ * Render emoji icons using a ::before pseudo-element to keep the glyph
+ * out of the DOM textContent traversal. This avoids double-rendering icons
+ * in callouts and page titles.
+ * NOTE(slim/html-export-pseudo-icons): I can't tagref this because it will
+ * flag as a duplicate tag after codegen.
+ */
+.icon[data-emoji]::before {
+	content: attr(data-emoji);
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.callout img.notion-static-icon {
+	width: 1em;
+	height: 1em;
+}
+
+.callout p {
+	margin: 0;
+}
+
+.callout h1,
+.callout h2,
+.callout h3 {
+	margin: 0 0 0.6rem;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	margin-right: 0.4em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+blockquote.quote-large {
+	font-size: 1.25em;
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.tab {
+	margin: 1.25em 0;
+	padding-inline: 1rem;
+	border: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.highlight-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.highlight-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.highlight-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.highlight-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.highlight-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.highlight-default_background {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray_background {
+	background: rgba(42, 28, 0, 0.07);
+}
+.highlight-brown_background {
+	background: rgba(139, 46, 0, 0.086);
+}
+.highlight-orange_background {
+	background: rgba(224, 101, 1, 0.129);
+}
+.highlight-yellow_background {
+	background: rgba(211, 168, 0, 0.137);
+}
+.highlight-teal_background {
+	background: rgba(0, 100, 45, 0.09);
+}
+.highlight-blue_background {
+	background: rgba(0, 124, 215, 0.094);
+}
+.highlight-purple_background {
+	background: rgba(102, 0, 178, 0.078);
+}
+.highlight-pink_background {
+	background: rgba(197, 0, 93, 0.086);
+}
+.highlight-red_background {
+	background: rgba(223, 22, 0, 0.094);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.block-color-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.block-color-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.block-color-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.block-color-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.block-color-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(240, 239, 237, 1);
+}
+.block-color-brown_background {
+	background: rgba(245, 237, 233, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 235, 222, 1);
+}
+.block-color-yellow_background {
+	background: rgba(249, 243, 220, 1);
+}
+.block-color-teal_background {
+	background: rgba(232, 241, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(229, 242, 252, 1);
+}
+.block-color-purple_background {
+	background: rgba(243, 235, 249, 1);
+}
+.block-color-pink_background {
+	background: rgba(250, 233, 241, 1);
+}
+.block-color-red_background {
+	background: rgba(252, 233, 231, 1);
+}
+.select-value-color-default { background-color: rgba(42, 28, 0, 0.07); }
+.select-value-color-gray { background-color: rgba(28, 19, 1, 0.11); }
+.select-value-color-brown { background-color: rgba(127, 51, 0, 0.156); }
+.select-value-color-orange { background-color: rgba(196, 88, 0, 0.203); }
+.select-value-color-yellow { background-color: rgba(209, 156, 0, 0.282); }
+.select-value-color-green { background-color: rgba(0, 96, 38, 0.156); }
+.select-value-color-blue { background-color: rgba(0, 118, 217, 0.203); }
+.select-value-color-purple { background-color: rgba(92, 0, 163, 0.141); }
+.select-value-color-pink { background-color: rgba(183, 0, 78, 0.152); }
+.select-value-color-red { background-color: rgba(206, 24, 0, 0.164); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style><style>@import url('https://cdn.jsdelivr.net/npm/katex@0.16.25/dist/katex-swap.min.css')</style></head><body><article id="b933b6ae-677e-83d7-af33-81b6335b32e3" class="page sans"><header><h1 class="page-title" dir="auto">디비 정리</h1><p class="page-description" dir="auto"></p></header><div class="page-body"><h1 id="c7d3b6ae-677e-8281-b857-818a2f17335f" class="" dir="auto">DB 설계</h1><blockquote id="10f3b6ae-677e-832d-9b25-01d4c0efb4aa" class="" dir="auto">모듈 문서에 흩어진 모델을 한 곳에 모은 것.<br/>핵심 질문 하나를 먼저 정리한다 — <strong>채팅 기록을 사용자에 매달까, 방문에 매달까.</strong></blockquote><hr id="1c63b6ae-677e-822b-934e-012b8bae3def" dir="auto"/><h2 id="c6e3b6ae-677e-835f-8ecb-017740e92b28" class="" dir="auto">1. 채팅 기록은 <code>visit</code>에 매단다</h2><p id="2bf3b6ae-677e-835e-b507-010e4d25ba6d" class="" dir="auto">결론부터: <code><strong>ChatLog.visit</strong></code><strong> FK 하나면 사용자별 조회도 된다.</strong> <code>visitor</code>를 중복 저장하지 않는다.</p><p id="1b93b6ae-677e-839d-9a75-81a6dfb8b90d" class="" dir="auto">python</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js" integrity="sha512-AKaNmg8COK0zEbjTdMHJAPJ0z6VeNqvRvH4/d5M4sHJbQQUToMBtodq4HaV4fa+WV2UTfoperElm66c9/8cKmQ==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><pre id="3ea3b6ae-677e-82c3-a10e-0101e2fdcb12" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">class ChatLog(models.Model):
+    visit = models.ForeignKey(&quot;visits.Visit&quot;, on_delete=models.CASCADE)
+    # visitor FK 없음</code></pre><h3 id="5833b6ae-677e-8257-9b47-81a951bf816f" class="" dir="auto">왜 <code>visit</code>인가</h3><p id="9173b6ae-677e-8347-b1d4-815a645ca58b" class="" dir="auto"><strong>대화의 맥락 단위가 방문이다.</strong> 오늘 &quot;이 백팩 소재 뭐야?&quot;라고 물은 것과 3개월 전 다른 매장에서 물은 것은 이어지는 대화가 아니다. 챗봇 히스토리를 <code>visitor</code>로 가져오면 몇 달 전 대화가 프롬프트에 섞인다.</p><p id="a6c3b6ae-677e-8285-8b55-811ffe667946" class="" dir="auto">그리고 <code>visit</code>이 이미 <code>visitor</code>를 가리키므로 <strong>사용자 단위 조회가 그대로 된다.</strong></p><p id="ec03b6ae-677e-8254-bc80-815c43f0c7e3" class="" dir="auto">python</p><pre id="bca3b6ae-677e-8235-926f-81520cfb3f25" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all"># 이번 방문의 대화 — 챗봇 프롬프트용
+ChatLog.objects.for_visit(visit)
+
+# 이 사용자의 전 대화 — 재방문자 분석용
+ChatLog.all_objects.filter(visit__visitor=visitor)
+
+# 이 사용자의 직전 방문 대화
+ChatLog.all_objects.filter(
+    visit=Visit.objects.filter(visitor=visitor).order_by(&quot;-entered_at&quot;)[1]
+)</code></pre><p id="e8f3b6ae-677e-828d-80b4-818625929427" class="" dir="auto">JOIN 한 번이 추가되지만 <code>visits(visitor)</code> 인덱스가 있어 비용이 없다시피 하다.</p><h3 id="20f3b6ae-677e-82a8-9628-01166a152b1b" class="" dir="auto"><code>visitor</code> FK를 중복으로 넣으면 안 되는 이유</h3><p id="0243b6ae-677e-82f0-acae-815a900f5199" class="" dir="auto">python</p><pre id="a693b6ae-677e-8217-a65e-01cec7cd3371" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all"># ✗ 이렇게 하지 않는다
+class ChatLog(models.Model):
+    visit = models.ForeignKey(Visit, ...)
+    visitor = models.ForeignKey(Visitor, ...)     # 중복</code></pre><p id="0783b6ae-677e-83f9-8a00-8175ec9d650c" class="" dir="auto">두 값이 어긋날 수 있고(<code>visit.visitor != chatlog.visitor</code>), 무엇보다 <strong>보존기간 정책이 깨진다.</strong> <code>privacy.purge_expired()</code>가 오래된 이벤트를 <code>visit=None</code>으로 익명화할 때, <code>visitor</code> FK가 따로 남아 있으면 익명화가 무의미해진다.</p><h3 id="92d3b6ae-677e-8338-bc0f-019b8b0677df" class="" dir="auto">다만 <code>taste_profiles</code>는 <code>visitor</code>에 매단다</h3><p id="1323b6ae-677e-831d-a5f0-816666d7ce47" class="" dir="auto">취향은 방문 단위가 아니라 사람 단위로 누적되어야 한다. 리포트의 <code>visit_summary.change_from_last</code>(&quot;지난 방문보다 레더 관심이 늘었어요&quot;)가 이걸 필요로 한다.</p><pre id="a3f3b6ae-677e-82c0-9bb4-81a9e4219f19" class="code code-wrap"><code style="white-space:pre-wrap;word-break:break-all">ChatLog       → visit    (그때 그 대화)
+Event         → visit    (그때 그 행동)
+Report        → visit    (그때 그 결과, 박제)
+TasteProfile  → visitor  (누적되는 취향)</code></pre><hr id="5de3b6ae-677e-83c1-88e9-0141a5bb1496" dir="auto"/><h2 id="f953b6ae-677e-823a-a41b-81df6ecc5748" class="" dir="auto">2. DB는 PostgreSQL</h2><table id="34e3b6ae-677e-8352-8c9e-813453b0611b" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="3fe3b6ae-677e-8227-8f3b-018e19bf7180" dir="ltr"><th id="Xpkv" class="simple-table-header-color simple-table-header"></th><th id="Xgrz" class="simple-table-header-color simple-table-header">PostgreSQL</th><th id="hdfb" class="simple-table-header-color simple-table-header">SQLite</th></tr></thead><tbody><tr id="0a83b6ae-677e-823b-b419-0188561355df" dir="ltr"><td id="Xpkv" class="">JSONField 인덱스</td><td id="Xgrz" class="">GIN 인덱스 지원</td><td id="hdfb" class="">없음</td></tr><tr id="8223b6ae-677e-8251-bae8-812d2c5aa4fa" dir="ltr"><td id="Xpkv" class="">동시 쓰기</td><td id="Xgrz" class="">행 단위 락</td><td id="hdfb" class=""><strong>DB 전체 락</strong></td></tr><tr id="e533b6ae-677e-8381-8cac-018054767ea1" dir="ltr"><td id="Xpkv" class=""><code>bulk_create(ignore_conflicts)</code></td><td id="Xgrz" class="">정상</td><td id="hdfb" class="">정상</td></tr><tr id="6ec3b6ae-677e-83c6-bdd6-81f7b7b7463c" dir="ltr"><td id="Xpkv" class="">집계 쿼리</td><td id="Xgrz" class="">빠름</td><td id="hdfb" class="">느림</td></tr></tbody></table><p id="c923b6ae-677e-8246-b32f-817b2ca7b7f3" class="" dir="auto"><strong>SQLite를 쓰면 안 되는 결정적 이유는 워커다.</strong> Celery 워커가 리포트를 쓰는 동안 웹 요청이 이벤트를 저장하려 하면 DB 전체가 잠긴다. 방문자 여러 명이 동시에 챗봇을 쓰는 순간 타임아웃이 난다.</p><p id="09c3b6ae-677e-8335-a726-819699561277" class="" dir="auto">로컬 개발도 Postgres로 통일하는 게 낫다. JSONField 동작이 달라서 로컬에서만 되는 코드가 나온다.</p><hr id="9e73b6ae-677e-830f-80cf-814227b1247b" dir="auto"/><h2 id="e8e3b6ae-677e-82fc-8cff-011fb7b1feca" class="" dir="auto">3. 전체 구조</h2><pre id="4773b6ae-677e-8231-9f11-0135a3903d5c" class="code code-wrap"><code style="white-space:pre-wrap;word-break:break-all">Visitor (users)
+   │ 1
+   ├──────────────┐
+   │ N            │ 1
+  Visit          TasteProfile
+   │
+   ├── N ─→ Event      (append-only)
+   ├── N ─→ ChatLog    (append-only)
+   └── 1 ─→ Report
+
+Brand
+   │ N
+  Store ──┐
+   │ N    └─ N ─→ Visit
+  Scene
+   │ N
+  Product</code></pre><hr id="3493b6ae-677e-834b-ab66-018b017c43e5" dir="auto"/><h2 id="45d3b6ae-677e-82ca-b209-818b0d5222ab" class="" dir="auto">4. 테이블 정의</h2><h3 id="18e3b6ae-677e-820e-97a0-811f7a7fa7e7" class="" dir="auto"><code>users</code> — 익명 방문자</h3><p id="9b33b6ae-677e-8209-8076-81721bdad724" class="" dir="auto">python</p><pre id="3923b6ae-677e-83f6-a29c-0119c482258d" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">class Visitor(models.Model):
+    id = models.CharField(max_length=32, primary_key=True,
+                          default=lambda: gen_id(&quot;u&quot;))     # u_a1b2c3
+    anonymous_uuid = models.UUIDField(unique=True, db_index=True, default=uuid4)
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_seen_at = models.DateTimeField(auto_now=True)</code></pre><p id="48c3b6ae-677e-82e1-afe0-015079c274ff" class="" dir="auto"><code>created_at</code>이 신규/재방문 코호트의 기준이다.</p><h3 id="f553b6ae-677e-8341-b78b-817c833b3e60" class="" dir="auto"><code>visits</code> — 방문 세션</h3><p id="64b3b6ae-677e-8298-a75f-014849dfed05" class="" dir="auto">python</p><pre id="da23b6ae-677e-8282-8cb7-012cc900c7f4" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">class Visit(models.Model):
+    id = models.CharField(max_length=32, primary_key=True,
+                          default=lambda: gen_id(&quot;v&quot;))     # v_9f8e...
+    visitor = models.ForeignKey(Visitor, on_delete=models.CASCADE)
+    store = models.ForeignKey(&quot;stores.Store&quot;, on_delete=models.PROTECT)
+    token = models.CharField(max_length=43, unique=True, db_index=True,
+                             default=lambda: secrets.token_urlsafe(32))
+    entry_point = models.ForeignKey(&quot;stores.EntryPoint&quot;, null=True,
+                                    on_delete=models.SET_NULL)
+    entered_at = models.DateTimeField(auto_now_add=True)
+    exited_at = models.DateTimeField(null=True)
+    is_auto_closed = models.BooleanField(default=False)
+    is_verified = models.BooleanField(default=False)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=[&quot;visitor&quot;, &quot;store&quot;, &quot;exited_at&quot;]),   # start()
+            models.Index(fields=[&quot;store&quot;, &quot;entered_at&quot;]),             # 대시보드
+        ]</code></pre><p id="c653b6ae-677e-8353-8006-019bae873ef7" class="" dir="auto"><code>entry_point</code>는 지금 항상 <code>NULL</code>이다. 채널 구분이 필요해질 때를 위한 자리만 열어둔다.</p><h3 id="fd93b6ae-677e-82d9-8fa1-8158da385186" class="" dir="auto"><code>stores</code> / <code>scenes</code> / <code>products</code></h3><p id="2833b6ae-677e-8389-90f1-01731dec3600" class="" dir="auto">python</p><pre id="ffb3b6ae-677e-8372-9eeb-012ab6923190" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">class Brand(models.Model):
+    name = models.CharField(max_length=100)
+
+
+class Store(models.Model):
+    id = models.CharField(max_length=32, primary_key=True,
+                          default=lambda: gen_id(&quot;s&quot;))
+    brand = models.ForeignKey(Brand, on_delete=models.PROTECT)
+    store_key = models.SlugField(unique=True)           # QR에 담기는 값
+    name = models.CharField(max_length=100)
+    is_active = models.BooleanField(default=True)
+    map_width = models.IntegerField(default=720)
+    map_height = models.IntegerField(default=600)
+    map_image = models.URLField(null=True)
+    entrance_x = models.IntegerField(default=0)
+    entrance_y = models.IntegerField(default=0)
+    allowed_ip_set = models.JSONField(default=list)     # 매장 내 판정용 (미사용)
+
+
+class Scene(models.Model):
+    id = models.CharField(max_length=32, primary_key=True,
+                          default=lambda: gen_id(&quot;sc&quot;))
+    store = models.ForeignKey(Store, on_delete=models.CASCADE)
+    code = models.SlugField()                  # scene_1, scene_2 ...
+    label = models.CharField(max_length=8)     # 지도에 찍히는 &quot;1&quot;
+    name = models.CharField(max_length=100)
+    order = models.IntegerField()
+    shape = models.CharField(max_length=10, default=&quot;rect&quot;)
+    points = models.JSONField()                # [{&quot;x&quot;:40,&quot;y&quot;:40},{&quot;x&quot;:110,&quot;y&quot;:520}]
+    radius = models.IntegerField(null=True)
+
+    class Meta:
+        unique_together = [(&quot;store&quot;, &quot;code&quot;)]
+        ordering = [&quot;order&quot;]
+
+
+class Product(models.Model):
+    id = models.CharField(max_length=32, primary_key=True,
+                          default=lambda: gen_id(&quot;p&quot;))
+    scene = models.ForeignKey(Scene, on_delete=models.CASCADE)
+    name = models.CharField(max_length=200)
+    price = models.IntegerField()
+    price_tier = models.CharField(max_length=16)
+    content = models.TextField()
+    image_set = models.JSONField(default=list)
+    size_set = models.JSONField(default=list)
+    features = models.JSONField(default=dict)     # {&quot;color&quot;:&quot;black&quot;,&quot;material&quot;:&quot;leather&quot;}
+    llm_context = models.TextField()              # 챗봇 프롬프트용 요약
+    released_at = models.DateField()              # 신상품 가중치 10%</code></pre><p id="9913b6ae-677e-82f1-a284-81787f4e1c38" class="" dir="auto"><code><strong>features</strong></code><strong>가 취향 벡터의 재료다.</strong> 색상·소재·실루엣·가격대를 여기에 넣고, 스코어링에서 코사인 유사도를 계산한다.</p><p id="8be3b6ae-677e-833f-a8a0-01ecf3953bda" class="" dir="auto"><code><strong>llm_context</strong></code><strong>에 재고·할인을 넣지 않는다.</strong> 모델이 모르는 정보는 지어낼 재료조차 없다. 프롬프트 지시보다 데이터로 막는 게 강하다.</p><h3 id="be73b6ae-677e-8383-92e7-01437dfce66b" class="" dir="auto"><code>events</code> — 가장 큰 테이블</h3><p id="1053b6ae-677e-8302-a890-81d796234fad" class="" dir="auto">python</p><pre id="e9e3b6ae-677e-82d1-a518-810715975e7c" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">class Event(models.Model):
+    all_objects = models.Manager()              # Django 내부용 (먼저 정의)
+    objects = VisitScopedManager()
+
+    event_id = models.CharField(max_length=64, unique=True)   # 클라 생성, 멱등 키
+    visit = models.ForeignKey(Visit, null=True, on_delete=models.CASCADE)
+    event_type = models.CharField(max_length=32)
+    scene_id = models.CharField(max_length=32, null=True)
+    product_id = models.CharField(max_length=32, null=True)
+    client_timestamp = models.DateTimeField()
+    server_received_at = models.DateTimeField()
+    metadata = models.JSONField(default=dict)   # dwell_ms, source, device
+
+    class Meta:
+        base_manager_name = &quot;all_objects&quot;
+        indexes = [
+            models.Index(fields=[&quot;visit&quot;, &quot;client_timestamp&quot;]),   # 워커
+            models.Index(fields=[&quot;product_id&quot;, &quot;event_type&quot;]),    # /admin/products
+            models.Index(fields=[&quot;scene_id&quot;, &quot;event_type&quot;]),      # /admin/scenes
+        ]</code></pre><p id="f5e3b6ae-677e-828c-a87e-817e2294c93a" class="" dir="auto"><code>visit</code>이 <code>null=True</code>인 이유는 <strong>1년 후 익명화</strong> 때문이다. 연결만 끊고 집계용으로 남긴다.</p><p id="1543b6ae-677e-82a9-be43-011a49432f2c" class="" dir="auto"><code>scene_id</code>/<code>product_id</code>를 <code>metadata</code>에 넣지 않고 최상위 컬럼으로 둔 것은 인덱스를 걸기 위해서다. 대시보드 집계가 전부 이 컬럼으로 돈다.</p><h3 id="c1e3b6ae-677e-821f-a5ac-8117413fa3b6" class="" dir="auto"><code>chat_logs</code></h3><p id="8dd3b6ae-677e-82a0-bf3f-81814fc80d0d" class="" dir="auto">python</p><pre id="1573b6ae-677e-8205-a8fe-819b2951d9bd" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">class ChatLog(models.Model):
+    all_objects = models.Manager()
+    objects = VisitScopedManager()
+
+    message_id = models.CharField(max_length=32, unique=True,
+                                  default=lambda: gen_id(&quot;m&quot;))
+    visit = models.ForeignKey(Visit, on_delete=models.CASCADE)
+    role = models.CharField(max_length=16)      # user / assistant
+    content = models.TextField()                # PII 마스킹 후 원문
+    is_partial = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        base_manager_name = &quot;all_objects&quot;
+        indexes = [models.Index(fields=[&quot;visit&quot;, &quot;created_at&quot;])]</code></pre><h3 id="7923b6ae-677e-8320-ad86-015583f469c2" class="" dir="auto"><code>taste_profiles</code> — 유일하게 <code>visitor</code>에 매달림</h3><p id="c683b6ae-677e-832a-82c5-81059ce7be0b" class="" dir="auto">python</p><pre id="55b3b6ae-677e-82ac-be1f-81b077c47ac4" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">class TasteProfile(models.Model):
+    visitor = models.OneToOneField(Visitor, on_delete=models.CASCADE)
+    vector = models.JSONField()                 # {&quot;black&quot;:0.8,&quot;leather&quot;:0.6,...}
+    axis_scores = models.JSONField()            # {&quot;classic&quot;:0.7,&quot;minimal&quot;:0.9,...}
+    character_type = models.CharField(max_length=8)      # CLBM
+    confidence = models.FloatField()
+    updated_at = models.DateTimeField(auto_now=True)</code></pre><h3 id="ab03b6ae-677e-83af-b7db-011d192d4d62" class="" dir="auto"><code>reports</code></h3><p id="2c53b6ae-677e-8228-aa02-817191d68fec" class="" dir="auto">python</p><pre id="ec03b6ae-677e-829f-8016-016d1076b5bf" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">class Report(models.Model):
+    slug = models.CharField(max_length=16, unique=True, db_index=True,
+                            default=lambda: secrets.token_urlsafe(9))
+    visit = models.OneToOneField(Visit, on_delete=models.CASCADE)
+    payload = models.JSONField(null=True)
+    status = models.CharField(max_length=16, default=&quot;pending&quot;)
+    attempt = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)</code></pre><p id="f623b6ae-677e-8226-b032-0190b500ee16" class="" dir="auto"><code>OneToOne</code>이 <strong>한 방문에 한 리포트</strong>를 DB 레벨에서 보장한다. 워커가 병렬로 돌 때 남의 리포트에 덮어쓰는 사고를 막는다.</p><hr id="1113b6ae-677e-8235-b8d8-013882e25c0a" dir="auto"/><h2 id="d133b6ae-677e-828a-9a98-0186504c76d4" class="" dir="auto">5. 인덱스 근거</h2><p id="dcd3b6ae-677e-820e-9cd0-8169a605e828" class="" dir="auto">인덱스는 추측이 아니라 <strong>실제 쿼리에서 역산</strong>한다.</p><table id="9623b6ae-677e-8358-8bfc-811dd85e1ec5" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="f293b6ae-677e-838b-8299-81951fde057f" dir="ltr"><th id="&lt;Hiu" class="simple-table-header-color simple-table-header">쿼리</th><th id="EOYH" class="simple-table-header-color simple-table-header">발생 빈도</th><th id="nz|}" class="simple-table-header-color simple-table-header">인덱스</th></tr></thead><tbody><tr id="1473b6ae-677e-83fa-b1b5-81f7f336b59d" dir="ltr"><td id="&lt;Hiu" class=""><code>authenticate(token)</code></td><td id="EOYH" class=""><strong>모든 요청</strong></td><td id="nz|}" class=""><code>visits.token</code> unique</td></tr><tr id="1bc3b6ae-677e-82b5-a0d8-01f8839965d9" dir="ltr"><td id="&lt;Hiu" class=""><code>start()</code> 활성 visit 조회</td><td id="EOYH" class="">모든 진입</td><td id="nz|}" class=""><code>visits(visitor, store, exited_at)</code></td></tr><tr id="09e3b6ae-677e-82d4-9762-013af5984f0c" dir="ltr"><td id="&lt;Hiu" class="">워커의 이벤트 로드</td><td id="EOYH" class="">방문당 1회</td><td id="nz|}" class=""><code>events(visit, client_timestamp)</code></td></tr><tr id="5a83b6ae-677e-8361-9896-81c011e3c950" dir="ltr"><td id="&lt;Hiu" class="">챗봇 히스토리 10턴</td><td id="EOYH" class="">대화 턴마다</td><td id="nz|}" class=""><code>chat_logs(visit, created_at)</code></td></tr><tr id="4293b6ae-677e-829d-8ac5-81e379fd95e5" dir="ltr"><td id="&lt;Hiu" class="">리포트 조회</td><td id="EOYH" class="">방문당 수회</td><td id="nz|}" class=""><code>reports.slug</code> unique</td></tr><tr id="40f3b6ae-677e-83e4-91e5-012006bcfcc9" dir="ltr"><td id="&lt;Hiu" class=""><code>/admin/products</code> 집계</td><td id="EOYH" class="">대시보드 열 때</td><td id="nz|}" class=""><code>events(product_id, event_type)</code></td></tr><tr id="1963b6ae-677e-82f9-8ca8-815d1c5fdc70" dir="ltr"><td id="&lt;Hiu" class="">배치 정리</td><td id="EOYH" class="">하루 1회</td><td id="nz|}" class=""><code>visits(exited_at, entered_at)</code> — 생략 가능</td></tr></tbody></table><p id="5ee3b6ae-677e-8390-9cc6-01a5cc699152" class="" dir="auto"><code>authenticate(token)</code>이 <strong>가장 빈번한 쿼리</strong>다. unique 인덱스라 단건 조회로 끝나고, 이것이 JWT의 &quot;DB 안 치기&quot; 장점을 포기해도 되는 근거다.</p><hr id="6393b6ae-677e-838d-99e2-0154df8607e0" dir="auto"/><h2 id="4713b6ae-677e-8244-9da7-810473894478" class="" dir="auto">6. JSONField를 쓸 곳과 안 쓸 곳</h2><table id="e5f3b6ae-677e-82db-bff1-01ba7c32e1d5" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="dc63b6ae-677e-8327-9033-019f4abadbe7" dir="ltr"><th id="}z^b" class="simple-table-header-color simple-table-header">쓴다</th><th id="j?dn" class="simple-table-header-color simple-table-header">안 쓴다</th></tr></thead><tbody><tr id="d063b6ae-677e-8258-8ca8-8169ed42bac7" dir="ltr"><td id="}z^b" class=""><code>events.metadata</code> — 이벤트 타입마다 필드가 다름</td><td id="j?dn" class=""><code>events.product_id</code> — 집계에 인덱스 필요</td></tr><tr id="da73b6ae-677e-8207-97a0-8119884f6d57" dir="ltr"><td id="}z^b" class=""><code>products.features</code> — 브랜드마다 속성이 다름</td><td id="j?dn" class=""><code>products.price</code> — 범위 검색</td></tr><tr id="fb43b6ae-677e-82bf-9b72-0170e474618c" dir="ltr"><td id="}z^b" class=""><code>reports.payload</code> — 리포트 구조가 자주 바뀜</td><td id="j?dn" class=""><code>reports.status</code> — 필터 조건</td></tr><tr id="1b93b6ae-677e-83d0-87db-81ef37a8a4d2" dir="ltr"><td id="}z^b" class=""><code>taste_profiles.vector</code></td><td id="j?dn" class=""><code>taste_profiles.character_type</code> — 코호트 필터</td></tr></tbody></table><p id="c2b3b6ae-677e-82ce-858f-016992bd6ceb" class="" dir="auto"><strong>기준은 &quot;이걸로 WHERE/GROUP BY 하는가&quot;</strong> 다. 한다면 컬럼, 안 하면 JSON.</p><hr id="9333b6ae-677e-8203-a67d-016030e5c455" dir="auto"/><h2 id="3863b6ae-677e-83c0-9ee7-010feba41178" class="" dir="auto">7. 볼륨 추정</h2><p id="cbf3b6ae-677e-8260-834f-81fc6b977bfd" class="" dir="auto">방문 1건당:</p><pre id="3c03b6ae-677e-82ff-a86c-01077d706f10" class="code code-wrap"><code style="white-space:pre-wrap;word-break:break-all">events      50~200건    (조회·체류·이동)
+chat_logs   0~40건      (대화 없는 방문도 많음)
+reports     0~1건</code></pre><p id="0f83b6ae-677e-822b-8672-81995ffdcaa7" class="" dir="auto">일 방문 1,000건 기준:</p><table id="0a43b6ae-677e-83be-bb38-01c579ac1e1a" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="7323b6ae-677e-823e-9a05-01cf25048aa1" dir="ltr"><th id="pkM;" class="simple-table-header-color simple-table-header">테이블</th><th id="qg;E" class="simple-table-header-color simple-table-header">일</th><th id="XGkd" class="simple-table-header-color simple-table-header">연</th></tr></thead><tbody><tr id="3883b6ae-677e-82ed-b022-01076668cfb4" dir="ltr"><td id="pkM;" class=""><code>events</code></td><td id="qg;E" class="">10만</td><td id="XGkd" class="">3,600만</td></tr><tr id="63f3b6ae-677e-83e2-b5cc-814294c4944d" dir="ltr"><td id="pkM;" class=""><code>chat_logs</code></td><td id="qg;E" class="">1만</td><td id="XGkd" class="">360만</td></tr><tr id="5d53b6ae-677e-83d0-8615-81a68a509bb4" dir="ltr"><td id="pkM;" class=""><code>visits</code></td><td id="qg;E" class="">1천</td><td id="XGkd" class="">36만</td></tr></tbody></table><p id="7e63b6ae-677e-8202-a7d6-81c3f346bb3b" class="" dir="auto"><strong>PostgreSQL 단일 인스턴스로 충분하다.</strong> 파티셔닝·샤딩은 필요 없다. <code>events</code>가 억 단위로 가면 그때 <code>client_timestamp</code> 기준 월별 파티션을 고려한다.</p><p id="e4a3b6ae-677e-8229-89c7-0108c935662c" class="" dir="auto">해커톤 규모라면 이 숫자의 1/100이라 신경 쓸 일이 없다.</p><hr id="7203b6ae-677e-836d-9869-01f2f8a00a10" dir="auto"/><h2 id="12c3b6ae-677e-8204-8548-018137292632" class="" dir="auto">8. 하지 말 것</h2><p id="c533b6ae-677e-8222-b51a-817bb8749f81" class="" dir="auto"><strong>① 벡터 DB / pgvector 도입</strong></p><p id="6dd3b6ae-677e-8252-8bcd-814b928a1c72" class="" dir="auto"><code>taste_profiles.vector</code>를 JSONField에 넣고 파이썬에서 코사인 유사도를 계산한다. 매장 하나의 상품이 수십~수백 개라 전수 계산이 밀리초 단위로 끝난다. 벡터 검색 엔진은 수백만 건부터 의미가 있다.</p><p id="5d63b6ae-677e-82a6-956c-811e368e681b" class="" dir="auto"><strong>② 이벤트를 별도 저장소(로그 파이프라인)로</strong></p><p id="f5c3b6ae-677e-8319-bd76-81f6c526ae0c" class="" dir="auto">Kafka·ClickHouse는 이 규모에 과하다. <code>events</code> 테이블 하나로 충분하고, 대시보드 집계는 5분 캐시로 커버된다.</p><p id="8c93b6ae-677e-83db-b061-8185accc46d9" class="" dir="auto"><strong>③ 미리 파티셔닝</strong></p><p id="6be3b6ae-677e-838b-a283-01803f263cf0" class="" dir="auto">파티션 테이블은 마이그레이션·백업·인덱스 관리가 복잡해진다. 실제로 느려진 뒤에 해도 늦지 않다.</p><p id="0ea3b6ae-677e-8235-b79d-81862bd124ca" class="" dir="auto"><strong>④ 소프트 삭제(</strong><code><strong>is_deleted</strong></code><strong>)</strong></p><p id="6a13b6ae-677e-83c6-81e2-817051cf84a0" class="" dir="auto"><code>events</code>·<code>chat_logs</code>는 append-only라 삭제 개념이 없고, 보존기간 만료는 진짜 삭제여야 한다. 개인정보를 &quot;지웠다고 표시만&quot; 하면 정책 위반이다.</p><hr id="d753b6ae-677e-82dc-9cdc-010bb68beb2d" dir="auto"/><h2 id="31d3b6ae-677e-83c1-b63b-811bc91e62f7" class="" dir="auto">9. 마이그레이션 순서</h2><p id="f353b6ae-677e-83ff-a09e-813b1ee41dac" class="" dir="auto">FK 의존을 따라간다.</p><p id="4493b6ae-677e-8250-9b80-01e195e1f9c9" class="" dir="auto">bash</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js" integrity="sha512-whYhDwtTmlC/NpZlCr6PSsAaLOrfjVg/iXAnC4H/dtiHawpShhT2SlIMbpIhT/IL/NrpdMm+Hq2C13+VKpHTYw==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><pre id="75e3b6ae-677e-83e0-9af1-81f829c4b482" class="code code-wrap" data-notion-code-syntax="bash"><code class="language-bash" style="white-space:pre-wrap;word-break:break-all">python manage.py makemigrations identity          # Visitor
+python manage.py makemigrations stores            # Brand, Store, Scene, Product
+python manage.py makemigrations visits            # → identity, stores
+python manage.py makemigrations events chat       # → visits
+python manage.py makemigrations analysis          # → visits, identity
+python manage.py migrate</code></pre><p id="e6b3b6ae-677e-8388-a915-01803b13b001" class="" dir="auto">FK는 반드시 문자열로 참조한다(<code>&quot;visits.Visit&quot;</code>). 클래스를 직접 import하면 app 간 순환 import가 생기고, 우리 의존 규칙이 코드 레벨에서 깨진다.</p><hr id="1f63b6ae-677e-82c8-8557-0125eff54c46" dir="auto"/><h2 id="c433b6ae-677e-83d4-afcd-8107b1ba12a0" class="" dir="auto">10. 시드 데이터</h2><p id="bb53b6ae-677e-820a-a850-016c12702bc7" class="" dir="auto">개발·데모에 필요한 최소 데이터다.</p><p id="9d73b6ae-677e-832d-9a75-813dc88bae6d" class="" dir="auto">python</p><pre id="a9d3b6ae-677e-8335-b833-01847eb851a8" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all"># stores/management/commands/seed_store.py
+Brand(name=&quot;MCM&quot;)
+Store(store_key=&quot;mcm-seongsu-001&quot;, name=&quot;MCM 성수&quot;)
+Scene × 7        # 도면의 1~7 구역, 좌표 포함
+Product × 20~30  # features, llm_context 채워서</code></pre><p id="d833b6ae-677e-83d4-84c0-81182881bb19" class="" dir="auto"><code><strong>llm_context</strong></code><strong>와 </strong><code><strong>features</strong></code><strong>를 성의 있게 채우는 게 데모 품질을 좌우한다.</strong> 챗봇 답변과 추천 근거가 전부 여기서 나온다. 상품 수를 늘리는 것보다 20개를 제대로 쓰는 게 낫다.</p></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

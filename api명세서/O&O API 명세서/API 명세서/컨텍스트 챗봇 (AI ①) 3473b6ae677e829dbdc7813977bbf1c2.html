@@ -1,0 +1,832 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>컨텍스트 챗봇 (AI ①)</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+/* Override strong tags inside headings to maintain consistent weight */
+h1 strong,
+h2 strong,
+h3 strong {
+	font-weight: 600;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 10px;
+	padding: 1rem;
+}
+
+/* For default-background callouts, render the border outline. */
+.callout.block-color-default_background {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+/*
+ * Toggles and callouts hold arbitrary content, so they can easily be taller
+ * than a page. They must stay breakable: avoiding breaks inside them makes
+ * Chromium push the whole block onto the next page, which leaves the previous
+ * page mostly empty before every long toggle.
+ */
+details,
+aside {
+	margin: 1.25em 0;
+}
+
+/* Keep a toggle's title on the same page as the start of its content. */
+summary {
+	page-break-after: avoid;
+	break-after: avoid;
+}
+
+/*
+ * Toggle headings render as <h1/h2/h3 style="display:inline-block"> inside
+ * <summary>. Without this reset, the heading's margin-top pushes it below the
+ * ::marker (▼), so the triangle and the title appear on separate lines.
+ */
+summary h1,
+summary h2,
+summary h3,
+summary h4 {
+	margin-top: 0;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+
+	table.collection-content {
+		width: 100%;
+		table-layout: fixed;
+	}
+
+	table.collection-content th,
+	table.collection-content td {
+		overflow-wrap: anywhere;
+	}
+
+	table.collection-content td > .user,
+	table.collection-content td > time {
+		white-space: pre-wrap;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content-wrapper {
+	overflow-x: auto;
+}
+
+@media only print {
+	.collection-content-wrapper {
+		overflow-x: visible;
+	}
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.collection-content td {
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.column-list {
+	display: flex;
+	gap: 46px;
+}
+
+.column {
+	min-width: 0;
+	overflow: hidden;
+}
+
+.column > *:first-child {
+	margin-top: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding-inline: 0.125rem;
+	padding-block: 0.375rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+table {
+	border-collapse: collapse;
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol.numbered-list.numbered-list-digits-2 {
+	padding-inline-start: 2em;
+}
+
+ol.numbered-list.numbered-list-digits-3plus {
+	padding-inline-start: 2.4em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+/*
+ * Render emoji icons using a ::before pseudo-element to keep the glyph
+ * out of the DOM textContent traversal. This avoids double-rendering icons
+ * in callouts and page titles.
+ * NOTE(slim/html-export-pseudo-icons): I can't tagref this because it will
+ * flag as a duplicate tag after codegen.
+ */
+.icon[data-emoji]::before {
+	content: attr(data-emoji);
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.callout img.notion-static-icon {
+	width: 1em;
+	height: 1em;
+}
+
+.callout p {
+	margin: 0;
+}
+
+.callout h1,
+.callout h2,
+.callout h3 {
+	margin: 0 0 0.6rem;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	margin-right: 0.4em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+blockquote.quote-large {
+	font-size: 1.25em;
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.tab {
+	margin: 1.25em 0;
+	padding-inline: 1rem;
+	border: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.highlight-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.highlight-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.highlight-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.highlight-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.highlight-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.highlight-default_background {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray_background {
+	background: rgba(42, 28, 0, 0.07);
+}
+.highlight-brown_background {
+	background: rgba(139, 46, 0, 0.086);
+}
+.highlight-orange_background {
+	background: rgba(224, 101, 1, 0.129);
+}
+.highlight-yellow_background {
+	background: rgba(211, 168, 0, 0.137);
+}
+.highlight-teal_background {
+	background: rgba(0, 100, 45, 0.09);
+}
+.highlight-blue_background {
+	background: rgba(0, 124, 215, 0.094);
+}
+.highlight-purple_background {
+	background: rgba(102, 0, 178, 0.078);
+}
+.highlight-pink_background {
+	background: rgba(197, 0, 93, 0.086);
+}
+.highlight-red_background {
+	background: rgba(223, 22, 0, 0.094);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.block-color-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.block-color-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.block-color-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.block-color-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.block-color-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(240, 239, 237, 1);
+}
+.block-color-brown_background {
+	background: rgba(245, 237, 233, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 235, 222, 1);
+}
+.block-color-yellow_background {
+	background: rgba(249, 243, 220, 1);
+}
+.block-color-teal_background {
+	background: rgba(232, 241, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(229, 242, 252, 1);
+}
+.block-color-purple_background {
+	background: rgba(243, 235, 249, 1);
+}
+.block-color-pink_background {
+	background: rgba(250, 233, 241, 1);
+}
+.block-color-red_background {
+	background: rgba(252, 233, 231, 1);
+}
+.select-value-color-default { background-color: rgba(42, 28, 0, 0.07); }
+.select-value-color-gray { background-color: rgba(28, 19, 1, 0.11); }
+.select-value-color-brown { background-color: rgba(127, 51, 0, 0.156); }
+.select-value-color-orange { background-color: rgba(196, 88, 0, 0.203); }
+.select-value-color-yellow { background-color: rgba(209, 156, 0, 0.282); }
+.select-value-color-green { background-color: rgba(0, 96, 38, 0.156); }
+.select-value-color-blue { background-color: rgba(0, 118, 217, 0.203); }
+.select-value-color-purple { background-color: rgba(92, 0, 163, 0.141); }
+.select-value-color-pink { background-color: rgba(183, 0, 78, 0.152); }
+.select-value-color-red { background-color: rgba(206, 24, 0, 0.164); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style><style>@import url('https://cdn.jsdelivr.net/npm/katex@0.16.25/dist/katex-swap.min.css')</style></head><body><article id="3473b6ae-677e-829d-bdc7-813977bbf1c2" class="page sans"><header><h1 class="page-title" dir="auto">컨텍스트 챗봇 (AI ①)</h1><p class="page-description" dir="auto"></p><table class="properties"><tbody><tr class="property-row property-row-text"><th><span class="icon property-icon"><img src="https://app.notion.com/icons/description_gray.svg" style="width:14px;height:14px;display:block"/></span>API Endpoint</th><td>/api/v1/chat</td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://app.notion.com/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>HTTP method</th><td><span class="selected-value select-value-color-blue">POST</span></td></tr><tr class="property-row property-row-text"><th><span class="icon property-icon"><img src="https://app.notion.com/icons/description_gray.svg" style="width:14px;height:14px;display:block"/></span>메모</th><td>OpenAI. 상품 정보로 프롬프트 구성 → 스트리밍. 대화에서 취향·구매의도 추출</td></tr><tr class="property-row property-row-person"><th><span class="icon property-icon"><img src="https://app.notion.com/icons/friends_gray.svg" style="width:14px;height:14px;display:block"/></span>사람</th><td><span class="user"><span class="icon text-icon user-icon"><span class="user-icon-inner">이</span></span>이세호</span></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://app.notion.com/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>파트</th><td><span class="selected-value select-value-color-purple">Chat</span></td></tr><tr class="property-row property-row-status"><th><span class="icon property-icon"><img src="https://app.notion.com/icons/burst_gray.svg" style="width:14px;height:14px;display:block"/></span>프론트</th><td><span class="status-value select-value-color-green"><div class="status-dot status-dot-color-green"></div>완료</span></td></tr><tr class="property-row property-row-person"><th><span class="icon property-icon"><img src="https://app.notion.com/icons/friends_gray.svg" style="width:14px;height:14px;display:block"/></span>프론트 연결</th><td><span class="user"><span class="icon text-icon user-icon"><span class="user-icon-inner">이</span></span>이효령</span></td></tr></tbody></table></header><div class="page-body"><h2 id="3bf3b6ae-677e-8041-91c0-d495a0a8cc5b" class="" dir="auto">설명 — AI를 쓰는 첫 번째 곳</h2><p id="3bf3b6ae-677e-804d-95fa-cc33df0cdde0" class="" dir="auto">사용자가 직접 타이핑한 질문에 답한다. 진열대·상품 클릭으로 쌓인 메시지는 이 API가 아니라 <code>POST /chat/messages</code>가 기록한다.</p><p id="3bf3b6ae-677e-80fa-9ae5-f2c729dd4c78" class="" dir="auto">핵심은 <strong>문맥이 이어진다는 것</strong>이다. &quot;채팅으로 대화하기&quot;로 넘어오면 그때까지 쌓인 메시지(1번 진열대 클릭 → OO 상품 클릭 → 프리셋 열람)가 지워지지 않고 남아 있고, 서버는 그걸 읽어 AI가 지금 어떤 상품 얘기를 하는 중인지 알게 한다. 그래서 사용자는 <strong>&quot;이 상품의 디자이너와 의도를 설명해줘&quot;처럼 상품명을 말하지 않아도 된다.</strong></p><p id="3bf3b6ae-677e-80cf-b990-c70bbec3449b" class="" dir="auto">챗봇의 역할은 안내원이 아니라 <strong>큐레이터</strong>다. 손님이 말로 표현하기 어려운 감각(색·기분·분위기)을 <strong>매장의 물건과 진열대 번호로</strong> 짚어 준다.</p><h2 id="3bf3b6ae-677e-80a6-b27e-ffc1c4747fbd" class="" dir="auto">문맥을 만드는 방법</h2><p id="3bf3b6ae-677e-803f-8878-d550fbd2a5b7" class="" dir="auto">서버가 매 요청마다 다음을 조립한다.</p><ol type="1" id="3bf3b6ae-677e-8048-9a7f-fbd739df1709" class="numbered-list" start="1" dir="auto"><li><code>chat_logs</code>에서 이번 <code>visit_id</code>의 <strong>최근 12개</strong> 메시지를 읽는다 (클라이언트가 다시 보낼 필요 없음)<ul id="3bf3b6ae-677e-803e-a273-c518ba757b8d" class="bulleted-list" dir="auto"><li style="list-style-type:disc">클릭 기록(<code>user_action</code>)은 <code>user</code>로, 프리셋 답변(<code>preset</code>)은 <code>assistant</code>로 매핑한다</li></ul></li></ol><ol type="1" id="3bf3b6ae-677e-8083-abad-d001ed6fc659" class="numbered-list" start="2" dir="auto"><li>가장 최근 클릭된 진열대·상품을 현재 대상으로 잡는다</li></ol><ol type="1" id="3bf3b6ae-677e-80a1-be01-fc9b99d98c3f" class="numbered-list" start="3" dir="auto"><li>그 상품의 <code><strong>llm_context</strong></code><strong> · </strong><code><strong>story</strong></code><strong> · </strong><code><strong>preset_answers</strong></code><strong> · 8개 분류 축 · 진열대·상품 번호</strong>를 프롬프트에 넣는다</li></ol><ol type="1" id="3bf3b6ae-677e-800e-b246-dadf6f475409" class="numbered-list" start="4" dir="auto"><li><code>age_band</code> / <code>gender</code>가 있으면 톤 조절에 참고한다</li></ol><ol type="1" id="3bf3b6ae-677e-80b1-bf62-f9e0598bafc9" class="numbered-list" start="5" dir="auto"><li>지금까지 확정된 취향 축(<code>TasteProfile</code>)을 함께 넣는다</li></ol><p id="3bf3b6ae-677e-80ea-83eb-c1a88f091eec" class="" dir="auto"><code>context</code>를 명시로 보내면 그 값이 우선한다. 안 보내면 서버가 위 방식으로 알아서 잡는다.</p><blockquote id="3bf3b6ae-677e-80e0-8daf-c94f882ad79b" class="" dir="auto"><code><strong>story</strong></code><strong>와 </strong><code><strong>preset_answers</strong></code><strong>를 빠뜨리면 안 된다.</strong> <code>llm_context</code>만 넣었을 때 &quot;디자이너 의도를 설명해줘&quot;에 <strong>&quot;제공된 정보에 없습니다&quot;</strong> 라는 답이 나왔다. 정작 그 답이 스토리와 프리셋 문구에 있었다. 프리셋은 브랜드가 직접 작성한 문장이라 근거로 삼기에 가장 안전하다.</blockquote><h2 id="3bf3b6ae-677e-801c-a571-e467f7feec1a" class="" dir="auto">모델 / 원칙</h2><ul id="3bf3b6ae-677e-80b1-b2b2-c5c793b6a47e" class="bulleted-list" dir="auto"><li style="list-style-type:disc">모델: OpenAI <code>gpt-4o-mini</code> (<code>.env</code>의 <code>OPENAI_MODEL</code>로 교체). 키는 서버에 숨기고 <code>common/llm.py</code> 한 곳에서 모델 교체·재시도·토큰 사용량을 통제한다</li></ul><ul id="3bf3b6ae-677e-80f1-86d8-e38e72c1eaef" class="bulleted-list" dir="auto"><li style="list-style-type:disc">부수 목적(중요): 대화에서 <strong>긍정·부정 취향과 구매 의도를 추출</strong>한다. 행동(클릭·체류)만으로는 안 드러나는 망설임을 잡는 통로이며, 추출 결과는 리포트 분석(AI ②)의 재료가 된다</li></ul><h3 id="3bf3b6ae-677e-8048-b00a-d6a5f123420e" class="" dir="auto">답변 원칙</h3><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3bf3b6ae-677e-8008-8de6-ecf86adcfbb1" class="code code-wrap"><code style="white-space:pre-wrap;word-break:break-all">- 정보 질문에는 정보로 먼저 답한다. 서사는 마지막 한 문장까지만
+- 손님의 &quot;선택&quot;을 해석하고 &quot;사람&quot;을 단정하지 않는다
+  (&quot;이 색을 고르셨네요&quot; O / &quot;당신은 이런 사람이군요&quot; X)
+- 근거 없는 칭찬을 하지 않는다. 단서가 적으면 &quot;아직 읽는 중&quot;이라고 말한다
+- 답은 항상 물건으로 착지시킨다. 제공된 후보 목록의 상품과 진열대 번호만 사용하고,
+  목록에 없는 상품이나 번호를 만들지 않는다
+- 확인 가능한 상품 데이터에만 근거해 답한다. 재고·할인·입고처럼 변하는 정보는 단정하지 않는다
+- 2~3문장. 손님은 매장에서 서서 읽는다</code></pre><h2 id="3bf3b6ae-677e-8073-a1d0-f22cb2e29ef7" class="" dir="auto">감각 표현을 축으로 바꾸는 방법</h2><p id="3bf3b6ae-677e-80af-84e7-d66d8a115eea" class="" dir="auto">자유 발화(&quot;차분한 검정 가방&quot;, &quot;화려한 건 싫고 오래 쓸 것&quot;)를 <strong>8개 분류 축</strong>으로 변환한다.</p><pre id="3bf3b6ae-677e-803a-a20c-c86793261b2a" class="code code-wrap"><code style="white-space:pre-wrap;word-break:break-all">1차: 어휘 사전 매칭   차분한 → mood: minimal · 검정 → color: black
+                     축이 3개 이상 잡히면 LLM 호출 없이 즉시 추천
+2차: LLM 폴백        사전에 없는 표현(&quot;무해한&quot;, &quot;레트로한&quot;)만 축 추출</code></pre><p id="3bf3b6ae-677e-8039-b5fe-c05914f7ee78" class="" dir="auto">사전을 먼저 쓰는 이유: <strong>흔한 표현은 항상 같은 결과가 나오고, 비용·지연이 0</strong>이다. 프리셋을 LLM으로 만들지 않은 것과 같은 논리다.</p><h3 id="3bf3b6ae-677e-80c0-8bcc-df4c3b4e7225" class="" dir="auto">어휘 사전 (구현 위치 <code>apps/chat/taste_map.py</code>)</h3><table id="3bf3b6ae-677e-807d-bbd5-c5f11ecb66cc" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="3bf3b6ae-677e-806c-8691-ffdf9c824564" dir="ltr"><th id="BTJG" class="simple-table-header-color simple-table-header">어휘</th><th id="SKup" class="simple-table-header-color simple-table-header">축</th></tr></thead><tbody><tr id="3bf3b6ae-677e-8025-82d7-c9fdb2397e38" dir="ltr"><td id="BTJG" class="">차분한 · 조용한 · 과하지 않게</td><td id="SKup" class=""><code>mood: minimal</code></td></tr><tr id="3bf3b6ae-677e-80f1-8152-f97795b619c0" dir="ltr"><td id="BTJG" class="">화려한 · 튀는 · 눈에 띄는 · 포인트</td><td id="SKup" class=""><code>mood: bold_statement</code></td></tr><tr id="3bf3b6ae-677e-8067-8117-efd2b0be5ce6" dir="ltr"><td id="BTJG" class="">클래식 · 기본 · 정통</td><td id="SKup" class=""><code>mood: classic_heritage</code></td></tr><tr id="3bf3b6ae-677e-80e3-80b7-e8b1c4b4d7d0" dir="ltr"><td id="BTJG" class="">힙한 · 스트리트 · 개성 있는</td><td id="SKup" class=""><code>mood: y2k_street</code></td></tr><tr id="3bf3b6ae-677e-801c-a824-e9ba8a1d805c" dir="ltr"><td id="BTJG" class="">꾸안꾸</td><td id="SKup" class=""><code>mood: minimal</code> + <code>use_case: daily</code></td></tr><tr id="3bf3b6ae-677e-80b9-8df3-f922cf518f3e" dir="ltr"><td id="BTJG" class="">오래 쓸 · 튼튼한</td><td id="SKup" class=""><code>material: grained_leather</code> + <code>silhouette: structured</code></td></tr><tr id="3bf3b6ae-677e-80a5-bd7c-edc69c970d81" dir="ltr"><td id="BTJG" class="">가벼운</td><td id="SKup" class=""><code>material: nylon</code></td></tr><tr id="3bf3b6ae-677e-8044-98a4-ecbb6f929c65" dir="ltr"><td id="BTJG" class="">비 와도 · 관리 편한</td><td id="SKup" class=""><code>material: coated_canvas</code></td></tr><tr id="3bf3b6ae-677e-80d0-8f5d-c8c741c51da0" dir="ltr"><td id="BTJG" class="">출근 · 노트북</td><td id="SKup" class=""><code>use_case: work</code></td></tr><tr id="3bf3b6ae-677e-80df-85b7-fc3936d7a444" dir="ltr"><td id="BTJG" class="">데일리 · 매일</td><td id="SKup" class=""><code>use_case: daily</code></td></tr><tr id="3bf3b6ae-677e-8001-b3aa-d6c24e56db47" dir="ltr"><td id="BTJG" class="">여행 · 짐 많이</td><td id="SKup" class=""><code>use_case: travel</code></td></tr><tr id="3bf3b6ae-677e-80f7-9cbb-cc0204205d81" dir="ltr"><td id="BTJG" class="">모임 · 나들이</td><td id="SKup" class=""><code>use_case: going_out</code></td></tr><tr id="3bf3b6ae-677e-80d4-8ba9-ef9cd441ccf2" dir="ltr"><td id="BTJG" class="">선물 · 부담 없는 · 입문</td><td id="SKup" class=""><code>price_band: entry</code></td></tr><tr id="3bf3b6ae-677e-8035-a405-c1a3c78869a9" dir="ltr"><td id="BTJG" class="">큰 거 · 많이 들어가는</td><td id="SKup" class=""><code>category: backpack</code> · <code>tote</code></td></tr><tr id="3bf3b6ae-677e-8042-bc54-c2828ebea4ff" dir="ltr"><td id="BTJG" class="">작은 거 · 가볍게 들 것</td><td id="SKup" class=""><code>category: crossbody</code> · <code>wallet</code> · <code>accessory</code></td></tr></tbody></table><p id="3bf3b6ae-677e-801e-b02f-cb266d165798" class="" dir="auto"><strong>모호한 표현은 사전에 넣지 않는다.</strong> 예를 들어 &quot;무난한&quot;은 <code>classic_heritage</code>로도 <code>minimal</code>로도 읽히는데, 사전이 한 값만 주면 틀린 추천이 나간다. 이런 표현은 <strong>LLM 폴백으로 넘겨</strong> 문맥을 보고 판단하게 한다.</p><h3 id="3bf3b6ae-677e-80c1-9cb9-e2903d241458" class="" dir="auto">부정 표현</h3><p id="3bf3b6ae-677e-8018-9128-fdba168b9c73" class="" dir="auto"><code>~는 싫어</code> · <code>~빼고</code> · <code>~말고</code> 가 붙으면 그 값의 <strong>회피율에 가산</strong>한다.</p><pre id="3bf3b6ae-677e-8051-bbe4-d26f3e3dcd18" class="code code-wrap"><code style="white-space:pre-wrap;word-break:break-all">&quot;화려한 건 싫어&quot;  →  bold_statement 계열의 회피율 += 1.0</code></pre><p id="3bf3b6ae-677e-808a-8d40-ed9bfba2c6aa" class="" dir="auto">축값은 비율 체계이므로 음수를 직접 더할 자리가 없다. <strong>회피율이 유일하게 스케일이 같은 자리</strong>다(<code>축값 = 비율 × n/(n+2) − 회피율</code>). <code>spoken</code>(lock)에는 넣지 않는다 — lock은 &quot;이것이다&quot;를 확정하는 것이고 부정은 확정이 아니다.</p><p id="3bf3b6ae-677e-8040-86f5-d35a34052b21" class="" dir="auto">추출한 축은 <strong>되돌려 확인</strong>한다. 단정하면 틀렸을 때 신뢰가 무너지고, 확인하면 틀려도 대화가 된다.</p><pre id="3bf3b6ae-677e-8062-99e3-c5feb8ca0813" class="code code-wrap"><code style="white-space:pre-wrap;word-break:break-all">🐻 베이지 · 미니멀 · 데일리로 읽었어요.   [ 맞아요 ]  [ 다시 고를래요 ]</code></pre><p id="3bf3b6ae-677e-806f-8094-eb7c79404f93" class="" dir="auto"><code>다시 고를래요</code>를 누르면 <strong>카드를 9개 나열하지 않는다.</strong> 어긋난 축 중 우선순위 1위(<code>color &gt; mood &gt; material &gt; pattern</code>) <strong>하나만 진영 2택</strong>으로 되묻는다.</p><pre id="3bf3b6ae-677e-804b-a33a-d2e79154ed2c" class="code code-wrap"><code style="white-space:pre-wrap;word-break:break-all">🐻 색부터 다시 볼게요. 어느 쪽이 가까우세요?
+   [ 차분한 색 ]   [ 눈에 띄는 색 ]</code></pre><p id="3bf3b6ae-677e-80a9-9d2e-c458f747e8da" class="" dir="auto">응답은 <code>POST /chat/messages</code>의 <code>type: &quot;choice&quot;</code> + <code>option: &quot;color_neutral&quot; | &quot;color_vivid&quot;</code>로 보낸다.</p><h2 id="3bf3b6ae-677e-80de-9b0e-c1f1c27b2a59" class="" dir="auto">Request</h2><p id="3bf3b6ae-677e-80f0-a1aa-e7f2939a7238" class="" dir="auto">헤더: <code>X-Visit-Token</code> ✅ (<code>X-Anonymous-UUID</code>는 필요 없다 — <code>/events</code>만 요구한다)</p><table id="3bf3b6ae-677e-804d-a0bb-f236f47a8682" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="3bf3b6ae-677e-800a-892f-d6013f0bdeaa" dir="ltr"><th id="~\ng" class="simple-table-header-color simple-table-header">필드</th><th id=":Y_r" class="simple-table-header-color simple-table-header">타입</th><th id="TyK^" class="simple-table-header-color simple-table-header">필수</th><th id=":rbB" class="simple-table-header-color simple-table-header">설명</th></tr></thead><tbody><tr id="3bf3b6ae-677e-80ff-a9da-dcaa3433043c" dir="ltr"><td id="~\ng" class=""><code>visit_id</code></td><td id=":Y_r" class="">string</td><td id="TyK^" class="">✅</td><td id=":rbB" class="">대상 방문. 토큰이 가리키는 방문과 같아야 한다</td></tr><tr id="3bf3b6ae-677e-80e5-a49d-ed19881fd716" dir="ltr"><td id="~\ng" class=""><code>message</code></td><td id=":Y_r" class="">string</td><td id="TyK^" class="">✅</td><td id=":rbB" class="">사용자가 타이핑한 질문. <strong>500자 이하</strong></td></tr><tr id="3bf3b6ae-677e-801f-9b18-f8c7711423f5" dir="ltr"><td id="~\ng" class=""><code>context</code></td><td id=":Y_r" class="">object</td><td id="TyK^" class="">❌</td><td id=":rbB" class=""><code>{ scene_id, product_id }</code>. 생략하면 서버가 최근 클릭 기준으로 판단. <strong>존재하지 않는 id를 보내면 400</strong></td></tr></tbody></table><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js" integrity="sha512-QXFMVAusM85vUYDaNgcYeU3rzSlc+bTV4JvkfJhjxSHlQEo+ig53BtnGkvFTiNJh8D+wv6uWAQ2vJaVmxe8d3w==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><pre id="3bf3b6ae-677e-802c-96ab-cc92bd63f8b5" class="code code-wrap" data-notion-code-syntax="json"><code class="language-json" style="white-space:pre-wrap;word-break:break-all">{ &quot;visit_id&quot;: &quot;v_9f8e...&quot;, &quot;message&quot;: &quot;이 상품의 디자이너와 의도를 설명해줘&quot; }</code></pre><h2 id="3bf3b6ae-677e-805e-9e82-cb1e45b45651" class="" dir="auto">Response — <code>text/event-stream</code> (SSE)</h2><pre id="3bf3b6ae-677e-8018-be34-c4f9745a4faa" class="code code-wrap"><code style="white-space:pre-wrap;word-break:break-all">data: {&quot;delta&quot;: &quot;이 백팩은 &quot;}
+data: {&quot;delta&quot;: &quot;1976년 뮌헨의 여행 가방 실루엣을&quot;}
+data: {&quot;delta&quot;: &quot; 현대적으로 재해석한 라인입니다.&quot;}
+data: {&quot;done&quot;: true, &quot;message_id&quot;: &quot;m_55&quot;,
+       &quot;recommendations&quot;: [
+         { &quot;product_id&quot;: &quot;p_204&quot;, &quot;name&quot;: &quot;Stark 백팩&quot;, &quot;thumbnail&quot;: &quot;https://.../t.jpg&quot;,
+           &quot;scene_no&quot;: 3, &quot;product_no&quot;: 2, &quot;reason&quot;: &quot;선호 소재(레더)와 일치&quot; }
+       ],
+       &quot;extracted&quot;: { &quot;axes&quot;: { &quot;color&quot;: &quot;beige&quot;, &quot;mood&quot;: &quot;minimal&quot; },
+                      &quot;needs_confirm&quot;: true },
+       &quot;profile_completion&quot;: 0.55}</code></pre><table id="3bf3b6ae-677e-80b4-b4d9-ce6705bab046" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="3bf3b6ae-677e-803f-94ff-c4c83ba2592c" dir="ltr"><th id="Q]lr" class="simple-table-header-color simple-table-header">필드</th><th id="Tc]q" class="simple-table-header-color simple-table-header">설명</th></tr></thead><tbody><tr id="3bf3b6ae-677e-8020-894a-c257e8ef3fc0" dir="ltr"><td id="Q]lr" class=""><code>delta</code></td><td id="Tc]q" class="">답변 조각. 받는 즉시 이어 붙인다</td></tr><tr id="3bf3b6ae-677e-80b7-94f8-cfdf403fd39e" dir="ltr"><td id="Q]lr" class=""><code>done</code></td><td id="Tc]q" class="">스트림 종료 신호</td></tr><tr id="3bf3b6ae-677e-8082-8bdb-f9fb555f8b48" dir="ltr"><td id="Q]lr" class=""><code>message_id</code></td><td id="Tc]q" class="">저장된 답변의 id</td></tr><tr id="3bf3b6ae-677e-80ee-a9f7-cbb3e65beb67" dir="ltr"><td id="Q]lr" class=""><code>recommendations</code></td><td id="Tc]q" class="">추천 카드 — <strong>아래 참고</strong></td></tr><tr id="3bf3b6ae-677e-8091-ad2f-c824a5b990f7" dir="ltr"><td id="Q]lr" class=""><code>extracted</code></td><td id="Tc]q" class="">이번 발화에서 뽑은 축. <code>needs_confirm: true</code>면 되돌려 확인 버튼을 띄운다</td></tr><tr id="3bf3b6ae-677e-808f-8cea-e90f046ac8c5" dir="ltr"><td id="Q]lr" class=""><code>profile_completion</code></td><td id="Tc]q" class="">뮤즈 프로필 완성도 (0~1). <strong>리포트의 </strong><code><strong>confidence</strong></code><strong>와 같은 값</strong> — 계산은 한 곳뿐이고 필드명만 다르다</td></tr></tbody></table><p id="3bf3b6ae-677e-80af-9df0-cf7044f7b266" class="" dir="auto">질문과 답변은 <code>chat_logs</code>에 저장되어 타임라인에 이어 붙는다(<code>role: user</code> / <code>assistant</code>).<br/>답변은 <strong>조각이 다 나온 뒤 한 번에 저장</strong>한다 — 조각마다 UPDATE를 치면 스트리밍 도중 SQLite 쓰기 잠금이 걸린다.</p><h2 id="3bf3b6ae-677e-809f-9863-f14e164c83e3" class="" dir="auto">챗봇 추천 — 카드 + 텍스트 병행 (확정)</h2><p id="3bf3b6ae-677e-80dc-b3e5-c64d866ea1f1" class="" dir="auto">A안/B안 중 택일이 아니라 <strong>둘 다</strong> 쓴다. 같은 추천을 두 가지로 표현한다.</p><table id="3bf3b6ae-677e-80cd-b1b0-fba015593f0b" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="3bf3b6ae-677e-80cb-b64b-eba8d8dc0527" dir="ltr"><th id="]SsX" class="simple-table-header-color simple-table-header">층</th><th id="l@&lt;Y" class="simple-table-header-color simple-table-header">형태</th><th id="ATlu" class="simple-table-header-color simple-table-header">근거</th></tr></thead><tbody><tr id="3bf3b6ae-677e-8044-b8ee-f8d7ebeb2700" dir="ltr"><td id="]SsX" class="">텍스트</td><td id="l@&lt;Y" class="">답변 본문에 위치 안내 문장 — &quot;3번 진열대 2번 상품에 있어요&quot;</td><td id="ATlu" class="">오프라인 매장이므로 <strong>실물을 찾아갈 수 있어야</strong> 한다</td></tr><tr id="3bf3b6ae-677e-8098-ae55-c15dd34b72e5" dir="ltr"><td id="]SsX" class="">카드</td><td id="l@&lt;Y" class=""><code>done</code> 이벤트의 <code>recommendations[]</code></td><td id="ATlu" class="">상세로 넘어가는 클릭 경로 + 추천 클릭률 측정</td></tr></tbody></table><h3 id="3bf3b6ae-677e-80ae-a20c-f5254d6216db" class="" dir="auto">후보는 서버가 고른다</h3><pre id="3bf3b6ae-677e-8076-8f56-e25edf6167bf" class="code code-wrap"><code style="white-space:pre-wrap;word-break:break-all">후보 선정 (LLM 호출 전)
+  1. 확정된 취향 축 + 현재 문맥 상품을 기준으로 스코어링
+  2. 이번 방문에서 이미 상세를 본 상품은 제외 (새로운 발견)
+  3. 상위 3개만 → 프롬프트에 name · scene_no · product_no · 핵심 축만 넣는다</code></pre><ul id="3bf3b6ae-677e-8015-85f0-c908a0ff8792" class="bulleted-list" dir="auto"><li style="list-style-type:disc">프롬프트 제약: <strong>후보 목록에 있는 상품과 번호만 언급한다.</strong> 없는 진열대 번호를 말하면 매장에서 즉시 들통난다</li></ul><ul id="3bf3b6ae-677e-800c-b05b-cd0a0e5b1e46" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><code>recommendations</code>는 <strong>LLM 출력이 아니라 서버가 고른 후보 그대로</strong>다. LLM이 텍스트에서 일부만 언급했더라도 카드는 서버 기준으로 일관된다</li></ul><ul id="3bf3b6ae-677e-801f-a800-f99cf0f90fcb" class="bulleted-list" dir="auto"><li style="list-style-type:disc">카드에도 <code>scene_no</code>·<code>product_no</code>를 실어 <strong>카드와 문장이 같은 번호</strong>를 가리키게 한다</li></ul><ul id="3bf3b6ae-677e-807d-b8e9-f0b5819fa5c1" class="bulleted-list" dir="auto"><li style="list-style-type:disc">문맥 상품이 없고 축도 안 잡혔으면 <code>recommendations: []</code> — 억지 추천은 하지 않는다</li></ul><p id="3bf3b6ae-677e-80a9-afa6-f510f271a578" class="" dir="auto">어느 쪽이든 <code>recommendation_impression</code> / <code>recommendation_click</code> 이벤트는 그대로 남긴다.</p><h2 id="3bf3b6ae-677e-80b5-9b2f-e8cde92686e5" class="" dir="auto">프론트 구현 주의사항</h2><h3 id="3bf3b6ae-677e-8029-9fb7-c00e3fa5dd5f" class="" dir="auto"><code>EventSource</code>를 쓸 수 없다</h3><p id="3bf3b6ae-677e-8020-93c8-eac48d293843" class="" dir="auto"><code>EventSource</code>는 <strong>GET만</strong> 지원한다. 이 API는 POST + <code>X-Visit-Token</code> 헤더가 필요하므로 <code>fetch</code> + <code>ReadableStream</code>으로 읽는다.</p><h3 id="3bf3b6ae-677e-801e-995f-e1c1d160cccc" class="" dir="auto"><code>\n\n</code> 기준으로 버퍼링해야 한다</h3><p id="3bf3b6ae-677e-80e3-9672-ca46cc44d628" class="" dir="auto">네트워크는 <code>data: {...}\n\n</code> 단위로 끊어서 주지 않는다. <strong>한 줄이 중간에서 잘려서</strong> 오므로 받은 덩어리를 그대로 <code>JSON.parse</code>하면 깨진다.</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-jsx.min.js" integrity="sha512-m3JYEI6gx5fh9jF10FjGoMzVKcV2N6nchcDcqPCdI1L3R2WQV7br2XVNR8iTLb2daOMRl3zldbcfT40xU2ntVw==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><pre id="3bf3b6ae-677e-8071-957a-debfbeeaefe1" class="code code-wrap" data-notion-code-syntax="jsx"><code class="language-jsx" style="white-space:pre-wrap;word-break:break-all">const reader = res.body.pipeThrough(new TextDecoderStream()).getReader();
+let buffer = &quot;&quot;, answer = &quot;&quot;;
+while (true) {
+  const { value, done } = await reader.read();
+  if (done) break;
+  buffer += value;
+  const lines = buffer.split(&quot;\n\n&quot;);
+  buffer = lines.pop();                    // 마지막 조각은 미완성일 수 있으니 남긴다
+  for (const line of lines) {
+    if (!line.startsWith(&quot;data: &quot;)) continue;
+    const p = JSON.parse(line.slice(6));
+    if (p.delta) { answer += p.delta; render(answer); }
+    if (p.error) { showRetry(p.error.message); return; }
+    if (p.done)  { renderCards(p.recommendations); }
+  }
+}</code></pre><p id="3bf3b6ae-677e-80d8-b545-dcb9da9a08dd" class="" dir="auto"><code>delta</code>가 잘게 쪼개지는 건 정상이다(OpenAI가 토큰 단위로 흘려보내서 &quot;1976년&quot;이 <code>197</code>+<code>6</code>+<code>년</code>으로 온다). 이어 붙이면 되고, 완성된 <code>data:</code> 줄을 파싱했다면 그 안의 문자열은 항상 온전하다.</p><h2 id="3bf3b6ae-677e-806e-90c4-d4aa1039cbe9" class="" dir="auto">에러</h2><h3 id="3bf3b6ae-677e-8034-96b2-d7ca05d3747f" class="" dir="auto">스트림 시작 전 — 평소의 JSON 에러</h3><table id="3bf3b6ae-677e-8070-a446-f1fc9f13b246" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="3bf3b6ae-677e-8003-8315-c4e660c896d4" dir="ltr"><th id="^[mV" class="simple-table-header-color simple-table-header">HTTP</th><th id="`t^K" class="simple-table-header-color simple-table-header">code</th><th id="Mx[a" class="simple-table-header-color simple-table-header">언제</th></tr></thead><tbody><tr id="3bf3b6ae-677e-806a-b248-c3a840d1ae14" dir="ltr"><td id="^[mV" class="">400</td><td id="`t^K" class=""><code>VALIDATION_ERROR</code></td><td id="Mx[a" class=""><code>message</code> 누락·500자 초과 · <code>context</code>에 없는 <code>scene_id</code>/<code>product_id</code></td></tr><tr id="3bf3b6ae-677e-803a-bc7f-c25edbbe60fa" dir="ltr"><td id="^[mV" class="">401</td><td id="`t^K" class=""><code>INVALID_VISIT_TOKEN</code></td><td id="Mx[a" class="">토큰 누락·만료·위조</td></tr><tr id="3bf3b6ae-677e-8082-be3f-d8c671218ec5" dir="ltr"><td id="^[mV" class="">403</td><td id="`t^K" class=""><code>FORBIDDEN</code></td><td id="Mx[a" class="">토큰이 가리키는 방문이 아님 · <strong>종료된 관람</strong></td></tr><tr id="3bf3b6ae-677e-8046-9ceb-ebc25ecb95ec" dir="ltr"><td id="^[mV" class="">429</td><td id="`t^K" class=""><code>RATE_LIMITED</code></td><td id="Mx[a" class=""><strong>분당 20회 초과 (방문 단위)</strong></td></tr></tbody></table><p id="3bf3b6ae-677e-8017-8362-c90460911143" class="" dir="auto"><strong>429는 방문 단위로 센다.</strong> IP 기준으로 세면 매장 와이파이를 함께 쓰는 손님 전체가 한 사람으로 묶여 서로의 한도를 잡아먹는다.</p><h3 id="3bf3b6ae-677e-803e-b942-e6761b6eab90" class="" dir="auto">스트림 시작 후 — SSE 이벤트로 온다</h3><p id="3bf3b6ae-677e-80e1-91da-e4b5fb4fbce6" class="" dir="auto">이미 스트림이 시작된 뒤에는 HTTP 상태를 바꿀 수 없다. LLM 실패는 이벤트로 흘려보낸다.</p><pre id="3bf3b6ae-677e-8030-abb2-c163f93f8138" class="code code-wrap"><code style="white-space:pre-wrap;word-break:break-all">data: {&quot;error&quot;: {&quot;code&quot;: &quot;LLM_UNAVAILABLE&quot;, &quot;message&quot;: &quot;AI 응답을 생성할 수 없습니다. 잠시 후 다시 시도해주세요.&quot;}}</code></pre><p id="3bf3b6ae-677e-80e0-bb79-c60211aab34a" class="" dir="auto">프론트는 그 자리에 안내 문구와 재시도 버튼을 띄운다.</p><h3 id="3bf3b6ae-677e-80ad-bfd3-d47ad2477fa3" class="" dir="auto"><code>Accept</code> 헤더</h3><p id="3bf3b6ae-677e-8041-8378-e6790ad72bed" class="" dir="auto"><code>accept: text/event-stream</code>을 보내는 클라이언트(Swagger UI, SSE 표준 방식)를 지원한다. <strong>이 헤더를 처리하지 못하면 스트리밍 코드에 닿기도 전에 </strong><code><strong>406 Not Acceptable</strong></code><strong>이 난다.</strong></p><h3 id="3bf3b6ae-677e-8010-bc87-df4504a1c3c1" class="" dir="auto">LLM이 죽어도 서비스는 굴러간다</h3><p id="3bf3b6ae-677e-80c8-acac-da55c4e7ce44" class="" dir="auto">프리셋 버튼·클릭 타임라인·트리거 확인·축 기반 추천은 <strong>LLM 없이 완결된다.</strong> 자유 발화만 이 API를 타므로, 키가 없거나 OpenAI가 죽어도 핵심 경험이 살아 있다.</p><h2 id="3bf3b6ae-677e-80f2-bab7-ebbe5f04bc17" class="" dir="auto">관련 테이블</h2><p id="3bf3b6ae-677e-8026-8056-d4c02256bfb7" class="" dir="auto"><code>chat_logs</code> · <code>products</code> · <code>taste_profiles</code></p><hr id="3bf3b6ae-677e-80ae-ad76-d979fe278bf0" dir="auto"/></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>
