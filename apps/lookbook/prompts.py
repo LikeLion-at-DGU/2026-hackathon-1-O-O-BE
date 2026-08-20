@@ -4,9 +4,9 @@
 넣으면 모델은 뭘 보존하고 뭘 참고할지 모른다. 그래서 몇 번째 이미지가 무엇인지
 문장으로 붙인다. 순서는 worker가 넣는 순서와 반드시 같아야 한다.
 
-**레퍼런스에는 글자가 가득하다.** 기획 시안이 완성 레이아웃(MCM 타이포·캡션·프레임)
-이라서다. 명세는 텍스트·프레임을 프론트 캔버스가 얹기로 정했으므로, AI가 그걸 따라
-그리면 안 된다. 그래서 "글자·로고·프레임은 베끼지 말라"를 따로 못박는다.
+**레퍼런스에는 글자와 콜라주가 함께 있다.** AI는 글자·로고·인물 정체성을 베끼면 안
+되지만, 빈 타이포 영역·패널·찢어진 종이 같은 레이아웃 구조는 화보 연출로 참고할 수
+있다. 둘을 분리해서 지시하지 않으면 모델이 레이아웃까지 버리거나 글자를 뭉개서 그린다.
 
 재생성은 구도·자세만 흔들고 무드는 유지한다. 매번 다른 세계관이 나오면 "다시 돌리기"가
 아니라 "다른 서비스"가 된다.
@@ -30,24 +30,31 @@ VARIATIONS = (
     "a subtle contrapposto with weight on one leg",
 )
 
-# 왼쪽 띠는 비워야 한다. 그 자리에 MCM 레터링이 얹히는데, 인물이 가운데 있으면
-# 글자가 얼굴을 가로지른다. 시안도 인물이 오른쪽이고 왼쪽이 타이포 자리다.
-FRAMING = (
-    "Place the person on the right side of the frame. Leave the left third of the image "
-    "as clean empty background with no part of the person, product or props in it."
-)
-
-# 배경의 공통 소재. 시안 전체에 성당 실루엣이 깔려 있었다.
-BACKDROP = (
-    "Background: a seamless studio backdrop with a faint gothic cathedral silhouette, "
-    "styled like a fashion magazine editorial."
+# 레퍼런스가 없을 때만 쓰는 최소한의 방향이다. 레퍼런스가 있으면 좌우 배치·배경을
+# 고정하지 않고 Image 2의 구도를 우선한다.
+FALLBACK_DIRECTION = (
+    "Use a clean studio fashion editorial composition with balanced negative space "
+    "and a simple textured backdrop."
 )
 
 BASE_RULES = (
-    "Photorealistic editorial fashion photography with natural skin texture. "
-    "Absolutely no text, no typography, no lettering, no logos, no watermarks, "
-    "no torn-paper frames and no collage borders anywhere in the image."
+    "Use photorealistic editorial fashion photography with believable human anatomy and "
+    "natural skin texture. Do not render readable text, typography, captions, brand names, "
+    "logos or watermarks. Graphic panels, empty text regions, borders, cutout shapes and "
+    "collage divisions may be recreated as abstract layout elements, but they must remain "
+    "free of readable text."
 )
+
+
+# 지시가 스무 개를 넘으면 모델이 일부를 버린다. 무엇을 먼저 버릴지 우리가 정해두지
+# 않으면 모델이 임의로 고른다 — 얼굴이 딴사람이 되는 것이 가장 나쁜 실패다.
+PRIORITY_HEAD = "When instructions compete, follow this priority order: "
+PRIORITY_PERSON = "person identity and body accuracy from Image 1"
+PRIORITY_PRODUCT_IMAGE = "product appearance accuracy from the product reference"
+PRIORITY_PRODUCT_NAME = "product appearance accuracy"
+PRIORITY_INTERACTION = "realistic interaction between the person and the product"
+PRIORITY_REFERENCE = "editorial composition similarity to the editorial reference"
+PRIORITY_STYLING = "general styling and atmosphere"
 
 
 def build(
@@ -67,12 +74,11 @@ def build(
         f"Editorial fashion lookbook photograph for {season} at {venue}.",
         _roles(has_reference, has_product_image),
         _mood_sentence(mood, seed),
-        FRAMING,
-        BACKDROP,
         _product_sentence(product_names, has_product_image),
-        composition_prompt.strip(),
+        _direction(composition_prompt, has_reference),
         _variation_sentence(seed, attempt),
         BASE_RULES,
+        _priority(has_reference, has_product_image),
     ]
     return " ".join(part for part in parts if part)
 
@@ -84,25 +90,70 @@ def _roles(has_reference: bool, has_product_image: bool) -> str:
     모델이 상품 사진을 보존 대상으로 오해한다.
     """
     lines = [
-        "Image 1 is the person to keep: this must be the same identifiable person. "
-        "Preserve their facial features, face shape, eyes, nose, mouth, hairstyle, "
-        "body proportions and skin tone exactly as they are — do not substitute a "
-        "different-looking model.",
+        "Image 1 is the person reference and the exclusive source of the person's identity "
+        "and body. Preserve the same recognizable person: facial features, face shape and "
+        "proportions, eyes, nose, mouth, jawline, hairstyle and hair volume, glasses if "
+        "present, skin tone and natural skin texture, body proportions, body build and "
+        "overall silhouette. Do not replace the person, beautify, reshape, slim, enlarge, "
+        "masculinize, feminize or significantly reinterpret their face or body.",
     ]
     index = 2
     if has_reference:
         lines.append(
-            f"Image {index} is a style reference: follow only its camera angle, framing, "
-            "color palette and lighting mood. Do not copy its text, typography, graphics, "
-            "frames or layout, and do not copy the person or clothing shown in it."
+            f"Image {index} is the editorial reference. Use it as the primary source for "
+            "overall editorial composition, pose direction, camera angle, camera distance and "
+            "crop, subject placement, visual hierarchy, negative space, background treatment, "
+            "lighting direction, color relationships, graphic panels, empty text regions, "
+            "cutout or collage structure, and placement of product-detail areas. Do not copy "
+            "the identity, face, body, hairstyle or clothing of the person in this image. Do "
+            "not reproduce readable text, typography, captions, logos, brand names or "
+            "watermarks from it."
         )
         index += 1
     if has_product_image:
         lines.append(
-            f"Image {index} is the product: place it on the person naturally and keep its "
-            "shape, color, hardware and pattern faithful to the reference."
+            f"Image {index} is the product reference. Use the exact product shown: preserve "
+            "its silhouette, dimensions and proportions, color, material and texture, handles, "
+            "shoulder straps, pockets, seams, closures, hardware, patterns and construction "
+            "details. Integrate it naturally with the person using the interaction and pose "
+            "logic of the editorial reference. Keep realistic scale, correct hand grip, natural "
+            "strap placement, contact, occlusion, gravity, shadows and fabric deformation. Do "
+            "not invent handles or straps, redesign, simplify, replace or float the product."
         )
     return " ".join(lines)
+
+
+def _priority(has_reference: bool, has_product_image: bool) -> str:
+    """충돌 시 무엇을 먼저 지킬지. 뒤쪽 문장이 더 강하게 작용하므로 맨 마지막에 둔다.
+
+    **넣지 않은 이미지는 언급하지 않는다.** 레퍼런스가 없는데 "레퍼런스를 따르라"고
+    하면 모델이 없는 그림을 상상해서 구도가 튄다.
+    """
+    items = [
+        PRIORITY_PERSON,
+        PRIORITY_PRODUCT_IMAGE if has_product_image else PRIORITY_PRODUCT_NAME,
+        PRIORITY_INTERACTION,
+    ]
+    if has_reference:
+        items.append(PRIORITY_REFERENCE)
+    items.append(PRIORITY_STYLING)
+
+    ordered = ", ".join(f"{number}) {item}" for number, item in enumerate(items, start=1))
+    return f"{PRIORITY_HEAD}{ordered}."
+
+
+def _direction(composition_prompt: str, has_reference: bool) -> str:
+    """구도 지시는 한 곳에서만 나간다.
+
+    레퍼런스가 있으면 아무 말도 하지 않는다. 위에서 이미 "Image 2가 구도의 주인"이라고
+    선언했는데 여기서 또 다른 구도를 지시하면 두 그림을 동시에 요구하는 셈이 된다.
+    특히 콜라주 레퍼런스에 "얼굴이 화면을 채우는 클로즈업"을 겹쳐 넣으면 결과가 흔들린다.
+
+    레퍼런스가 없을 때만 DB의 구도 문장을 쓰고, 그것도 없으면 최소한의 기본값으로 떨어진다.
+    """
+    if has_reference:
+        return ""
+    return composition_prompt.strip() or FALLBACK_DIRECTION
 
 
 def _mood_sentence(mood: dict, seed: int) -> str:
