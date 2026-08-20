@@ -29,8 +29,9 @@ BROWSER_HEADERS = {
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
         "(KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
     ),
-    "Accept": ("text/html,application/xhtml+xml,application/xml;q=0.9,"
-               "image/avif,image/webp,image/apng,*/*;q=0.8"),
+    "Accept": (
+        "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8"
+    ),
     "Accept-Language": "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7",
     "Accept-Encoding": "gzip, deflate, br",
     "Upgrade-Insecure-Requests": "1",
@@ -87,8 +88,7 @@ try:
     h = {"Referer": HOME, "Sec-Fetch-Site": "same-origin"}
     r1 = s.get(CAT, params={"start": 0, "sz": 12}, headers=h, timeout=30)
     ok = r1.status_code == 200 and looks_ok(r1.text)
-    report("결과", ok, f"HTTP {r1.status_code}, {len(r1.text):,}자, "
-                       f"상품 {count_products(r1.text)}개")
+    report("결과", ok, f"HTTP {r1.status_code}, {len(r1.text):,}자, 상품 {count_products(r1.text)}개")
     if ok:
         winner = "A"
 except Exception as e:
@@ -106,8 +106,7 @@ if not winner:
         time.sleep(2)
         r1 = s.get(CAT + "?start=0&sz=12", timeout=30)
         ok = r1.status_code == 200 and looks_ok(r1.text)
-        report("결과", ok, f"HTTP {r1.status_code}, {len(r1.text):,}자, "
-                           f"상품 {count_products(r1.text)}개")
+        report("결과", ok, f"HTTP {r1.status_code}, {len(r1.text):,}자, 상품 {count_products(r1.text)}개")
         if ok:
             winner = "B"
     except ImportError:
@@ -133,8 +132,7 @@ if not winner:
         if ok:
             winner = "C"
     except ImportError:
-        report("결과", False,
-               "playwright 미설치 → pip install playwright && playwright install chromium")
+        report("결과", False, "playwright 미설치 → pip install playwright && playwright install chromium")
     except Exception as e:
         report("결과", False, f"오류: {e}")
 

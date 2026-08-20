@@ -33,16 +33,19 @@ BASE = "https://kr.mcmworldwide.com"
 HOME = BASE + "/ko_KR/home"
 
 CATEGORIES = [
-    ("가방-백팩",       "/ko_KR/%EA%B0%80%EB%B0%A9/%EB%B0%B1%ED%8C%A9"),
-    ("가방-토트/쇼퍼",  "/ko_KR/%EA%B0%80%EB%B0%A9/%ED%86%A0%ED%8A%B8%EB%B0%B1-%EC%87%BC%ED%8D%BC%EB%B0%B1"),
-    ("가방-숄더/크로스", "/ko_KR/%EA%B0%80%EB%B0%A9/%EC%88%84%EB%8D%94%EB%B0%B1-%ED%81%AC%EB%A1%9C%EC%8A%A4%EB%B0%B1"),
-    ("가방-벨트백",     "/ko_KR/%EA%B0%80%EB%B0%A9/%EB%B2%A8%ED%8A%B8%EB%B0%B1"),
-    ("가방-미니백",     "/ko_KR/%EA%B0%80%EB%B0%A9/%EB%AF%B8%EB%8B%88%EB%B0%B1"),
-    ("트래블-전체",     "/ko_KR/%ED%8A%B8%EB%9E%98%EB%B8%94/%EB%AA%A8%EB%91%90%EB%B3%B4%EA%B8%B0"),
+    ("가방-백팩", "/ko_KR/%EA%B0%80%EB%B0%A9/%EB%B0%B1%ED%8C%A9"),
+    ("가방-토트/쇼퍼", "/ko_KR/%EA%B0%80%EB%B0%A9/%ED%86%A0%ED%8A%B8%EB%B0%B1-%EC%87%BC%ED%8D%BC%EB%B0%B1"),
+    (
+        "가방-숄더/크로스",
+        "/ko_KR/%EA%B0%80%EB%B0%A9/%EC%88%84%EB%8D%94%EB%B0%B1-%ED%81%AC%EB%A1%9C%EC%8A%A4%EB%B0%B1",
+    ),
+    ("가방-벨트백", "/ko_KR/%EA%B0%80%EB%B0%A9/%EB%B2%A8%ED%8A%B8%EB%B0%B1"),
+    ("가방-미니백", "/ko_KR/%EA%B0%80%EB%B0%A9/%EB%AF%B8%EB%8B%88%EB%B0%B1"),
+    ("트래블-전체", "/ko_KR/%ED%8A%B8%EB%9E%98%EB%B8%94/%EB%AA%A8%EB%91%90%EB%B3%B4%EA%B8%B0"),
 ]
 
 PAGE_SIZE = 48
-DELAY = (2.0, 4.0)      # v1보다 넉넉하게 — 차단 회피에는 속도 조절이 가장 효과적
+DELAY = (2.0, 4.0)  # v1보다 넉넉하게 — 차단 회피에는 속도 조절이 가장 효과적
 TIMEOUT = 30
 MAX_RETRY = 3
 
@@ -51,8 +54,9 @@ BROWSER_HEADERS = {
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
         "(KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
     ),
-    "Accept": ("text/html,application/xhtml+xml,application/xml;q=0.9,"
-               "image/avif,image/webp,image/apng,*/*;q=0.8"),
+    "Accept": (
+        "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8"
+    ),
     "Accept-Language": "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7",
     "Accept-Encoding": "gzip, deflate, br",
     "Upgrade-Insecure-Requests": "1",
@@ -71,12 +75,14 @@ BROWSER_HEADERS = {
 def make_session():
     try:
         from curl_cffi import requests as creq
+
         s = creq.Session(impersonate="chrome")
         s.headers.update(BROWSER_HEADERS)
         print("엔진: curl_cffi (브라우저 TLS 지문)")
         return s, "curl_cffi"
     except ImportError:
         import requests
+
         s = requests.Session()
         s.headers.update(BROWSER_HEADERS)
         print("엔진: requests   (403이 나면 pip install curl_cffi 후 재실행)")
@@ -104,9 +110,12 @@ def warmup(session):
 def fetch(session, url, params=None):
     for attempt in range(1, MAX_RETRY + 1):
         try:
-            r = session.get(url, params=params,
-                            headers={"Referer": HOME, "Sec-Fetch-Site": "same-origin"},
-                            timeout=TIMEOUT)
+            r = session.get(
+                url,
+                params=params,
+                headers={"Referer": HOME, "Sec-Fetch-Site": "same-origin"},
+                timeout=TIMEOUT,
+            )
             if r.status_code == 200:
                 return r.text
             if r.status_code in (403, 429, 503):
@@ -152,8 +161,7 @@ def parse_products(html, category_name):
             m = re.search(r"/([A-Z0-9]{10,})\.html", href)
             pid = m.group(1) if m else None
 
-        name_el = tile.select_one(
-            ".pdp-link a, .product-name, .tile-body .link, [class*='product-name']")
+        name_el = tile.select_one(".pdp-link a, .product-name, .tile-body .link, [class*='product-name']")
         name = name_el.get_text(" ", strip=True) if name_el else None
         if not name and link:
             name = link.get("title") or link.get_text(" ", strip=True)
@@ -166,14 +174,16 @@ def parse_products(html, category_name):
 
         if not (pid or name):
             continue
-        rows.append({
-            "category": category_name,
-            "product_id": pid,
-            "name": (name or "").strip(),
-            "price_krw": price,
-            "url": urljoin(BASE, href) if href else None,
-            "image": img_url,
-        })
+        rows.append(
+            {
+                "category": category_name,
+                "product_id": pid,
+                "name": (name or "").strip(),
+                "price_krw": price,
+                "url": urljoin(BASE, href) if href else None,
+                "image": img_url,
+            }
+        )
 
     seen, unique = set(), []
     for r in rows:
