@@ -109,9 +109,7 @@ class Command(BaseCommand):
 
         started = time.monotonic()
         try:
-            png = imagegen.edit(
-                photo=photo, mask=mask, references=references, prompt=prompt, quality=quality
-            )
+            png = imagegen.edit(photo=photo, mask=mask, references=references, prompt=prompt, quality=quality)
         except imagegen.ImageGenError as error:
             raise CommandError(f"[{error.error_code}] {error}") from error
 
@@ -139,9 +137,7 @@ class Command(BaseCommand):
         out.write_bytes(final)
         width, height = imagegen.size_of(final)
 
-        self.stdout.write(
-            self.style.SUCCESS(f"성공: {out} · {width}x{height} · {len(final) / 1024:.0f}KB")
-        )
+        self.stdout.write(self.style.SUCCESS(f"성공: {out} · {width}x{height} · {len(final) / 1024:.0f}KB"))
         self.stdout.write(f"소요 {elapsed:.1f}초 (LOOKBOOK_EXPECTED_SEC={settings.LOOKBOOK_EXPECTED_SEC})")
         if elapsed > settings.LOOKBOOK_EXPECTED_SEC * 1.5:
             self.stdout.write(

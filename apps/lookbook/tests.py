@@ -318,9 +318,7 @@ class LocalUploadTest(SimpleTestCase):
         self.root = tempfile.mkdtemp()
         self.addCleanup(shutil.rmtree, self.root, ignore_errors=True)
         self.client = APIClient()
-        self.override = override_settings(
-            STORAGE_BACKEND=storage.BACKEND_LOCAL, UPLOAD_LOCAL_ROOT=self.root
-        )
+        self.override = override_settings(STORAGE_BACKEND=storage.BACKEND_LOCAL, UPLOAD_LOCAL_ROOT=self.root)
         self.override.enable()
         self.addCleanup(self.override.disable)
 

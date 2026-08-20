@@ -233,9 +233,7 @@ def save_public(key: str, data: bytes, content_type: str = "image/png") -> str:
     그래서 local에서는 nginx가 서빙하는 MEDIA_ROOT에 쓴다.
     """
     if settings.STORAGE_BACKEND == BACKEND_S3:
-        _s3_client().put_object(
-            Bucket=settings.STORAGE_BUCKET, Key=key, Body=data, ContentType=content_type
-        )
+        _s3_client().put_object(Bucket=settings.STORAGE_BUCKET, Key=key, Body=data, ContentType=content_type)
         base = (settings.STORAGE_PUBLIC_BASE_URL or "").rstrip("/")
         return f"{base}/{key}" if base else key
 
