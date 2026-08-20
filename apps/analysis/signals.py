@@ -20,10 +20,24 @@ class ProductSignal:
 
 
 @dataclass(frozen=True)
+class SceneSignal:
+    """① 집계 결과 — 진열대 하나에 머문 시간.
+
+    진열대 화면의 체류(scene_dwell)와 그 진열대 상품을 열어 본 체류를 합친 값이다.
+    라우트가 달라 둘은 겹치지 않는다. 리포트의 "진열대별 체류시간"이 이 값을 쓴다.
+    """
+
+    scene_no: int
+    scene_name: str
+    dwell_ms: int
+
+
+@dataclass(frozen=True)
 class VisitSignals:
     """한 방문의 행동 전부. ②③④가 이것만 보고 계산한다."""
 
     products: tuple[ProductSignal, ...] = ()
+    scenes: tuple[SceneSignal, ...] = ()
     scenes_viewed: int = 0
     questions: int = 0
 

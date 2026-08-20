@@ -39,6 +39,9 @@ class ReportDetailSerializer(serializers.Serializer):
     recommendations = serializers.ListField(required=False)
     interested = serializers.ListField(required=False)
     confidence = serializers.FloatField(required=False, help_text="0~1")
+    scenes = serializers.ListField(
+        required=False, help_text="진열대별 체류. 체류가 긴 순서. scene_no · scene_name · dwell_ms"
+    )
     is_exploring = serializers.BooleanField(
         required=False, help_text="true면 신호가 적어 '탐색 중'으로 표시한다. 프론트는 이 값으로 분기한다"
     )

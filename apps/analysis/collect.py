@@ -8,8 +8,8 @@ from collections import defaultdict
 
 from django.db.models import Count
 
-from apps.analysis.signals import ProductFacts, ProductSignal, VisitSignals
-from apps.catalog.models import ANALYSIS_AXES, Product
+from apps.analysis.signals import ProductFacts, ProductSignal, SceneSignal, VisitSignals
+from apps.catalog.models import ANALYSIS_AXES, Product, Scene
 from apps.events.models import Event, EventType
 from apps.events.services import DWELL_KEY, exposed_scene_ids
 from apps.visits.models import Visit
@@ -19,16 +19,25 @@ def collect_signals(visit: Visit) -> VisitSignals:
     """이번 방문의 행동을 상품 단위로 압축한다."""
     views: dict[str, int] = defaultdict(int)
     dwell: dict[str, int] = defaultdict(int)
+    scene_dwell: dict[str, int] = defaultdict(int)
     questions = 0
 
-    rows = visit.events.values_list("event_type", "product_id", "metadata")
-    for event_type, product_id, metadata in rows:
+    rows = visit.events.values_list(
+        "event_type", "product_id", "scene_id", "product__scene_id", "metadata"
+    )
+    for event_type, product_id, scene_id, product_scene_id, metadata in rows:
         if event_type == EventType.QUESTION_SUBMIT:
             questions += 1
         elif product_id and event_type == EventType.PRODUCT_VIEW:
             views[product_id] += 1
         elif product_id and event_type == EventType.PRODUCT_DWELL:
             dwell[product_id] += _dwell_of(metadata)
+            # 상품 상세를 본 시간도 그 진열대에서 쓴 시간이다. 진열대 화면과 상품
+            # 화면은 라우트가 달라 두 체류가 겹치지 않으므로 그대로 더한다.
+            if product_scene_id:
+                scene_dwell[product_scene_id] += _dwell_of(metadata)
+        elif scene_id and event_type == EventType.SCENE_DWELL:
+            scene_dwell[scene_id] += _dwell_of(metadata)
 
     mentions = _chat_mentions(visit)
     product_ids = set(views) | set(dwell) | set(mentions)
@@ -43,9 +52,22 @@ def collect_signals(visit: Visit) -> VisitSignals:
             )
             for product_id in sorted(product_ids)
         ),
+        scenes=_scene_signals(scene_dwell),
         scenes_viewed=len(exposed_scene_ids(visit)),
         questions=questions,
     )
+
+
+def _scene_signals(dwell_by_scene: dict[str, int]) -> tuple[SceneSignal, ...]:
+    """체류가 긴 진열대부터. 이름은 화면이 "1번 진열대"를 직접 조립하지 않게 함께 준다."""
+    if not dwell_by_scene:
+        return ()
+    scenes = Scene.objects.filter(id__in=dwell_by_scene).values_list("id", "no", "name")
+    signals = [
+        SceneSignal(scene_no=no, scene_name=name, dwell_ms=dwell_by_scene[scene_id])
+        for scene_id, no, name in scenes
+    ]
+    return tuple(sorted(signals, key=lambda signal: (-signal.dwell_ms, signal.scene_no)))
 
 
 def load_catalog() -> tuple[ProductFacts, ...]:

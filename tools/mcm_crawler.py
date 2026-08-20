@@ -10,7 +10,7 @@ v1 대비 달라진 점:
 사용법:
     pip install requests beautifulsoup4 lxml
     pip install curl_cffi          # 403이 계속되면 추가 설치
-    python mcm_crawler2.py
+    python tools/mcm_crawler.py
 
 출력:
     mcm_products.csv
@@ -227,7 +227,7 @@ def main():
         if engine == "requests":
             print("    pip install curl_cffi  후 다시 실행해 보세요.")
         else:
-            print("    Playwright 방식이 필요할 수 있습니다. check_mcm_access.py 결과를 알려주세요.")
+            print("    Playwright 방식이 필요할 수 있습니다. tools/check_mcm_access.py 결과를 알려주세요.")
 
     all_rows = []
     for name, path in CATEGORIES:
@@ -235,7 +235,7 @@ def main():
         polite_sleep()
 
     if not all_rows:
-        print("\n❌ 수집된 상품이 없습니다. check_mcm_access.py 를 돌려 원인을 확인하세요.")
+        print("\n❌ 수집된 상품이 없습니다. tools/check_mcm_access.py 를 돌려 원인을 확인하세요.")
         return
 
     out = "mcm_products.csv"

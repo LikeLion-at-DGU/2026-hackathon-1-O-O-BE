@@ -7,7 +7,7 @@
   C. Playwright (실제 브라우저)
 
 사용법:
-    python check_mcm_access.py
+    python tools/check_mcm_access.py
 """
 
 import io
@@ -141,12 +141,12 @@ if not winner:
 # ── 결론 ─────────────────────────────────────────────
 print("\n" + LINE)
 if winner == "A":
-    print(" ✅ A 방식으로 통과. mcm_crawler2.py 를 그대로 실행하세요.")
-    print("    python mcm_crawler2.py")
+    print(" ✅ A 방식으로 통과. tools/mcm_crawler.py 를 그대로 실행하세요.")
+    print("    python tools/mcm_crawler.py")
 elif winner == "B":
     print(" ✅ B 방식(curl_cffi)으로 통과.")
-    print("    mcm_crawler2.py 가 curl_cffi 를 자동 감지해 사용합니다.")
-    print("    python mcm_crawler2.py")
+    print("    tools/mcm_crawler.py 가 curl_cffi 를 자동 감지해 사용합니다.")
+    print("    python tools/mcm_crawler.py")
 elif winner == "C":
     print(" ✅ C 방식(Playwright)만 통과. 브라우저 자동화가 필요합니다.")
     print("    이 결과를 알려주시면 Playwright 버전 크롤러를 만들어 드립니다.")
