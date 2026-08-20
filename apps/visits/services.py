@@ -8,6 +8,7 @@
 
 from uuid import UUID
 
+from django.conf import settings
 from django.db.models import Count, F
 from django.utils import timezone
 
@@ -95,7 +96,14 @@ def start(visitor: Visitor, store: Store, *, age_band: str = "", gender: str = "
 
 
 def touch(visit: Visit) -> None:
-    """이어하기 판정 기준 시각을 갱신한다."""
+    """만료·이어하기의 기준 시각을 갱신한다.
+
+    인증을 통과한 요청마다 불리므로 매번 저장하면 SQLite 쓰기가 요청 수만큼 늘어난다.
+    만료 기준이 3시간인데 몇 분의 오차는 의미가 없으므로 간격을 두고 억제한다.
+    억제 폭만큼 유효 시간이 짧아지지만 최대 VISIT_TOUCH_INTERVAL이다.
+    """
+    if timezone.now() - visit.last_seen_at < settings.VISIT_TOUCH_INTERVAL:
+        return
     visit.last_seen_at = timezone.now()
     visit.save(update_fields=["last_seen_at", "updated_at"])
 

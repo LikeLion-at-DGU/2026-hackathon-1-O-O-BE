@@ -167,6 +167,9 @@ OPENAI_MODEL = env("OPENAI_MODEL")  # 모델 교체는 .env에서만 한다
 # 화보와 재생성이 /finish 이후에 일어나므로 "퇴장 시 즉시 만료"는 폐기했다.
 # 3시간이면 관람(20분~1시간) + 화보 + 재생성 3회가 들어가고, 다음날 이어붙기는 막는다.
 VISIT_STALE_AFTER = timedelta(hours=3)
+# last_seen_at을 다시 쓰기까지의 최소 간격. 인증마다 저장하면 읽기 요청에도 쓰기가
+# 붙어 SQLite 잠금이 늘어난다. 만료가 3시간이라 이 폭의 오차는 문제가 되지 않는다.
+VISIT_TOUCH_INTERVAL = timedelta(minutes=5)
 DWELL_MAX_MS = 300_000  # 클라이언트가 보낸 체류시간 상한 (탭 백그라운드 방어)
 CHAT_TIMELINE_LIMIT = 200  # GET /chat/messages가 한 번에 주는 최대 메시지 수
 
