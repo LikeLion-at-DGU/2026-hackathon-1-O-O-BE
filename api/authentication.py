@@ -9,6 +9,7 @@ from rest_framework.authentication import BaseAuthentication
 
 from api.exceptions import InvalidVisitToken
 from apps.visits.models import Visit
+from apps.visits.services import touch
 
 VISIT_TOKEN_HEADER = "HTTP_X_VISIT_TOKEN"
 ANONYMOUS_UUID_HEADER = "HTTP_X_ANONYMOUS_UUID"
@@ -35,6 +36,10 @@ class VisitTokenAuthentication(BaseAuthentication):
         if visit.is_expired:
             raise InvalidVisitToken()
 
+        # 만료 기준이 "마지막 활동"이므로 갱신도 여기서 한다. 뷰마다 붙이면
+        # 토큰을 쓰는 엔드포인트가 늘어날 때마다 빠뜨린다 — 실제로 /events에만
+        # 붙어 있어서 대화만 하는 손님은 갱신되지 않았다.
+        touch(visit)
         return (None, visit)
 
 

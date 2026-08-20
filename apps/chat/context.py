@@ -133,9 +133,13 @@ def _describe(product: Product) -> str:
         f"- 가격: {product.price:,}원",
         f"- 설명: {product.llm_context}",
         f"- 브랜드 스토리: {product.story}",
-        f"- 특징: {product.get_color_display()} / {product.get_material_display()} / "
-        f"{product.get_pattern_display()} / {product.get_silhouette_display()} / "
-        f"{product.get_mood_display()} / {product.get_use_case_display()}",
+        # 색은 여기 넣지 않는다. 축의 색은 9개로 접은 분류값이라 실물과 다르다 —
+        # orange 가방이 cognac, khaki moss 쇼퍼가 beige로 접힌다. 둘을 나란히 주면
+        # 모델이 분류값을 골라 "이건 코냑이에요"라고 답한다(6개 중 2개가 그랬다).
+        # 실물 색은 attributes.color에 있고 아래에서 그대로 나간다. 축은 취향 계산용이다.
+        f"- 특징: {product.get_material_display()} / {product.get_pattern_display()} / "
+        f"{product.get_silhouette_display()} / {product.get_mood_display()} / "
+        f"{product.get_use_case_display()}",
     ]
     # attributes는 브랜드가 적어 준 표기값이다(색상·소재·치수·사이즈). 분석 축은
     # "그레인 레더"처럼 뭉뚱그린 분류라, 실제 소재명과 치수는 여기에만 있다.

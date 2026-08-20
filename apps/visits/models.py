@@ -56,8 +56,8 @@ class Visit(models.Model):
     age_band = models.CharField(max_length=10, choices=AgeBand.choices, blank=True)
     gender = models.CharField(max_length=10, choices=Gender.choices, blank=True)
     started_at = models.DateTimeField(auto_now_add=True)
-    # 이어하기 판정용. 매 요청마다 갱신하면 SQLite 쓰기가 늘어나므로
-    # /events · /chat 처럼 주기적으로 오는 요청에서만 갱신한다.
+    # 만료와 이어하기의 기준 시각. 인증을 통과한 요청마다 갱신하되, 매번 쓰면
+    # SQLite 쓰기 잠금이 늘어나므로 VISIT_TOUCH_INTERVAL 간격으로 억제한다.
     last_seen_at = models.DateTimeField(auto_now_add=True)
     ended_at = models.DateTimeField(null=True, blank=True)
     # 퇴장을 누르지 않고 방치돼 서버가 닫은 방문. 평균 체류시간과 리포트 완료율의 분모에서 뺀다.
@@ -85,8 +85,13 @@ class Visit(models.Model):
 
     @property
     def is_expired(self) -> bool:
-        """토큰이 죽었는가. 관람 종료 여부와 무관하게 진입 시각만으로 판정한다.
+        """토큰이 죽었는가. 마지막 활동 이후로 잰다.
 
-        퇴장 뒤에도 화보를 만들고 다시 돌려야 하므로, 만료의 근거는 이것 하나뿐이다.
+        입장 시각으로 재면 3시간을 넘긴 순간 관람 중에도 토큰이 끊긴다. 매장에서
+        오래 머무는 손님이 정상인 서비스라 그 편이 더 자주 틀린다. 관람 종료 여부와는
+        무관하다 — 퇴장 뒤에도 화보를 만들고 다시 돌려야 하기 때문이다.
+
+        last_seen_at은 인증을 통과한 요청마다 갱신되므로(services.touch),
+        "브라우저를 닫고 3시간"이 곧 만료다.
         """
-        return timezone.now() - self.started_at >= settings.VISIT_STALE_AFTER
+        return timezone.now() - self.last_seen_at >= settings.VISIT_STALE_AFTER
